@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head prefix="og: http://ogp.me/ns#">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <meta name="description" content="">
+    <title>部署Blessing skin server中遇到的问题 | Hexo</title>
+
+    <!-- Open Graph -->
+    <meta name="description" content="浅浅记录一下给社团安装Blessing skin server时踩的坑： 1. 选择Apache还是Nginx还是Caddy原本打算使用Nginx，但由于php的fastcgi在Nginx上配置麻烦，于是转而使用了Caddy 2. 为什么访问页面403检查目录权限问题 3. 为什么访问不到页面&#x2F;为什么访问页面后直接下载了index.php检查配置文件中（Caddyfile）是否有如下对php-fa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="部署Blessing skin server中遇到的问题">
+<meta property="og:url" content="http://example.com/2024/09/09/%E9%83%A8%E7%BD%B2Blessing-skin-server%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="浅浅记录一下给社团安装Blessing skin server时踩的坑： 1. 选择Apache还是Nginx还是Caddy原本打算使用Nginx，但由于php的fastcgi在Nginx上配置麻烦，于是转而使用了Caddy 2. 为什么访问页面403检查目录权限问题 3. 为什么访问不到页面&#x2F;为什么访问页面后直接下载了index.php检查配置文件中（Caddyfile）是否有如下对php-fa">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-09-09T15:55:43.000Z">
+<meta property="article:modified_time" content="2024-09-09T15:56:48.988Z">
+<meta property="article:author" content="NakanoMiku">
+<meta name="twitter:card" content="summary">
+
+    <script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Person",
+  "email": "mailto:",
+  "image": "",
+  "name": "NakanoMiku",
+  "url": "http://example.com"
+}
+</script>
+    <script>
+    var algoliaEnabled = false;
+    
+</script>
+
+    
+
+    
+    
+    
+    
+        <!-- stylesheets list from config.yml -->
+        
+        <link rel="stylesheet" href="/css/aloha.css">
+        
+        <link rel="stylesheet" href="//cdn.bootcss.com/semantic-ui/2.2.4/semantic.min.css">
+        
+        <link rel="stylesheet" href="//cdn.bootcss.com/magnific-popup.js/1.1.0/magnific-popup.min.css">
+        
+    
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body id="body" style="margin-bottom: 0;" class="pushable">
+
+    <div class="ui top fixed menu">
+        <a class="item" id="menu-icon"><i class="sidebar icon"></i></a>
+    </div>
+
+    <div id="menu-sidebar" class="ui left vertical sidebar menu">
+
+    <div id="sidebar-top">
+        <div class="content">
+            <h3>Hexo</h3>
+        </div>
+    </div>
+    <div class="ui container sidebar-card">
+    <div class="ui people shape content">
+        <div class="active side">
+            <div class="ui card">
+                <div class="image">
+                    <img class="ui medium bordered image" src="/images/avatar.jpg">
+                </div>
+                <div class="content">
+                    <a class="header">NakanoMiku</a>
+                    
+                        <div class="meta">
+                            Regular everyday normal computer science student
+                        </div>
+                    
+                </div>
+                <div class="extra content">
+                    <div class="ui list">
+                        
+                        <div class="item">
+                            <i class="marker icon" style="float: left"></i>
+                            <div class="content">天界区域</div>
+                        </div>
+                        
+                        
+                    </div>
+
+                </div>
+                <div class="extra content">
+                    <div class="ui list">
+                        
+
+                                <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39"><i class="large github icon" style="float: left"></i></a>
+
+                            
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+    
+    
+
+    
+
+    
+    <a href="/index.html" class="item" >
+        <i class="home icon"></i>
+        HOME
+    </a>
+
+    
+
+    
+</div>
+
+    <div class="pusher body-content">
+        <div id="content" class="ui main container">
+            <!--<div class="ui one column grid">-->
+                <!--<div class="column">-->
+                    <!--<div class="ui main container">-->
+                        <div id="post-部署Blessing-skin-server中遇到的问题" class="ui main container article-type-post">
+
+    
+
+    <div class="ui divided grid">
+
+        <div class="two column row" id="article-content">
+
+            <div class="thirteen wide computer thirteen wide tablet sixteen wide mobile column">
+                
+
+<h1 class="ui header">
+    
+    部署Blessing skin server中遇到的问题
+</h1>
+
+
+
+                <div class="article-inner">
+
+                    <div class="article-entry" itemprop="articleBody">
+                        
+                        <html><head></head><body><p>浅浅记录一下给社团安装Blessing skin server时踩的坑：</p>
+<h2 id="1-选择Apache还是Nginx还是Caddy"><a href="#1-选择Apache还是Nginx还是Caddy" class="headerlink" title="1. 选择Apache还是Nginx还是Caddy"></a>1. 选择Apache还是Nginx还是Caddy</h2><p>原本打算使用Nginx，但由于php的fastcgi在Nginx上配置麻烦，于是转而使用了Caddy</p>
+<h2 id="2-为什么访问页面403"><a href="#2-为什么访问页面403" class="headerlink" title="2. 为什么访问页面403"></a>2. 为什么访问页面403</h2><p>检查目录权限问题</p>
+<h2 id="3-为什么访问不到页面-为什么访问页面后直接下载了index-php"><a href="#3-为什么访问不到页面-为什么访问页面后直接下载了index-php" class="headerlink" title="3. 为什么访问不到页面/为什么访问页面后直接下载了index.php"></a>3. 为什么访问不到页面/为什么访问页面后直接下载了index.php</h2><p>检查配置文件中（Caddyfile）是否有如下对php-fastcgi的配置<br><code>php_fastcgi unix//run/php/php8.1-fpm.sock</code><br>尤其注意是否与路径<code>/etc/php/8.1/fpm/pool.d/www.conf</code>中<code>listen = /run/php/php8.1-fpm.sock</code>对应</p>
+<h2 id="4-为什么setup时配置服务器后显示could-not-find-driver"><a href="#4-为什么setup时配置服务器后显示could-not-find-driver" class="headerlink" title="4. 为什么setup时配置服务器后显示could not find driver"></a>4. 为什么setup时配置服务器后显示could not find driver</h2><p>缺少了PDO拓展<br>检查是否安装了<code>php-pgsql</code> / <code>php-mysql</code>插件，然后重启php</p>
+</body></html>
+                        
+                    </div>
+
+                    
+                    
+                    
+
+                    <div class="description post-description">
+    <span class="post-description-item">
+        <time datetime="2024-09-09T15:55:43.000Z" itemprop="datePublished">2024-09-09</time>
+
+    </span>
+    <span class="post-description-item">
+        
+    </span>
+</div>
+
+                </div>
+                
+                <div id="pagination" class="nav-web ui text container pagination">
+
+    <div class="ui stackable two column divided grid container">
+        <div class="row">
+            <div class="column nav-left">
+                
+
+                <a class="ui tiny button disabled"><i class="angle left icon"></i>Previous</a>
+
+                
+            </div>
+            <div class="column nav-right">
+                
+
+                <a class="ui tiny button disabled">Next<i class="angle right icon"></i></a>
+
+                
+            </div>
+        </div>
+    </div>
+
+</div>
+                
+            </div>
+
+            
+            <div class="three wide computer three wide tablet column">
+
+                <div class="ui sticky article-toc" id="article-toc">
+                    <!-- toc -->
+                    <ol class="ui ordered list"><li><a href="#1-选择Apache还是Nginx还是Caddy"><span>1. 选择Apache还是Nginx还是Caddy</span></a></li><li><a href="#2-为什么访问页面403"><span>2. 为什么访问页面403</span></a></li><li><a href="#3-为什么访问不到页面-为什么访问页面后直接下载了index-php"><span>3. 为什么访问不到页面/为什么访问页面后直接下载了index.php</span></a></li><li><a href="#4-为什么setup时配置服务器后显示could-not-find-driver"><span>4. 为什么setup时配置服务器后显示could not find driver</span></a></li></ol>
+                </div>
+
+            </div>
+            
+
+        </div>
+    </div>
+</div>
+
+
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        </div>
+        <div class="ui vertical footer segment">
+    <div class="ui center aligned container">
+        <div class="ui inverted section divider"></div>
+        &copy; 2024 <a href="/">NakanoMiku</a>,
+        Powered by <a href="https://github.com/henryhuang/hexo-theme-aloha" target="_blank">Aloha</a> and <a
+                href="http://hexo.io/" target="_blank">Hexo</a>.
+    </div>
+</div>
+
+    </div>
+
+
+
+
+<!-- scripts list from theme config.yml -->
+
+<script src="//cdn.bootcss.com/jquery/3.1.0/jquery.min.js"></script>
+
+<script src="//cdn.bootcss.com/semantic-ui/2.2.4/semantic.min.js"></script>
+
+<script src="//cdn.bootcss.com/algoliasearch/3.18.1/algoliasearch.min.js"></script>
+
+<script src="//cdn.bootcss.com/algoliasearch-helper-js/2.13.0/algoliasearch.helper.min.js"></script>
+
+<script src="/js/semantic-ui-algolia.js"></script>
+
+<script src="/js/aloha-events.js"></script>
+
+
+
+</body>
+</html>
