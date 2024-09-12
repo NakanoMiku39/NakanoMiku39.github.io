@@ -31,7 +31,7 @@
   
     <link rel="stylesheet" href="//at.alicdn.com/t/font_2421060_8z08qcz5sq3.css">
   
-  <link rel="stylesheet" href="/css/style.css?v=1725905523372">
+  <link rel="stylesheet" href="/css/style.css?v=1726127434433">
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="mdui-drawer-body-left">
@@ -188,7 +188,7 @@
         
         <div class="nexmoe-post-meta nexmoe-rainbow">
             <a><i class="nexmoefont icon-calendar-fill"></i>2024年09月09日</a>
-            <a><i class="nexmoefont icon-areachart"></i>187 字</a>
+            <a><i class="nexmoefont icon-areachart"></i>341 字</a>
             <a><i class="nexmoefont icon-time-circle-fill"></i>大概 1 分钟</a>
         </div>
         
@@ -196,9 +196,17 @@
             
                 <p>浅浅记录一下给社团安装Blessing skin server时踩的坑：</p>
 <h2 id="1-选择Apache还是Nginx还是Caddy"><a href="#1-选择Apache还是Nginx还是Caddy" class="headerlink" title="1. 选择Apache还是Nginx还是Caddy"></a>1. 选择Apache还是Nginx还是Caddy</h2><p>原本打算使用Nginx，但由于php的fastcgi在Nginx上配置麻烦，于是转而使用了Caddy</p>
+<blockquote>
+<p>也不是麻烦，只是没有仔细阅读<a target="_blank" rel="noopener" href="https://www.digitalocean.com/community/tutorials/php-fpm-nginx">https://www.digitalocean.com/community/tutorials/php-fpm-nginx</a></p>
+</blockquote>
 <h2 id="2-为什么访问页面403"><a href="#2-为什么访问页面403" class="headerlink" title="2. 为什么访问页面403"></a>2. 为什么访问页面403</h2><p>检查目录权限问题</p>
 <h2 id="3-为什么访问不到页面-为什么访问页面后直接下载了index-php"><a href="#3-为什么访问不到页面-为什么访问页面后直接下载了index-php" class="headerlink" title="3. 为什么访问不到页面&#x2F;为什么访问页面后直接下载了index.php"></a>3. 为什么访问不到页面&#x2F;为什么访问页面后直接下载了index.php</h2><p>检查配置文件中（Caddyfile）是否有如下对php-fastcgi的配置<br><code>php_fastcgi unix//run/php/php8.1-fpm.sock</code><br>尤其注意是否与路径<code>/etc/php/8.1/fpm/pool.d/www.conf</code>中<code>listen = /run/php/php8.1-fpm.sock</code>对应</p>
 <h2 id="4-为什么setup时配置服务器后显示could-not-find-driver"><a href="#4-为什么setup时配置服务器后显示could-not-find-driver" class="headerlink" title="4. 为什么setup时配置服务器后显示could not find driver"></a>4. 为什么setup时配置服务器后显示could not find driver</h2><p>缺少了PDO拓展<br>检查是否安装了<code>php-pgsql</code> &#x2F; <code>php-mysql</code>插件，然后重启php</p>
+<h2 id="5-为什么配置了https就没法访问但配置了http就可以"><a href="#5-为什么配置了https就没法访问但配置了http就可以" class="headerlink" title="5. 为什么配置了https就没法访问但配置了http就可以"></a>5. 为什么配置了https就没法访问但配置了http就可以</h2><p>社团有一个https透明代理，如果Caddyfile还是用<code>https://</code>就会导致问题，具体表现可能有502重定向次数过多，只需要用<code>http://</code>就行  </p>
+<blockquote>
+<p>如果使用Nginx的话应该就没有这个问题 – syh</p>
+</blockquote>
+<h2 id="6-caddy-start和systemctl-start-caddy有什么区别"><a href="#6-caddy-start和systemctl-start-caddy有什么区别" class="headerlink" title="6. caddy start和systemctl start caddy有什么区别"></a>6. <code>caddy start</code>和<code>systemctl start caddy</code>有什么区别</h2><p><code>caddy start</code>是将Caddy作为后台进程给运行，而<code>systemctl start caddy</code>是系统进程<br>如果当前会话中断，由<code>caddy start</code>启动的Caddy进程也会结束</p>
 
             
         </article>
@@ -919,7 +927,7 @@
 <script src="/lib/fancybox/js/jquery.fancybox.min.js"></script>
 
 
-<script src="/js/app.js?v=1725905523372"></script>
+<script src="/js/app.js?v=1726127434434"></script>
 
 <script src="https://lib.baomitu.com/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
 <script>
@@ -938,10 +946,6 @@
 <!-- hexo injector body_end start -->
 <script src="/js/clock.js"></script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
-
-<script src="/js/search.js"></script>
-
 <script src="https://lib.baomitu.com/clipboard.js/2.0.8/clipboard.min.js"></script>
 
 <script src="/lib/codeBlock/codeBlockFuction.js"></script>
@@ -953,6 +957,10 @@
 <script src="/lib/codeBlock/codeShrink.js"></script>
 
 <link rel="stylesheet" href="/lib/codeBlock/matery.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+<script src="/js/search.js"></script>
 
 <script src="/js/webapp.js"></script>
 <!-- hexo injector body_end end --></body>
