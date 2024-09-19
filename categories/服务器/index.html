@@ -5,7 +5,7 @@
 <head>
   
   <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
-  <title>分类：服务器 - Hexo</title>
+  <title>分类：服务器 - NakanoMiku&#39;s page</title>
   <meta charset="UTF-8">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
@@ -17,9 +17,9 @@
 
   <link rel="shortcut icon" href="/images/head/miku.jpg" type="image/jpg" />
   <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:title" content="NakanoMiku&#39;s page">
+<meta property="og:url" content="http://nakanomiku39.github.io/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="NakanoMiku&#39;s page">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="NakanoMiku">
 <meta name="twitter:card" content="summary">
@@ -31,7 +31,7 @@
   
     <link rel="stylesheet" href="//at.alicdn.com/t/font_2421060_8z08qcz5sq3.css">
   
-  <link rel="stylesheet" href="/css/style.css?v=1726156037755">
+  <link rel="stylesheet" href="/css/style.css?v=1726728632413">
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="mdui-drawer-body-left">
@@ -56,9 +56,9 @@
         </a>
     </div>
     <div class="nexmoe-count">
-        <div class="nexmoe-count-item"><span>文章</span>1 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
-        <div class="nexmoe-count-item"><span>标签</span>2<div class="item-radius"></div><div class="item-radius item-right"></div></div>
-        <div class="nexmoe-count-item"><span>分类</span>1<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+        <div class="nexmoe-count-item"><span>文章</span>2 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
+        <div class="nexmoe-count-item"><span>标签</span>3<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+        <div class="nexmoe-count-item"><span>分类</span>2<div class="item-radius"></div><div class="item-radius item-right"></div></div>
     </div>
     <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
         
@@ -119,6 +119,13 @@
         
 
         <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">1</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
           <a class="category-list-link" href="/categories/服务器/">服务器</a>
           <span class="category-list-count">1</span>
         </li>
@@ -134,7 +141,7 @@
   
   <div class="nexmoe-widget-wrap">
     <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
-      <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 10px;">我的世界</a>
+      <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 10px;">我的世界</a>
     </div>
     
   </div>
@@ -144,7 +151,7 @@
   <div class="nexmoe-widget-wrap">
     <h3 class="nexmoe-widget-title">文章归档</h3>
     <div class="nexmoe-widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -186,7 +193,7 @@
         <a href="/2024/09/09/%E9%83%A8%E7%BD%B2Blessing-skin-server%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/">
             
                 <div class="nexmoe-post-cover mdui-ripple" style="padding-bottom: 26.666666666666668%;">
-                    <img data-src="/images/background/ichika.png" data-sizes="auto" alt="部署Blessing skin server中遇到的问题" class="lazyload">
+                    <img data-src="/images/background/kanade.png" data-sizes="auto" alt="部署Blessing skin server中遇到的问题" class="lazyload">
                     <h1>部署Blessing skin server中遇到的问题</h1>
                 </div>
             
@@ -200,98 +207,7 @@
         
         <article>
             
-                <p>浅浅记录一下给社团安装Blessing skin server时踩的坑：</p>
-<h2 id="1-选择Apache还是Nginx还是Caddy"><a href="#1-选择Apache还是Nginx还是Caddy" class="headerlink" title="1. 选择Apache还是Nginx还是Caddy"></a>1. 选择Apache还是Nginx还是Caddy</h2><p>原本打算使用Nginx，但由于php的fastcgi在Nginx上配置麻烦，于是转而使用了Caddy</p>
-<blockquote>
-<p>也不是麻烦，只是没有仔细阅读<a target="_blank" rel="noopener" href="https://www.digitalocean.com/community/tutorials/php-fpm-nginx">https://www.digitalocean.com/community/tutorials/php-fpm-nginx</a></p>
-</blockquote>
-<h2 id="2-为什么访问页面403"><a href="#2-为什么访问页面403" class="headerlink" title="2. 为什么访问页面403"></a>2. 为什么访问页面403</h2><p>检查目录权限问题</p>
-<h2 id="3-为什么访问不到页面-为什么访问页面后直接下载了index-php"><a href="#3-为什么访问不到页面-为什么访问页面后直接下载了index-php" class="headerlink" title="3. 为什么访问不到页面&#x2F;为什么访问页面后直接下载了index.php"></a>3. 为什么访问不到页面&#x2F;为什么访问页面后直接下载了index.php</h2><p>检查配置文件中（Caddyfile）是否有如下对php-fastcgi的配置<br><code>php_fastcgi unix//run/php/php8.1-fpm.sock</code>  </p>
-<p>尤其注意是否与路径<code>/etc/php/8.1/fpm/pool.d/www.conf</code>中<code>listen = /run/php/php8.1-fpm.sock</code>对应</p>
-<h2 id="4-为什么setup时配置服务器后显示could-not-find-driver"><a href="#4-为什么setup时配置服务器后显示could-not-find-driver" class="headerlink" title="4. 为什么setup时配置服务器后显示could not find driver"></a>4. 为什么setup时配置服务器后显示could not find driver</h2><p>缺少了PDO拓展，检查是否安装了<code>php-pgsql</code> &#x2F; <code>php-mysql</code>插件，然后重启php</p>
-<h2 id="5-为什么配置了https就没法访问但配置了http就可以"><a href="#5-为什么配置了https就没法访问但配置了http就可以" class="headerlink" title="5. 为什么配置了https就没法访问但配置了http就可以"></a>5. 为什么配置了https就没法访问但配置了http就可以</h2><p>社团有一个https透明代理，如果Caddyfile还是用<code>https://</code>就会导致问题，具体表现可能有502重定向次数过多，只需要用<code>http://</code>就行  </p>
-<blockquote>
-<p>如果使用Nginx的话应该就没有这个问题 – syh</p>
-</blockquote>
-<h2 id="6-caddy-start和systemctl-start-caddy有什么区别"><a href="#6-caddy-start和systemctl-start-caddy有什么区别" class="headerlink" title="6. caddy start和systemctl start caddy有什么区别"></a>6. <code>caddy start</code>和<code>systemctl start caddy</code>有什么区别</h2><p><code>caddy start</code>是将Caddy作为后台进程给运行，而<code>systemctl start caddy</code>是系统进程，如果当前会话中断，由<code>caddy start</code>启动的Caddy进程也会结束</p>
-<h2 id="7-在配置Yggdrasil-API插件后，启动器尝试认证是显示服务器响应解析失败"><a href="#7-在配置Yggdrasil-API插件后，启动器尝试认证是显示服务器响应解析失败" class="headerlink" title="7. 在配置Yggdrasil API插件后，启动器尝试认证是显示服务器响应解析失败"></a>7. 在配置Yggdrasil API插件后，启动器尝试认证是显示服务器响应解析失败</h2><p>从启动器（HMCL）中导出日志：  </p>
-<pre><code class="highlight html"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;zh-CN&quot;</span>&gt;</span>
-    <span class="tag">&lt;<span class="name">head</span>&gt;</span>
-        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span>
-        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width&quot;</span>&gt;</span>
-        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;Content-Type&quot;</span> <span class="attr">content</span>=<span class="string">&quot;text/html; charset=utf-8&quot;</span>&gt;</span>
-        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;robots&quot;</span> <span class="attr">content</span>=<span class="string">&quot;noindex,nofollow&quot;</span>&gt;</span>
-        <span class="tag">&lt;<span class="name">title</span>&gt;</span>500 Internal Server Error - PMC<span class="tag">&lt;/<span class="name">title</span>&gt;</span>
-        <span class="tag">&lt;<span class="name">link</span> <span class="attr">href</span>=<span class="string">&quot;/app/spectre.e885dd0.css&quot;</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">crossorigin</span>=<span class="string">&quot;anonymous&quot;</span>&gt;</span>
-    <span class="tag">&lt;/<span class="name">head</span>&gt;</span>
-
-    <span class="tag">&lt;<span class="name">body</span> <span class="attr">class</span>=<span class="string">&quot;bg-gray&quot;</span>&gt;</span>
-        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;text-right m-2 p-2&quot;</span>&gt;</span>
-            <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;https://mc.lcpu.dev/api/yggdrasil/authserver/authenticate?lang=zh_CN&quot;</span></span>
-<span class="tag">            <span class="attr">class</span>=<span class="string">&quot;mx-2 p-1 label label-secondary&quot;</span></span>
-<span class="tag">            &gt;</span>中文 (简体)<span class="tag">&lt;/<span class="name">a</span>&gt;</span>
-            <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;https://mc.lcpu.dev/api/yggdrasil/authserver/authenticate?lang=zh_TW&quot;</span></span>
-<span class="tag">            <span class="attr">class</span>=<span class="string">&quot;mx-2 p-1 label label-secondary&quot;</span></span>
-<span class="tag">            &gt;</span>中文 (正體)<span class="tag">&lt;/<span class="name">a</span>&gt;</span>
-            <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;https://mc.lcpu.dev/api/yggdrasil/authserver/authenticate?lang=en&quot;</span></span>
-<span class="tag">            <span class="attr">class</span>=<span class="string">&quot;mx-2 p-1 label label-secondary&quot;</span></span>
-<span class="tag">            &gt;</span>English<span class="tag">&lt;/<span class="name">a</span>&gt;</span>
-            <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;https://mc.lcpu.dev/api/yggdrasil/authserver/authenticate?lang=es_ES&quot;</span></span>
-<span class="tag">            <span class="attr">class</span>=<span class="string">&quot;mx-2 p-1 label label-secondary&quot;</span></span>
-<span class="tag">            &gt;</span>Español<span class="tag">&lt;/<span class="name">a</span>&gt;</span>
-            <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;https://mc.lcpu.dev/api/yggdrasil/authserver/authenticate?lang=ru_RU&quot;</span></span>
-<span class="tag">            <span class="attr">class</span>=<span class="string">&quot;mx-2 p-1 label label-secondary&quot;</span></span>
-<span class="tag">            &gt;</span>Русский язык<span class="tag">&lt;/<span class="name">a</span>&gt;</span>
-        <span class="tag">&lt;/<span class="name">div</span>&gt;</span>
-                                                                
-        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;hero d-flex&quot;</span>&gt;</span>
-            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;hero-body text-center&quot;</span>&gt;</span>
-                <span class="tag">&lt;<span class="name">h1</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">&quot;text-primary&quot;</span> <span class="attr">href</span>=<span class="string">&quot;https://mc.lcpu.dev&quot;</span>&gt;</span>PMC<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span>
-                <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;divider&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span>
-                <span class="tag">&lt;<span class="name">h3</span> <span class="attr">style</span>=<span class="string">&quot;margin-top: 15vh;&quot;</span>&gt;</span>500 Internal Server Error<span class="tag">&lt;/<span class="name">h3</span>&gt;</span>
-                <span class="tag">&lt;<span class="name">p</span>&gt;</span>
-                详细信息：Lcobucci\JWT\Signer\Key\InMemory::plainText(): Argument #1 ($contents) must be of type string, null given, called in /var/www/blessing-skin/plugins/yggdrasil-api/src/Controllers/AuthController.php on line 37
-                <span class="tag">&lt;/<span class="name">p</span>&gt;</span>
-                <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;divider&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span>
-            <span class="tag">&lt;/<span class="name">div</span>&gt;</span>
-        <span class="tag">&lt;/<span class="name">div</span>&gt;</span>
-    <span class="tag">&lt;/<span class="name">body</span>&gt;</span>
-<span class="tag">&lt;/<span class="name">html</span>&gt;</span></code></pre>
-
-<p>可以看到直接定位到了问题位置，在<code>/var/www/blessing-skin/plugins/yggdrasil-api/src/Controllers/AuthController.php</code>，由于我对php和项目都不熟悉，所以接下来用ChatGPT-4o解决问题。  </p>
-<p>首先定位到代码：</p>
-<pre><code class="highlight php">JWT<span class="title class_">\Signer\Key\InMemory</span>::<span class="title function_ invoke__">plainText</span>(<span class="title function_ invoke__">config</span>(<span class="string">&#x27;jwt.secret&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</code></pre>
-
-<p><code>config(&#39;jwt.secret&#39;, &#39;&#39;)</code>试图从配置文件中获取<code>jwt.secret</code>配置项的值。而问题的根本原因是<code>config(&#39;jwt.secret&#39;, &#39;&#39;)</code>返回了<code>null</code>，导致<code>plainText()</code>接收到不正确的参数，而这实际上是因为<code>.env</code>文件中没有<code>JWT_SECRET</code>项导致的（后来发现没有<code>JWT_SECRET=xxxx</code>），解决方法很明显，把这个项补上就行了。</p>
-<p>在<code>config/jwt.php</code>中有如下代码：</p>
-<pre><code class="highlight php"><span class="comment">/*                                                                                                               |</span>
-<span class="comment">|--------------------------------------------------------------------------                                      |</span>
-<span class="comment">| JWT Authentication Secret                                                                                      |</span>
-<span class="comment">|--------------------------------------------------------------------------                                      |</span>
-<span class="comment">|                                                                                                                |</span>
-<span class="comment">| Don&#x27;t forget to set this in your .env file, as it will be used to sign                                         |</span>
-<span class="comment">| your tokens. A helper command is provided for this:                                                            |</span>
-<span class="comment">| php artisan jwt:secret                                                                                         |</span>
-<span class="comment">|                                                                                                                |</span>
-<span class="comment">| Note: This will be used for Symmetric algorithms only (HMAC),                                                  |</span>
-<span class="comment">| since RSA and ECDSA use a private/public key combo (See below).                                                |</span>
-<span class="comment">|                                                                                                                |</span>
-<span class="comment">*/</span>                                                                                                               |
-<span class="string">&#x27;secret&#x27;</span> =&gt; <span class="title function_ invoke__">env</span>(<span class="string">&#x27;JWT_SECRET&#x27;</span>),</code></pre>
-
-<p>只需输入注释中的指令<code>php artisan jwt:secret</code>就能生成<code>JWT_SECRET</code>，但在我的情况中，我并没有成功运行，而是得到了如下报错：<br><code>ERROR  There are no commands defined in the &quot;jwt&quot; namespace.</code>  </p>
-<p>这是可能是因为没有安装<code>jwt-auth</code>包，运行</p>
-<pre><code class="highlight plaintext">composer require tymon/jwt-auth</code></pre>
-<p>如果像我一样还出现了依赖问题，可以运行</p>
-<pre><code class="highlight plaintext">composer require tymon/jwt-auth -W</code></pre>
-
-<p><code>-W</code>选项允许Composer同时升级、降级或删除当前锁定的依赖，确保可以安装兼容的版本，更新<code>composer.lock</code>文件中所有依赖，并安装兼容的<code>tymon/jwt-auth</code>和<code>lcobucci/jwt</code>版本，如果有需求的话也可以指定版本（例：4.0）：<code>composer require lcobucci/jwt:^4.0 tymon/jwt-auth</code>。</p>
-<p>完成安装后继续重新设置<code>jwt-auth</code>，运行一下命令发布配置文件：  </p>
-<pre><code class="highlight plaintext">php artisan vendor:publish --provider=&quot;Tymon\JWTAuth\Providers\LaravelServiceProvider&quot;</code></pre>
-
-<p>最后再生成<code>JWT_SECRET</code>：  </p>
-<pre><code class="highlight plaintext">php artisan jwt:secret</code></pre>
-
+                <p>浅浅记录一下给社团安装Blessing skin server时踩的坑</p>
             
         </article>
     </div>
@@ -1011,7 +927,7 @@
 <script src="/lib/fancybox/js/jquery.fancybox.min.js"></script>
 
 
-<script src="/js/app.js?v=1726156037756"></script>
+<script src="/js/app.js?v=1726728632413"></script>
 
 <script src="https://lib.baomitu.com/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
 <script>
