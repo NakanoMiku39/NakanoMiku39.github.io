@@ -5,7 +5,7 @@
 <head>
   
   <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
-  <title>分类：服务器 - NakanoMiku&#39;s page</title>
+  <title>记一次皮肤站Internal Error修复 - NakanoMiku&#39;s page</title>
   <meta charset="UTF-8">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
@@ -16,12 +16,18 @@
     <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
 
   <link rel="shortcut icon" href="/images/head/miku.jpg" type="image/jpg" />
-  <meta property="og:type" content="website">
-<meta property="og:title" content="NakanoMiku&#39;s page">
-<meta property="og:url" content="http://nakanomiku39.github.io/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+  <meta name="description" content="今天回到宿舍后正准备做作业，突然收到通知说社团的皮肤站炸了，于是立即上线查看情况">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次皮肤站Internal Error修复">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/09/23/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D/index.html">
 <meta property="og:site_name" content="NakanoMiku&#39;s page">
+<meta property="og:description" content="今天回到宿舍后正准备做作业，突然收到通知说社团的皮肤站炸了，于是立即上线查看情况">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-09-23T11:32:49.000Z">
+<meta property="article:modified_time" content="2024-09-23T12:02:03.547Z">
 <meta property="article:author" content="NakanoMiku">
+<meta property="article:tag" content="我的世界">
+<meta property="article:tag" content="php">
 <meta name="twitter:card" content="summary">
   <link rel="stylesheet" href="https://lib.baomitu.com/highlight.js/9.15.8/styles/atom-one-dark.min.css" crossorigin>
   <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css">
@@ -31,14 +37,14 @@
   
     <link rel="stylesheet" href="//at.alicdn.com/t/font_2421060_8z08qcz5sq3.css">
   
-  <link rel="stylesheet" href="/css/style.css?v=1726728632413">
+  <link rel="stylesheet" href="/css/style.css?v=1727093319241">
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="mdui-drawer-body-left">
   
   <div id="nexmoe-background">
-    <div class="nexmoe-bg" style="background-image: url(/images/background/ichika.png)"></div>
-    <div class="nexmoe-small" style="background-image: url(/images/background/background.png)"></div>
+    <div class="nexmoe-bg" style="background-image: url(/images/background/ichika279-2.png)"></div>
+    <div class="nexmoe-small" style="background-image: url()"></div>
     <div class="mdui-appbar mdui-shadow-0">
       <div class="mdui-toolbar">
         <a mdui-drawer="{target: '#drawer', swipe: true}" title="menu" class="mdui-btn mdui-btn-icon mdui-ripple"><i class="mdui-icon nexmoefont icon-menu"></i></a>
@@ -56,7 +62,7 @@
         </a>
     </div>
     <div class="nexmoe-count">
-        <div class="nexmoe-count-item"><span>文章</span>2 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
+        <div class="nexmoe-count-item"><span>文章</span>3 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
         <div class="nexmoe-count-item"><span>标签</span>3<div class="item-radius"></div><div class="item-radius item-right"></div></div>
         <div class="nexmoe-count-item"><span>分类</span>2<div class="item-radius"></div><div class="item-radius item-right"></div></div>
     </div>
@@ -120,14 +126,14 @@
 
         <li class="category-list-item">
           <a class="category-list-link" href="/categories/Linux/">Linux</a>
-          <span class="category-list-count">1</span>
+          <span class="category-list-count">3</span>
         </li>
 
         
 
         <li class="category-list-item">
-          <a class="category-list-link" href="/categories/服务器/">服务器</a>
-          <span class="category-list-count">1</span>
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
         </li>
 
         
@@ -141,7 +147,7 @@
   
   <div class="nexmoe-widget-wrap">
     <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
-      <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 10px;">我的世界</a>
+      <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/php/" style="font-size: 20px;">php</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 20px;">我的世界</a>
     </div>
     
   </div>
@@ -151,7 +157,7 @@
   <div class="nexmoe-widget-wrap">
     <h3 class="nexmoe-widget-title">文章归档</h3>
     <div class="nexmoe-widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">2</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">3</span></li></ul>
     </div>
   </div>
 
@@ -187,32 +193,84 @@
   </div>
   <div id="nexmoe-content">
     <div class="nexmoe-primary">
-        <section class="nexmoe-posts">
+        <div class="nexmoe-post">
     
-    <div class="nexmoe-post">
-        <a href="/2024/09/09/%E9%83%A8%E7%BD%B2Blessing-skin-server%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/">
-            
-                <div class="nexmoe-post-cover mdui-ripple" style="padding-bottom: 26.666666666666668%;">
-                    <img data-src="/images/background/kanade.png" data-sizes="auto" alt="部署Blessing skin server中遇到的问题" class="lazyload">
-                    <h1>部署Blessing skin server中遇到的问题</h1>
-                </div>
-            
-        </a>
-        
-        <div class="nexmoe-post-meta nexmoe-rainbow">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2024年09月09日</a>
-            <a><i class="nexmoefont icon-areachart"></i>1.3k 字</a>
-            <a><i class="nexmoefont icon-time-circle-fill"></i>大概 6 分钟</a>
+        <div class="nexmoe-post-cover" style="padding-bottom: 26.666666666666668%;">
+            <img data-src="/images/background/kanade974-2.png" data-sizes="auto" alt="记一次皮肤站Internal Error修复" class="lazyload">
+            <h1>记一次皮肤站Internal Error修复</h1>
         </div>
-        
-        <article>
-            
-                <p>浅浅记录一下给社团安装Blessing skin server时踩的坑</p>
-            
-        </article>
-    </div>
     
+
+        <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2024年09月23日</a>
+    <a><i class="nexmoefont icon-areachart"></i>897 字</a>
+    <a><i class="nexmoefont icon-time-circle-fill"></i>大概 4 分钟</a>
+</div>
+
+        <div class="nexmoe-post-right">
+            
+        </div>
+
+        <article>
+            <p>今天回到宿舍后正准备做作业，突然收到通知说社团的皮肤站炸了，于是立即上线查看情况</p>
+<span id="more"></span>
+<h1 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h1><p>首先我查看Apache2有没有出问题</p>
+<pre><code class="highlight bash">systemctl status apache2</code></pre>
+
+<p>Apache2正常运行，然后查看php8.1-fpm有没有问题</p>
+<pre><code class="highlight bash">systemctl status php8.1-fpm</code></pre>
+
+<p>发现都没问题，我决定先查看Apache2的log</p>
+<pre><code class="highlight bash"><span class="built_in">tail</span> -n 200 /var/log/apache2/error.log</code></pre>
+
+<p>得到以下内容：</p>
+<blockquote>
+<p>[Mon Sep 23 11:21:16.936325 2024] [php:error] [pid 159026] [client 115.27.161.58:55358] PHP Fatal error:  Declaration of Illuminate\Http\Response::setContent($content) must be compatible with Symfony\Component\HttpFoundation\Response::setContent(?string $content): static in &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;plugins&#x2F;oauth&#x2F;vendor&#x2F;illuminate&#x2F;http&#x2F;Response.php on line 48, referer: <a target="_blank" rel="noopener" href="https://mc.lcpu.dev/sw.js?v6">https://mc.lcpu.dev/sw.js?v6</a><br>[Mon Sep 23 11:21:16.937105 2024] [php:error] [pid 159026] [client 115.27.161.58:55358] PHP Fatal error:  Uncaught Error: Class “Illuminate\Http\Response” not found in &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php:784\nStack trace:\n#0 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php(650): Illuminate\Foundation\Exceptions\Handler-&gt;toIlluminateResponse()\n#1 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php(556): Illuminate\Foundation\Exceptions\Handler-&gt;prepareResponse()\n#2 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php(473): Illuminate\Foundation\Exceptions\Handler-&gt;renderExceptionResponse()\n#3 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;app&#x2F;Exceptions&#x2F;Handler.php(38): Illuminate\Foundation\Exceptions\Handler-&gt;render()\n#4 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Bootstrap&#x2F;HandleExceptions.php(218): App\Exceptions\Handler-&gt;render()\n#5 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Bootstrap&#x2F;HandleExceptions.php(195): Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;renderHttpResponse()\n#6 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Bootstrap&#x2F;HandleExceptions.php(231): Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;handleException()\n#7 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Bootstrap&#x2F;HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;handleShutdown()\n#8 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;Illuminate\Foundation\Bootstrap\{closure}()\n#9 {main}\n  thrown in &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php on line 784, referer: <a target="_blank" rel="noopener" href="https://mc.lcpu.dev/sw.js?v6">https://mc.lcpu.dev/sw.js?v6</a></p>
+</blockquote>
+<p>很明显是php的问题，如果再仔细阅读的话，可以发现是<code>/var/www/blessing-skin/plugins/oauth/vendor/illuminate/http/Response.php</code>导致了问题，由于我没有仔细阅读log，所以第一时间没有发现问题所在，好在有群友的帮助下，最后还是定位到了这个问题。可以看出来这个文件位于<code>plugins</code>目录下，而<code>plugins</code>目录是Blessing-skin中安装插件后插件所在的目录，根据目录名可以得知这是一个关于oauth的插件，因为我对php不熟，所以我大胆推测直接删除这个目录可以直接解决问题，于是群友将该插件移出后端，最后皮肤站成功上线。我访问皮肤站后重新安装了oauth插件，成功复现问题。因为这个插件已经安装了一段时间，可能是服务器自动更新了最新版本的插件导致兼容性问题，所以暂时不安装这个插件规避问题。</p>
+<h1 id="总结与反思"><a href="#总结与反思" class="headerlink" title="总结与反思"></a>总结与反思</h1><p>在查看完Apache2的log之后，我还进行了很多操作，比如说尝试更新后端的依赖、查看php的log、甚至是查看php镜像站状态等等，但其实仔细阅读log就能一下发现问题所在，所以仔细阅读log非常重要，可以节省很多时间和精力。</p>
+
+        </article>
+
+        
+            
+  <div class="nexmoe-post-copyright">
+    <strong>本文作者：</strong>NakanoMiku<br>
+    
+    <strong>本文链接：</strong><a href="http://nakanomiku39.github.io/2024/09/23/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;23&#x2F;%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;23&#x2F;%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D&#x2F;</a><br>
+
+    
+      <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+    
+  </div>
+
+
+        
+
+        <div class="nexmoe-post-meta nexmoe-rainbow">
+    
+        <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a><a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a>
+    
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/php/" rel="tag">php</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" rel="tag">我的世界</a>
+    
+</div>
+
+    <!-- <div class="nexmoe-post-footer">
+        <section class="nexmoe-comment">
+    <div class="valine"></div>
+<script src='https://lib.baomitu.com/valine/1.3.9/Valine.min.js'></script>
+<script>
+    // 使用方法 https://valine.js.org/quickstart.html
+    new Valine({
+        el: '.valine',
+        appId: 'r5zxC0st0DDjPA9auXzMV7HY-gzGzoHsz',
+        appKey: '3bqCsovpyfTPHUzTHovd3V3V'
+    })
+</script>
 </section>
+    </div> -->
+</div>
 
 
         <div class="nexmoe-post-right">
@@ -927,7 +985,7 @@
 <script src="/lib/fancybox/js/jquery.fancybox.min.js"></script>
 
 
-<script src="/js/app.js?v=1726728632413"></script>
+<script src="/js/app.js?v=1727093319242"></script>
 
 <script src="https://lib.baomitu.com/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
 <script>
