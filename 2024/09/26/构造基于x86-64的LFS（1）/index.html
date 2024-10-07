@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+  
+  <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+  <title>构造基于x86_64的LFS（1） - NakanoMiku&#39;s page</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  
+  
+
+    <!-- Site Verification -->
+    <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+
+  <link rel="shortcut icon" href="/images/head/miku.jpg" type="image/jpg" />
+  <meta name="description" content="今天老师要求我构造一个基于x86_64架构的LFS，于是在此记录一下构建过程。LFS手册链接：https:&#x2F;&#x2F;lfs.xry111.site&#x2F;zh_CN&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构造基于x86_64的LFS（1）">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/index.html">
+<meta property="og:site_name" content="NakanoMiku&#39;s page">
+<meta property="og:description" content="今天老师要求我构造一个基于x86_64架构的LFS，于是在此记录一下构建过程。LFS手册链接：https:&#x2F;&#x2F;lfs.xry111.site&#x2F;zh_CN&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/neofetch.png">
+<meta property="article:published_time" content="2024-09-26T09:16:16.000Z">
+<meta property="article:modified_time" content="2024-09-28T17:11:56.887Z">
+<meta property="article:author" content="NakanoMiku">
+<meta property="article:tag" content="LFS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/neofetch.png">
+  <link rel="stylesheet" href="https://lib.baomitu.com/highlight.js/9.15.8/styles/atom-one-dark.min.css" crossorigin>
+  <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css">
+  <link rel="stylesheet" href="/lib/iconfont/iconfont.css">
+  <link rel="stylesheet" href="/lib/fancybox/css/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="https://lib.baomitu.com/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
+  
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_2421060_8z08qcz5sq3.css">
+  
+  <link rel="stylesheet" href="/css/style.css?v=1728305945209">
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="mdui-drawer-body-left">
+  
+  <div id="nexmoe-background">
+    <div class="nexmoe-bg" style="background-image: url(/images/background/ichika279-2.png)"></div>
+    <div class="nexmoe-small" style="background-image: url()"></div>
+    <div class="mdui-appbar mdui-shadow-0">
+      <div class="mdui-toolbar">
+        <a mdui-drawer="{target: '#drawer', swipe: true}" title="menu" class="mdui-btn mdui-btn-icon mdui-ripple"><i class="mdui-icon nexmoefont icon-menu"></i></a>
+        <div class="mdui-toolbar-spacer"></div>
+        <!--<a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>-->
+        <a href="/" title="NakanoMiku" class="mdui-btn mdui-btn-icon"><img src="/images/head/miku.jpg" alt="NakanoMiku"></a>
+       </div>
+    </div>
+  </div>
+  <div id="nexmoe-header">
+      <div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku" alt="NakanoMiku">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div class="nexmoe-count-item"><span>文章</span>7 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
+        <div class="nexmoe-count-item"><span>标签</span>4<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+        <div class="nexmoe-count-item"><span>分类</span>2<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-meishi"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-hanbao1"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    <aside id="nexmoe-sidebar">
+  
+  
+<!-- 站内搜索 -->
+
+<div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-search" >
+        <form id="search-form">
+            <label><input type="text" id="local-search-input" name="q" results="0" placeholder="站内搜索" class="input form-control" autocomplete="off" autocorrect="off"/></label>
+            <!-- 清空/重置搜索框 -->
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+        </form>
+    </div>
+    <div id="local-search-result"></div> <!-- 搜索结果区 -->
+    <!-- <p class='no-result'></p> 无匹配时显示，注意在 CSS 中设置默认隐藏 -->
+</div>
+
+
+  
+  <div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-social">
+        <a class="mdui-ripple" href="https://github.com/NakanoMiku39/" target="_blank" mdui-tooltip="{content: 'GitHub'}" style="color: rgb(25, 23, 23);background-color: rgba(25, 23, 23, .15);">
+            <i class="nexmoefont icon-github"></i>
+        </a>
+    </div>
+</div>
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章分类</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">7</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/php/" style="font-size: 15px;">php</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 15px;">我的世界</a>
+    </div>
+    
+  </div>
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章归档</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">7</span></li></ul>
+    </div>
+  </div>
+
+
+<style>
+.nexmoe-widget .archive-list-count{
+	position : absolute;
+	right: 15px;
+	top:9px;
+	color: #DDD;
+}
+</style>
+
+  
+</aside>
+    <div class="nexmoe-copyright">
+        &copy; 2024 NakanoMiku
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/tangyuxian/hexo-theme-tangyuxian" target="_blank">Tangyuxian</a><br/>
+        <a href="http://beian.miit.gov.cn" target="_blank"></a><br/>
+        
+        <div style="font-size: 12px">
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            本站总访问量  <a id="busuanzi_value_site_pv"></a> 次<br />
+            本站访客数<a id="busuanzi_value_site_uv"></a>人次
+        </div>
+        
+        
+    </div>
+
+</div><!-- .nexmoe-drawer -->
+
+  </div>
+  <div id="nexmoe-content">
+    <div class="nexmoe-primary">
+        <div class="nexmoe-post">
+    
+        <div class="nexmoe-post-cover" style="padding-bottom: 26.666666666666668%;">
+            <img data-src="/images/background/ichika961-2.png" data-sizes="auto" alt="构造基于x86_64的LFS（1）" class="lazyload">
+            <h1>构造基于x86_64的LFS（1）</h1>
+        </div>
+    
+
+        <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2024年09月26日</a>
+    <a><i class="nexmoefont icon-areachart"></i>2.9k 字</a>
+    <a><i class="nexmoefont icon-time-circle-fill"></i>大概 15 分钟</a>
+</div>
+
+        <div class="nexmoe-post-right">
+            
+        </div>
+
+        <article>
+            <p>今天老师要求我构造一个基于x86_64架构的LFS，于是在此记录一下构建过程。<br>LFS手册链接：<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/">https://lfs.xry111.site/zh_CN/</a></p>
+<span id="more"></span>
+<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><p>强烈建议仔细读LFS手册，手册内容还是很简单明了的<br>这里就直入主题了，我的宿主机配置如下：</p>
+<img src="/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/neofetch.png" class="" title="neofetch">
+
+<h1 id="准备宿主系统"><a href="#准备宿主系统" class="headerlink" title="准备宿主系统"></a>准备宿主系统</h1><p>我将从<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter02/hostreqs.html">2.2. 宿主系统需求</a>开始，首先需要检查宿主机的软件包情况，脚本如下：</p>
+<pre><code class="highlight bash"><span class="meta">#!/bin/bash</span>
+<span class="comment"># A script to list version numbers of critical development tools</span>
+
+<span class="comment"># If you have tools installed in other directories, adjust PATH here AND</span>
+<span class="comment"># in ~lfs/.bashrc (section 4.4) as well.</span>
+
+LC_ALL=C 
+PATH=/usr/bin:/bin
+
+<span class="function"><span class="title">bail</span></span>() &#123; <span class="built_in">echo</span> <span class="string">&quot;FATAL: <span class="variable">$1</span>&quot;</span>; <span class="built_in">exit</span> 1; &#125;
+grep --version &gt; /dev/null 2&gt; /dev/null || bail <span class="string">&quot;grep does not work&quot;</span>
+sed <span class="string">&#x27;&#x27;</span> /dev/null || bail <span class="string">&quot;sed does not work&quot;</span>
+<span class="built_in">sort</span>   /dev/null || bail <span class="string">&quot;sort does not work&quot;</span>
+
+<span class="function"><span class="title">ver_check</span></span>()
+&#123;
+   <span class="keyword">if</span> ! <span class="built_in">type</span> -p <span class="variable">$2</span> &amp;&gt;/dev/null
+   <span class="keyword">then</span> 
+     <span class="built_in">echo</span> <span class="string">&quot;ERROR: Cannot find <span class="variable">$2</span> (<span class="variable">$1</span>)&quot;</span>; <span class="built_in">return</span> 1; 
+   <span class="keyword">fi</span>
+   v=$(<span class="variable">$2</span> --version 2&gt;&amp;1 | grep -E -o <span class="string">&#x27;[0-9]+\.[0-9\.]+[a-z]*&#x27;</span> | <span class="built_in">head</span> -n1)
+   <span class="keyword">if</span> <span class="built_in">printf</span> <span class="string">&#x27;%s\n&#x27;</span> <span class="variable">$3</span> <span class="variable">$v</span> | <span class="built_in">sort</span> --version-sort --check &amp;&gt;/dev/null
+   <span class="keyword">then</span> 
+     <span class="built_in">printf</span> <span class="string">&quot;OK:    %-9s %-6s &gt;= <span class="variable">$3</span>\n&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span> <span class="string">&quot;<span class="variable">$v</span>&quot;</span>; <span class="built_in">return</span> 0;
+   <span class="keyword">else</span> 
+     <span class="built_in">printf</span> <span class="string">&quot;ERROR: %-9s is TOO OLD (<span class="variable">$3</span> or later required)\n&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span>; 
+     <span class="built_in">return</span> 1; 
+   <span class="keyword">fi</span>
+&#125;
+
+<span class="function"><span class="title">ver_kernel</span></span>()
+&#123;
+   kver=$(<span class="built_in">uname</span> -r | grep -E -o <span class="string">&#x27;^[0-9\.]+&#x27;</span>)
+   <span class="keyword">if</span> <span class="built_in">printf</span> <span class="string">&#x27;%s\n&#x27;</span> <span class="variable">$1</span> <span class="variable">$kver</span> | <span class="built_in">sort</span> --version-sort --check &amp;&gt;/dev/null
+   <span class="keyword">then</span> 
+     <span class="built_in">printf</span> <span class="string">&quot;OK:    Linux Kernel <span class="variable">$kver</span> &gt;= <span class="variable">$1</span>\n&quot;</span>; <span class="built_in">return</span> 0;
+   <span class="keyword">else</span> 
+     <span class="built_in">printf</span> <span class="string">&quot;ERROR: Linux Kernel (<span class="variable">$kver</span>) is TOO OLD (<span class="variable">$1</span> or later required)\n&quot;</span> <span class="string">&quot;<span class="variable">$kver</span>&quot;</span>; 
+     <span class="built_in">return</span> 1; 
+   <span class="keyword">fi</span>
+&#125;
+
+<span class="comment"># Coreutils first because --version-sort needs Coreutils &gt;= 7.0</span>
+ver_check Coreutils      <span class="built_in">sort</span>     8.1 || bail <span class="string">&quot;Coreutils too old, stop&quot;</span>
+ver_check Bash           bash     3.2
+ver_check Binutils       ld       2.13.1
+ver_check Bison          bison    2.7
+ver_check Diffutils      diff     2.8.1
+ver_check Findutils      find     4.2.31
+ver_check Gawk           gawk     4.0.1
+ver_check GCC            gcc      5.2
+ver_check <span class="string">&quot;GCC (C++)&quot;</span>    g++      5.2
+ver_check Grep           grep     2.5.1a
+ver_check Gzip           gzip     1.3.12
+ver_check M4             m4       1.4.10
+ver_check Make           make     4.0
+ver_check Patch          patch    2.5.4
+ver_check Perl           perl     5.8.8
+ver_check Python         python3  3.4
+ver_check Sed            sed      4.1.5
+ver_check Tar            tar      1.22
+ver_check Texinfo        texi2any 5.0
+ver_check Xz             xz       5.0.0
+ver_kernel 4.19
+
+<span class="keyword">if</span> mount | grep -q <span class="string">&#x27;devpts on /dev/pts&#x27;</span> &amp;&amp; [ -e /dev/ptmx ]
+<span class="keyword">then</span> <span class="built_in">echo</span> <span class="string">&quot;OK:    Linux Kernel supports UNIX 98 PTY&quot;</span>;
+<span class="keyword">else</span> <span class="built_in">echo</span> <span class="string">&quot;ERROR: Linux Kernel does NOT support UNIX 98 PTY&quot;</span>; <span class="keyword">fi</span>
+
+<span class="function"><span class="title">alias_check</span></span>() &#123;
+   <span class="keyword">if</span> <span class="variable">$1</span> --version 2&gt;&amp;1 | grep -qi <span class="variable">$2</span>
+   <span class="keyword">then</span> <span class="built_in">printf</span> <span class="string">&quot;OK:    %-4s is <span class="variable">$2</span>\n&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span>;
+   <span class="keyword">else</span> <span class="built_in">printf</span> <span class="string">&quot;ERROR: %-4s is NOT <span class="variable">$2</span>\n&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span>; <span class="keyword">fi</span>
+&#125;
+<span class="built_in">echo</span> <span class="string">&quot;Aliases:&quot;</span>
+alias_check awk GNU
+alias_check yacc Bison
+alias_check sh Bash
+
+<span class="built_in">echo</span> <span class="string">&quot;Compiler check:&quot;</span>
+<span class="keyword">if</span> <span class="built_in">printf</span> <span class="string">&quot;int main()&#123;&#125;&quot;</span> | g++ -x c++ -
+<span class="keyword">then</span> <span class="built_in">echo</span> <span class="string">&quot;OK:    g++ works&quot;</span>;
+<span class="keyword">else</span> <span class="built_in">echo</span> <span class="string">&quot;ERROR: g++ does NOT work&quot;</span>; <span class="keyword">fi</span>
+<span class="built_in">rm</span> -f a.out
+
+<span class="keyword">if</span> [ <span class="string">&quot;<span class="subst">$(nproc)</span>&quot;</span> = <span class="string">&quot;&quot;</span> ]; <span class="keyword">then</span>
+   <span class="built_in">echo</span> <span class="string">&quot;ERROR: nproc is not available or it produces empty output&quot;</span>
+<span class="keyword">else</span>
+   <span class="built_in">echo</span> <span class="string">&quot;OK: nproc reports <span class="subst">$(nproc)</span> logical cores are available&quot;</span>
+<span class="keyword">fi</span>
+</code></pre>
+
+<p>运行结果如下：</p>
+<pre><code class="highlight plaintext">OK:    Coreutils 9.4    &gt;= 8.1
+OK:    Bash      5.2.32 &gt;= 3.2
+OK:    Binutils  2.43.1 &gt;= 2.13.1
+OK:    Bison     3.8.2  &gt;= 2.7
+OK:    Diffutils 3.10   &gt;= 2.8.1
+OK:    Findutils 4.10.0 &gt;= 4.2.31
+OK:    Gawk      5.2.1  &gt;= 4.0.1
+OK:    GCC       14.2.0 &gt;= 5.2
+OK:    GCC (C++) 14.2.0 &gt;= 5.2
+OK:    Grep      3.11   &gt;= 2.5.1a
+OK:    Gzip      1.12   &gt;= 1.3.12
+OK:    M4        1.4.19 &gt;= 1.4.10
+OK:    Make      4.3    &gt;= 4.0
+OK:    Patch     2.7.6  &gt;= 2.5.4
+OK:    Perl      5.38.2 &gt;= 5.8.8
+OK:    Python    3.12.6 &gt;= 3.4
+OK:    Sed       4.9    &gt;= 4.1.5
+OK:    Tar       1.35   &gt;= 1.22
+OK:    Texinfo   7.1.1  &gt;= 5.0
+OK:    Xz        5.6.2  &gt;= 5.0.0
+OK:    Linux Kernel 6.10.9 &gt;= 4.19
+OK:    Linux Kernel supports UNIX 98 PTY
+Aliases:
+OK:    awk  is GNU
+OK:    yacc is Bison
+OK:    sh   is Bash
+Compiler check:
+OK:    g++ works
+OK: nproc reports 24 logical cores are available</code></pre>
+
+<p>如果出现<code>sh is not Bash</code>的问题可以手动更改</p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> <span class="built_in">rm</span> /bin/sh
+<span class="built_in">sudo</span> <span class="built_in">ln</span> -s /bin/bash /bin/sh</code></pre>
+
+<p>完成环境检查后，接下来是为LFS准备一个分区，手册建议分区的大小为30GB，我这里将使用一个32G的USB作为LFS分区，分区名为&#x2F;dev&#x2F;sdc1，<strong>因为USB已经存在了一个FAT32分区</strong>，所以这里可以直接省略掉用fdisk工具进行分区的操作，直接格式化，将其变为ext4。如果不存在一个分区，，或者想要创建多个分区，则需要用如fdisk之类的分区工具首先进行分区处理  </p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> mkfs -v -t ext4 /dev/sdc1</code></pre>
+
+<p>完成格式化后挂载该分区<br><em>手册中还给出了多个分区的方案，例如一个分区作为&#x2F;，另一个作为&#x2F;home，那么这步需要将这两个分区依次挂载，更详细的内容可以参考<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter02/mounting.html">2.7. 挂载新的分区</a>。</em></p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> /mnt/LFS
+<span class="built_in">sudo</span> mount /dev/sdc1 /mnt/LFS</code></pre>
+
+<p>检查文件系统是否为ext4</p>
+<pre><code class="highlight plaintext">df -T</code></pre>
+
+<p>接下来设置环境变量$LFS，这个变量指向了<strong>构建LFS时使用的目录</strong>，在我的情况中则是<code>/mnt/LFS</code>，<strong>可以用<code>echo $LFS</code>来检查环境变量是否被正确设置了</strong><br><em>注意：可以通过向<code>.bashrc</code>（或其他类似功能文件）中添加下面的命令来确保环境变量$LFS正确</em>  </p>
+<pre><code class="highlight bash"><span class="built_in">export</span> LFS=/mnt/LFS</code></pre>
+
+<h1 id="软件包和补丁"><a href="#软件包和补丁" class="headerlink" title="软件包和补丁"></a>软件包和补丁</h1><p>接下来是下载软件包和补丁，首先创建一个目录用于存放软件包和补丁</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v <span class="variable">$LFS</span>/sources</code></pre>
+
+<p>然后更改<code>sources</code>的权限，为该目录添加写入权限和 sticky 标志。</p>
+<blockquote>
+<p>“Sticky” 标志使得即使有多个用户对该目录有写入权限，也只有文件所有者能够删除其中的文件</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> <span class="built_in">chmod</span> -v a+wt <span class="variable">$LFS</span>/sources</code></pre>
+
+<p>手册提供了一个包括了所有所需软件包的下载列表<code>wget-list-sysv</code>，下载这个文件，然后将这个文件作为<code>wget</code>的输入，把所有软件包下载到<code>$LFS/sources</code>  </p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> wget --input-file=wget-list-sysv --<span class="built_in">continue</span> --directory-prefix=<span class="variable">$LFS</span>/sources</code></pre>
+
+<p>手册还提供了一个用于检查所下载软件包正确性的md5sums，下面是一个检查正确性的脚本，确保<code>md5sums</code>在<code>$LFS/sources</code>目录下</p>
+<pre><code class="highlight bash"><span class="built_in">pushd</span> <span class="variable">$LFS</span>/sources
+  <span class="built_in">md5sum</span> -c md5sums
+<span class="built_in">popd</span></code></pre>
+
+<p>手册强烈建议以root用户执行这些操作，如果已经以非root用户创建了文件夹或下载了软件包和补丁，可以修改它们的所有者</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> root:root <span class="variable">$LFS</span>/sources/*
+<span class="built_in">ls</span> -l <span class="comment"># 检查是否更改</span></code></pre>
+<blockquote>
+<p>如果以非 root 用户身份下载了软件包和补丁，则下载的文件会属于该用户。文件系统使用 UID 记录文件所有者，而宿主系统中普通用户的 UID 在 LFS 中未被分配。因此，这些文件保留到最终的 LFS 系统后，会属于一个没有命名的 UID 。</p>
+</blockquote>
+<h1 id="最后的准备工作"><a href="#最后的准备工作" class="headerlink" title="最后的准备工作"></a>最后的准备工作</h1><p>在LFS分区中创建一个目录树</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>
+<span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/&#123;etc,var&#125; <span class="variable">$LFS</span>/usr/&#123;bin,lib,sbin&#125;</code></pre>
+
+<p>然后在$LFS目录下创建一个脚本，加入下列命令并运行</p>
+<pre><code class="highlight bash"><span class="keyword">for</span> i <span class="keyword">in</span> bin lib sbin; <span class="keyword">do</span>
+  <span class="built_in">sudo</span> <span class="built_in">ln</span> -sv usr/<span class="variable">$i</span> <span class="variable">$LFS</span>/<span class="variable">$i</span>
+<span class="keyword">done</span>
+
+<span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span>
+  x86_64) <span class="built_in">sudo</span> <span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/lib64 ;;
+<span class="keyword">esac</span></code></pre>
+
+<p>为交叉编译器编译程序等工具创建一个专用目录，与其他程序分离</p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/tools</code></pre>
+
+<p>最后的目录结构应该如下所示</p>
+<pre><code class="highlight bash">tree <span class="variable">$LFS</span>
+
+/mnt/LFS
+├── bin -&gt; usr/bin
+├── etc
+├── lib -&gt; usr/lib
+├── lib64
+├── lost+found  [error opening <span class="built_in">dir</span>]
+├── sbin -&gt; usr/sbin
+├── sources
+│   ├── acl-2.3.2.tar.xz
+│   ├── attr-2.5.2.tar.gz
+│   ├── autoconf-2.72.tar.xz
+│   ├── automake-1.17.tar.xz
+│   ├── bash-5.2.32.tar.gz
+│   ├── bc-6.7.6.tar.xz
+│   ├── binutils-2.43.1.tar.xz
+│   ├── bison-3.8.2.tar.xz
+│   ├── bzip2-1.0.8-install_docs-1.patch
+│   ├── bzip2-1.0.8.tar.gz
+│   ├── check-0.15.2.tar.gz
+│   ├── coreutils-9.5-i18n-2.patch
+│   ├── coreutils-9.5.tar.xz
+│   ├── dejagnu-1.6.3.tar.gz
+│   ├── diffutils-3.10.tar.xz
+│   ├── e2fsprogs-1.47.1.tar.gz
+│   ├── elfutils-0.191.tar.bz2
+│   ├── expat-2.6.2.tar.xz
+│   ├── expect-5.45.4-gcc14-1.patch
+│   ├── expect5.45.4.tar.gz
+│   ├── file-5.45.tar.gz
+│   ├── findutils-4.10.0.tar.xz
+│   ├── flex-2.6.4.tar.gz
+│   ├── flit_core-3.9.0.tar.gz
+│   ├── gawk-5.3.0.tar.xz
+│   ├── gcc-14.2.0.tar.xz
+│   ├── gdbm-1.24.tar.gz
+│   ├── gettext-0.22.5.tar.xz
+│   ├── glibc-2.40-fhs-1.patch
+│   ├── glibc-2.40.tar.xz
+│   ├── gmp-6.3.0.tar.xz
+│   ├── gperf-3.1.tar.gz
+│   ├── grep-3.11.tar.xz
+│   ├── groff-1.23.0.tar.gz
+│   ├── grub-2.12.tar.xz
+│   ├── gzip-1.13.tar.xz
+│   ├── iana-etc-20240806.tar.gz
+│   ├── inetutils-2.5.tar.xz
+│   ├── intltool-0.51.0.tar.gz
+│   ├── iproute2-6.10.0.tar.xz
+│   ├── jinja2-3.1.4.tar.gz
+│   ├── kbd-2.6.4-backspace-1.patch
+│   ├── kbd-2.6.4.tar.xz
+│   ├── kmod-33.tar.xz
+│   ├── less-661.tar.gz
+│   ├── lfs-bootscripts-20240825.tar.xz
+│   ├── libcap-2.70.tar.xz
+│   ├── libffi-3.4.6.tar.gz
+│   ├── libpipeline-1.5.7.tar.gz
+│   ├── libtool-2.4.7.tar.xz
+│   ├── libxcrypt-4.4.36.tar.xz
+│   ├── linux-6.10.5.tar.xz
+│   ├── lz4-1.10.0.tar.gz
+│   ├── m4-1.4.19.tar.xz
+│   ├── make-4.4.1.tar.gz
+│   ├── man-db-2.12.1.tar.xz
+│   ├── man-pages-6.9.1.tar.xz
+│   ├── MarkupSafe-2.1.5.tar.gz
+│   ├── meson-1.5.1.tar.gz
+│   ├── mpc-1.3.1.tar.gz
+│   ├── mpfr-4.2.1.tar.xz
+│   ├── ncurses-6.5.tar.gz
+│   ├── ninja-1.12.1.tar.gz
+│   ├── openssl-3.3.1.tar.gz
+│   ├── patch-2.7.6.tar.xz
+│   ├── perl-5.40.0.tar.xz
+│   ├── pkgconf-2.3.0.tar.xz
+│   ├── procps-ng-4.0.4.tar.xz
+│   ├── psmisc-23.7.tar.xz
+│   ├── python-3.12.5-docs-html.tar.bz2
+│   ├── Python-3.12.5.tar.xz
+│   ├── readline-8.2.13.tar.gz
+│   ├── sed-4.9.tar.xz
+│   ├── setuptools-72.2.0.tar.gz
+│   ├── shadow-4.16.0.tar.xz
+│   ├── sysklogd-2.6.1.tar.gz
+│   ├── systemd-256.4.tar.gz
+│   ├── systemd-man-pages-256.4.tar.xz
+│   ├── sysvinit-3.10-consolidated-1.patch
+│   ├── sysvinit-3.10.tar.xz
+│   ├── tar-1.35.tar.xz
+│   ├── tcl8.6.14-html.tar.gz
+│   ├── tcl8.6.14-src.tar.gz
+│   ├── texinfo-7.1.tar.xz
+│   ├── tzdata2024a.tar.gz
+│   ├── udev-lfs-20230818.tar.xz
+│   ├── util-linux-2.40.2.tar.xz
+│   ├── vim-9.1.0660.tar.gz
+│   ├── wheel-0.44.0.tar.gz
+│   ├── XML-Parser-2.47.tar.gz
+│   ├── xz-5.6.2.tar.xz
+│   ├── zlib-1.3.1.tar.gz
+│   └── zstd-1.5.6.tar.gz
+├── tools
+├── usr
+│   ├── bin
+│   ├── lib
+│   └── sbin
+└── var</code></pre>
+
+<p>创建一个新的用户<code>lfs</code>用于编译软件包，这可以保证建立一个干净的工作环境</p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> groupadd lfs <span class="comment"># 创建一个组lfs</span>
+<span class="built_in">sudo</span> useradd -s /bin/bash -g lfs -m -k /dev/null lfs <span class="comment"># 创建一个用户lfs</span></code></pre>
+
+<blockquote>
+<p>命令行中各选项的含义:<br>-s &#x2F;bin&#x2F;bash<br>设置 bash 为用户 lfs 的默认 shell。<br>-g lfs<br>添加用户 lfs 到组 lfs。<br>-m<br>为用户 lfs 创建一个主目录。<br>-k &#x2F;dev&#x2F;null<br>将模板目录设置为空设备文件，防止从默认模板目录 (&#x2F;etc&#x2F;skel) 复制文件到新的主目录。<br>lfs<br>这是新用户的名称。</p>
+</blockquote>
+<p>将<code>lfs</code>设为<code>$LFS</code>目录的所有者</p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> <span class="built_in">chown</span> -v lfs <span class="variable">$LFS</span>/&#123;usr&#123;,/*&#125;,lib,var,etc,bin,sbin,tools&#125;
+
+<span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span>
+  x86_64) <span class="built_in">sudo</span> <span class="built_in">chown</span> -v lfs <span class="variable">$LFS</span>/lib64 ;;
+<span class="keyword">esac</span></code></pre>
+
+<p>检查更改</p>
+<pre><code class="highlight bash"><span class="built_in">ls</span> <span class="variable">$LFS</span> -l
+
+drwxr-xr-x 9 root root  4096 Sep 27 20:26 .
+drwxr-xr-x 3 root root  4096 Sep 26 23:37 ..
+lrwxrwxrwx 1 root root     7 Sep 27 20:13 bin -&gt; usr/bin
+drwxr-xr-x 2 lfs  root  4096 Sep 27 20:10 etc
+lrwxrwxrwx 1 root root     7 Sep 27 20:13 lib -&gt; usr/lib
+drwxr-xr-x 2 lfs  root  4096 Sep 27 20:13 lib64
+drwx------ 2 root root 16384 Sep 26 23:40 lost+found
+lrwxrwxrwx 1 root root     8 Sep 27 20:13 sbin -&gt; usr/sbin
+drwxrwxrwt 2 root root  4096 Sep 27 20:08 sources
+drwxr-xr-x 2 lfs  root  4096 Sep 27 20:19 tools
+drwxr-xr-x 5 lfs  root  4096 Sep 27 20:10 usr
+drwxr-xr-x 2 lfs  root  4096 Sep 27 20:10 var</code></pre>
+
+<p>最后以<code>lfs</code>登录</p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> su - lfs</code></pre>
+
+<p>登录后，先为<code>lfs</code>配置一下环境</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; ~/.bash_profile &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="built_in">exec</span> <span class="built_in">env</span> -i HOME=<span class="variable">$HOME</span> TERM=<span class="variable">$TERM</span> PS1=<span class="string">&#x27;\u:\w\$ &#x27;</span> /bin/bash
+EOF</code></pre>
+
+<p>命令的详细含义可以阅读<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter04/settingenvironment.html">4.4. 配置环境</a>，<strong>注意<code>LFS</code>变量的路径要设置正确，也就是<code>$LFS</code>的路径</strong></p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; ~/.bashrc &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="built_in">set</span> +h
+<span class="built_in">umask</span> 022
+LFS=/mnt/LFS
+LC_ALL=POSIX
+LFS_TGT=$(<span class="built_in">uname</span> -m)-lfs-linux-gnu
+PATH=/usr/bin
+<span class="keyword">if</span> [ ! -L /bin ]; <span class="keyword">then</span> PATH=/bin:<span class="variable">$PATH</span>; <span class="keyword">fi</span>
+PATH=<span class="variable">$LFS</span>/tools/bin:<span class="variable">$PATH</span>
+CONFIG_SITE=<span class="variable">$LFS</span>/usr/share/config.site
+<span class="built_in">export</span> LFS LC_ALL LFS_TGT PATH CONFIG_SITE
+EOF</code></pre>
+
+<blockquote>
+<p>一些商业发行版未做文档说明地将 &#x2F;etc&#x2F;bash.bashrc 引入 bash 初始化过程。该文件可能修改 lfs 用户的环境，并影响 LFS 关键软件包的构建。为了保证 lfs 用户环境的纯净，检查 &#x2F;etc&#x2F;bash.bashrc 是否存在，如果它存在就将它移走。以 root 用户身份，运行：</p>
+</blockquote>
+<pre><code class="highlight bash">[ ! -e /etc/bash.bashrc ] || <span class="built_in">mv</span> -v /etc/bash.bashrc /etc/bash.bashrc.NOUSE</code></pre>
+
+<p>设置编译时使用的核心数</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt;&gt; ~/.bashrc &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="built_in">export</span> MAKEFLAGS=-j$(<span class="built_in">nproc</span>)
+EOF</code></pre>
+
+<p>运行以确保上面的所有更改能现在就被应用</p>
+<pre><code class="highlight bash"><span class="built_in">source</span> ~/.bash_profile</code></pre>
+        </article>
+
+        
+            
+  <div class="nexmoe-post-copyright">
+    <strong>本文作者：</strong>NakanoMiku<br>
+    
+    <strong>本文链接：</strong><a href="http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;26&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;26&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89&#x2F;</a><br>
+
+    
+      <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+    
+  </div>
+
+
+        
+
+        <div class="nexmoe-post-meta nexmoe-rainbow">
+    
+        <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a>
+    
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/LFS/" rel="tag">LFS</a>
+    
+</div>
+
+    <!-- <div class="nexmoe-post-footer">
+        <section class="nexmoe-comment">
+    <div class="valine"></div>
+<script src='https://lib.baomitu.com/valine/1.3.9/Valine.min.js'></script>
+<script>
+    // 使用方法 https://valine.js.org/quickstart.html
+    new Valine({
+        el: '.valine',
+        appId: 'r5zxC0st0DDjPA9auXzMV7HY-gzGzoHsz',
+        appKey: '3bqCsovpyfTPHUzTHovd3V3V'
+    })
+</script>
+</section>
+    </div> -->
+</div>
+
+
+        <div class="nexmoe-post-right">
+          
+            <div class="nexmoe-fixed">
+              <div class="nexmoe-tool">
+                <a href="#" aria-label="回到顶部" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+              </div>
+            </div>
+          
+        </div>
+    </div>
+  </div>
+  <!-- <div id="nexmoe-pendant">
+    <div class="nexmoe-drawer mdui-drawer nexmoe-pd" id="drawer">
+        
+            <div class="nexmoe-pd-item">
+                <div class="clock">
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="needle" id="hours"></div>
+        <div class="needle" id="minutes"></div>
+        <div class="needle" id="seconds"></div>
+        <div class="clock_logo">
+
+        </div>
+
+    </div>
+<style>
+    .clock {
+        background-color: #ffffff;
+        width: 70vw;
+        height: 70vw;
+        max-width: 70vh;
+        max-height: 70vh;
+        border: solid 2.8vw #242424;
+        position: relative;
+        overflow: hidden;
+        border-radius: 50%;
+        box-sizing: border-box;
+        box-shadow: 0 1.4vw 2.8vw rgba(0, 0, 0, 0.8);
+        zoom:0.2
+    }
+
+    .memory {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .memory:nth-child(1) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(0deg) translateY(-520%);
+    }
+
+    .memory:nth-child(2) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(6deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(3) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(12deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(4) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(18deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(5) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(24deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(6) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(30deg) translateY(-520%);
+    }
+
+    .memory:nth-child(7) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(36deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(8) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(42deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(9) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(48deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(10) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(54deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(11) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(60deg) translateY(-520%);
+    }
+
+    .memory:nth-child(12) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(66deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(13) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(72deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(14) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(78deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(15) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(84deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(16) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(90deg) translateY(-520%);
+    }
+
+    .memory:nth-child(17) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(96deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(18) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(102deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(19) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(108deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(20) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(114deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(21) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(120deg) translateY(-520%);
+    }
+
+    .memory:nth-child(22) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(126deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(23) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(132deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(24) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(138deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(25) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(144deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(26) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(150deg) translateY(-520%);
+    }
+
+    .memory:nth-child(27) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(156deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(28) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(162deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(29) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(168deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(30) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(174deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(31) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(180deg) translateY(-520%);
+    }
+
+    .memory:nth-child(32) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(186deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(33) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(192deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(34) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(198deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(35) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(204deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(36) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(210deg) translateY(-520%);
+    }
+
+    .memory:nth-child(37) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(216deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(38) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(222deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(39) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(228deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(40) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(234deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(41) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(240deg) translateY(-520%);
+    }
+
+    .memory:nth-child(42) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(246deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(43) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(252deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(44) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(258deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(45) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(264deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(46) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(270deg) translateY(-520%);
+    }
+
+    .memory:nth-child(47) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(276deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(48) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(282deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(49) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(288deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(50) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(294deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(51) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-520%);
+    }
+
+    .memory:nth-child(52) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(306deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(53) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(312deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(54) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(318deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(55) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(324deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(56) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(330deg) translateY(-520%);
+    }
+
+    .memory:nth-child(57) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(336deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(58) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(342deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(59) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(348deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(60) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(354deg) translateY(-1461%);
+    }
+
+    .needle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .needle#hours {
+        background-color: #1f1f1f;
+        width: 4%;
+        height: 30%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#hours.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#hours:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#minutes {
+        background-color: #1f1f1f;
+        width: 2%;
+        height: 45%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#minutes.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#minutes:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#seconds {
+        background-color: #cb2f2f;
+        width: 1%;
+        height: 50%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#seconds.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#seconds:after {
+        content: '';
+        background-color: #cb2f2f;
+        width: 2.5vw;
+        height: 2.5vw;
+        max-width: 2.5vh;
+        max-height: 2.5vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .clock_logo{
+        width: 10vw;
+        height: 10vw;
+        max-width: 10vh;
+        max-height: 10vh;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+    @media (min-width: 100vh) {
+        .clock {
+            border: solid 2.8vh #242424;
+            box-shadow: 0 1.4vh 2.8vh rgba(0, 0, 0, 0.8);
+        }
+    }
+
+</style>
+
+
+
+
+
+            </div>
+        
+            <div class="nexmoe-pd-item">
+                <div class="qweather" >
+    <div id="he-plugin-standard"></div>
+    <div class="qweather-logo">
+
+    </div>
+
+</div>
+<style>
+    .qweather{
+        position: relative;
+    }
+    .qweather-logo{
+        position: absolute;
+        right: 0;
+        top: -15px;
+        width: 40px;
+        height: 40px;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+</style>
+<script>
+  WIDGET = {
+    "CONFIG": {
+      "layout": "2",
+      "width": "260",
+      "height": "220",
+      "background": "5",
+      "dataColor": "e67249",
+      "borderRadius": "15",
+      "key": "f74d1e1690e6432d801e97fa2f05a162"
+    }
+  }
+</script>
+<script src="https://widget.qweather.net/standard/static/js/he-standard-common.js?v=2.0"></script>
+
+            </div>
+        
+</div>
+<style>
+    .nexmoe-pd {
+        left: auto;
+        top: 40px;
+        right: 0;
+    }
+    .nexmoe-pd-item{
+       display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+</style>
+
+  </div> -->
+  <script src="https://lib.baomitu.com/lazysizes/5.1.0/lazysizes.min.js"></script>
+<script src="https://lib.baomitu.com/highlight.js/10.0.0/highlight.min.js"></script>
+<script src="https://lib.baomitu.com/mdui/0.4.3/js/mdui.min.js"></script>
+
+<script>
+	hljs.initHighlightingOnLoad();
+</script>
+
+<script src="https://lib.baomitu.com/jquery/3.5.1/jquery.slim.min.js"></script>
+<script src="/lib/fancybox/js/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/app.js?v=1728305945209"></script>
+
+<script src="https://lib.baomitu.com/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+<script>
+	$(".justified-gallery").justifiedGallery({
+		rowHeight: 160,
+		margins: 10,
+	});
+</script>
+
+  
+
+
+
+
+
+<!-- hexo injector body_end start -->
+<script src="/js/clock.js"></script>
+
+<script src="/js/webapp.js"></script>
+
+<script src="https://lib.baomitu.com/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script src="/lib/codeBlock/codeBlockFuction.js"></script>
+
+<script src="/lib/codeBlock/codeLang.js"></script>
+
+<script src="/lib/codeBlock/codeCopy.js"></script>
+
+<script src="/lib/codeBlock/codeShrink.js"></script>
+
+<link rel="stylesheet" href="/lib/codeBlock/matery.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+<script src="/js/search.js"></script>
+<!-- hexo injector body_end end --></body>
+</html>
+

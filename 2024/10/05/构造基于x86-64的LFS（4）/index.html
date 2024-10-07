@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+  
+  <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+  <title>构造基于x86_64的LFS（4） - NakanoMiku&#39;s page</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  
+  
+
+    <!-- Site Verification -->
+    <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+
+  <link rel="shortcut icon" href="/images/head/miku.jpg" type="image/jpg" />
+  <meta name="description" content="继续构造LFS，从系统配置开始">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构造基于x86_64的LFS（4）">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/10/05/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%884%EF%BC%89/index.html">
+<meta property="og:site_name" content="NakanoMiku&#39;s page">
+<meta property="og:description" content="继续构造LFS，从系统配置开始">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-10-05T15:44:51.000Z">
+<meta property="article:modified_time" content="2024-10-07T12:58:24.720Z">
+<meta property="article:author" content="NakanoMiku">
+<meta property="article:tag" content="LFS">
+<meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="https://lib.baomitu.com/highlight.js/9.15.8/styles/atom-one-dark.min.css" crossorigin>
+  <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css">
+  <link rel="stylesheet" href="/lib/iconfont/iconfont.css">
+  <link rel="stylesheet" href="/lib/fancybox/css/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="https://lib.baomitu.com/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
+  
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_2421060_8z08qcz5sq3.css">
+  
+  <link rel="stylesheet" href="/css/style.css?v=1728305945207">
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="mdui-drawer-body-left">
+  
+  <div id="nexmoe-background">
+    <div class="nexmoe-bg" style="background-image: url(/images/background/ichika279-2.png)"></div>
+    <div class="nexmoe-small" style="background-image: url()"></div>
+    <div class="mdui-appbar mdui-shadow-0">
+      <div class="mdui-toolbar">
+        <a mdui-drawer="{target: '#drawer', swipe: true}" title="menu" class="mdui-btn mdui-btn-icon mdui-ripple"><i class="mdui-icon nexmoefont icon-menu"></i></a>
+        <div class="mdui-toolbar-spacer"></div>
+        <!--<a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>-->
+        <a href="/" title="NakanoMiku" class="mdui-btn mdui-btn-icon"><img src="/images/head/miku.jpg" alt="NakanoMiku"></a>
+       </div>
+    </div>
+  </div>
+  <div id="nexmoe-header">
+      <div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku" alt="NakanoMiku">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div class="nexmoe-count-item"><span>文章</span>7 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
+        <div class="nexmoe-count-item"><span>标签</span>4<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+        <div class="nexmoe-count-item"><span>分类</span>2<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-meishi"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-hanbao1"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    <aside id="nexmoe-sidebar">
+  
+  
+<!-- 站内搜索 -->
+
+<div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-search" >
+        <form id="search-form">
+            <label><input type="text" id="local-search-input" name="q" results="0" placeholder="站内搜索" class="input form-control" autocomplete="off" autocorrect="off"/></label>
+            <!-- 清空/重置搜索框 -->
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+        </form>
+    </div>
+    <div id="local-search-result"></div> <!-- 搜索结果区 -->
+    <!-- <p class='no-result'></p> 无匹配时显示，注意在 CSS 中设置默认隐藏 -->
+</div>
+
+
+  
+  <div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-social">
+        <a class="mdui-ripple" href="https://github.com/NakanoMiku39/" target="_blank" mdui-tooltip="{content: 'GitHub'}" style="color: rgb(25, 23, 23);background-color: rgba(25, 23, 23, .15);">
+            <i class="nexmoefont icon-github"></i>
+        </a>
+    </div>
+</div>
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章分类</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">7</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/php/" style="font-size: 15px;">php</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 15px;">我的世界</a>
+    </div>
+    
+  </div>
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章归档</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">7</span></li></ul>
+    </div>
+  </div>
+
+
+<style>
+.nexmoe-widget .archive-list-count{
+	position : absolute;
+	right: 15px;
+	top:9px;
+	color: #DDD;
+}
+</style>
+
+  
+</aside>
+    <div class="nexmoe-copyright">
+        &copy; 2024 NakanoMiku
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/tangyuxian/hexo-theme-tangyuxian" target="_blank">Tangyuxian</a><br/>
+        <a href="http://beian.miit.gov.cn" target="_blank"></a><br/>
+        
+        <div style="font-size: 12px">
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            本站总访问量  <a id="busuanzi_value_site_pv"></a> 次<br />
+            本站访客数<a id="busuanzi_value_site_uv"></a>人次
+        </div>
+        
+        
+    </div>
+
+</div><!-- .nexmoe-drawer -->
+
+  </div>
+  <div id="nexmoe-content">
+    <div class="nexmoe-primary">
+        <div class="nexmoe-post">
+    
+        <div class="nexmoe-post-cover" style="padding-bottom: 26.666666666666668%;">
+            <img data-src="/images/background/kanade458-2.png" data-sizes="auto" alt="构造基于x86_64的LFS（4）" class="lazyload">
+            <h1>构造基于x86_64的LFS（4）</h1>
+        </div>
+    
+
+        <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2024年10月05日</a>
+    <a><i class="nexmoefont icon-areachart"></i>4.8k 字</a>
+    <a><i class="nexmoefont icon-time-circle-fill"></i>大概 27 分钟</a>
+</div>
+
+        <div class="nexmoe-post-right">
+            
+        </div>
+
+        <article>
+            <p>继续构造LFS，从系统配置开始</p>
+<span id="more"></span>
+
+<h1 id="系统配置"><a href="#系统配置" class="headerlink" title="系统配置"></a>系统配置</h1><p>现在需要配置内核引导过程<br><strong>一定一定一定注意当前是否处于chroot环境</strong></p>
+<h2 id="LFS-Bootscripts"><a href="#LFS-Bootscripts" class="headerlink" title="LFS-Bootscripts"></a>LFS-Bootscripts</h2><p>解压LFS-Bootscripts</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf lfs-bootscripts-20240825.tar.xz 
+<span class="built_in">cd</span> lfs-bootscripts-20240825</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<p>之前安装了Udev程序，现在需要进行一些配置来管理设备，生成Udev初始规则</p>
+<pre><code class="highlight bash">bash /usr/lib/udev/init-net-rules.sh</code></pre>
+
+<blockquote>
+<p>检查文件 &#x2F;etc&#x2F;udev&#x2F;rules.d&#x2F;70-persistent-net.rules，确认网络设备与命名的对应关系</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cat</span> /etc/udev/rules.d/70-persistent-net.rules</code></pre>
+
+<p>记住<code>NAME</code></p>
+<pre><code class="highlight bash">SUBSYSTEM==<span class="string">&quot;net&quot;</span>, ACTION==<span class="string">&quot;add&quot;</span>, DRIVERS==<span class="string">&quot;?*&quot;</span>, ATTR&#123;address&#125;==<span class="string">&quot;e8:9c:25:97:d0:3b&quot;</span>, ATTR&#123;dev_id&#125;==<span class="string">&quot;0x0&quot;</span>, ATTR&#123;<span class="built_in">type</span>&#125;==<span class="string">&quot;1&quot;</span>, NAME=<span class="string">&quot;eno1&quot;</span></code></pre>
+
+<p>现在开始网络配置，需要为网络接口创建一个静态IP配置，上面已经记录了接口的名字，也就是<code>eno1</code>（NAME&#x3D;”eno1”），所以配置如下</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /etc/sysconfig/
+<span class="built_in">cat</span> &gt; ifconfig.eno1 &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+ONBOOT=<span class="built_in">yes</span>
+IFACE=eno1
+SERVICE=ipv4-static
+IP=192.168.1.2
+GATEWAY=192.168.1.1
+PREFIX=24
+BROADCAST=192.168.1.255
+EOF</code></pre>
+
+<p>现在要配置DNS解析，配置如下</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/resolv.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/resolv.conf</span>
+
+8.8.8.8
+8.8.4.4
+
+<span class="comment"># End /etc/resolv.conf</span>
+EOF</code></pre>
+
+<p>配置系统主机名</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="string">&quot;LFS&quot;</span> &gt; /etc/hostname</code></pre>
+
+<p>配置IP地址</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/hosts &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/hosts</span>
+
+127.0.0.1 localhost.localdomain localhost
+::1       localhost ip6-localhost ip6-loopback
+ff02::1   ip6-allnodes
+ff02::2   ip6-allrouters
+
+<span class="comment"># End /etc/hosts</span>
+EOF</code></pre>
+
+<p>现在配置SysVinit，首先创建&#x2F;etc&#x2F;inittab文件</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/inittab &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/inittab</span>
+
+<span class="built_in">id</span>:3:initdefault:
+
+si::sysinit:/etc/rc.d/init.d/rc S
+
+l0:0:<span class="built_in">wait</span>:/etc/rc.d/init.d/rc 0
+l1:S1:<span class="built_in">wait</span>:/etc/rc.d/init.d/rc 1
+l2:2:<span class="built_in">wait</span>:/etc/rc.d/init.d/rc 2
+l3:3:<span class="built_in">wait</span>:/etc/rc.d/init.d/rc 3
+l4:4:<span class="built_in">wait</span>:/etc/rc.d/init.d/rc 4
+l5:5:<span class="built_in">wait</span>:/etc/rc.d/init.d/rc 5
+l6:6:<span class="built_in">wait</span>:/etc/rc.d/init.d/rc 6
+
+ca:12345:ctrlaltdel:/sbin/shutdown -t1 -a -r now
+
+su:S06:once:/sbin/sulogin
+s1:1:respawn:/sbin/sulogin
+
+1:2345:respawn:/sbin/agetty --noclear tty1 9600
+2:2345:respawn:/sbin/agetty tty2 9600
+3:2345:respawn:/sbin/agetty tty3 9600
+4:2345:respawn:/sbin/agetty tty4 9600
+5:2345:respawn:/sbin/agetty tty5 9600
+6:2345:respawn:/sbin/agetty tty6 9600
+
+<span class="comment"># End /etc/inittab</span>
+EOF</code></pre>
+
+<p>配置系统时钟，先检查硬件时钟是否被设置成UTC，如果有则下面的<code>UTC=1</code>，否则<code>UTC=0</code></p>
+<pre><code class="highlight bash">hwclock --localtime --show
+
+<span class="built_in">cat</span> &gt; /etc/sysconfig/clock &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/sysconfig/clock</span>
+
+UTC=1
+
+<span class="comment"># Set this to any options you might need to give to hwclock,</span>
+<span class="comment"># such as machine hardware clock type for Alphas.</span>
+CLOCKPARAMS=
+
+<span class="comment"># End /etc/sysconfig/clock</span>
+EOF</code></pre>
+
+<p>下面配置console，这里采用手册提供的第一个例子作为配置</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/sysconfig/console &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/sysconfig/console</span>
+
+UNICODE=<span class="string">&quot;1&quot;</span>
+FONT=<span class="string">&quot;Lat2-Terminus16&quot;</span>
+
+<span class="comment"># End /etc/sysconfig/console</span>
+EOF</code></pre>
+
+<p>现在配置系统locale，可以使用下面命令列出Glibc支持的所有locale</p>
+<pre><code class="highlight bash">locale -a</code></pre>
+
+<p>配置locale，在此之前需要检查是否支持选择的locale</p>
+<pre><code class="highlight bash">LC_ALL=zh_CN locale language
+LC_ALL=zh_CN locale charmap
+LC_ALL=zh_CN locale int_curr_symbol
+LC_ALL=zh_CN locale int_prefix</code></pre>
+
+<p>如果其中有以下输出，说明该locale没有被安装，或者Glibc不支持</p>
+<pre><code class="highlight bash">locale: Cannot <span class="built_in">set</span> LC_* to default locale: No such file or directory</code></pre>
+
+<p>创建<code>/etc/profile</code>以设定locale</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/profile &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/profile</span>
+
+<span class="keyword">for</span> i <span class="keyword">in</span> $(locale); <span class="keyword">do</span>
+  <span class="built_in">unset</span> <span class="variable">$&#123;i%=*&#125;</span>
+<span class="keyword">done</span>
+
+<span class="keyword">if</span> [[ <span class="string">&quot;<span class="variable">$TERM</span>&quot;</span> = linux ]]; <span class="keyword">then</span>
+  <span class="built_in">export</span> LANG=C.UTF-8
+<span class="keyword">else</span>
+  <span class="built_in">export</span> LANG=zh_CN.UTF-8
+<span class="keyword">fi</span>
+
+<span class="comment"># End /etc/profile</span>
+EOF</code></pre>
+
+<p>创建<code>/etc/inputrc</code>文件</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/inputrc &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/inputrc</span>
+<span class="comment"># Modified by Chris Lynn &lt;roryo@roryo.dynup.net&gt;</span>
+
+<span class="comment"># Allow the command prompt to wrap to the next line</span>
+<span class="built_in">set</span> horizontal-scroll-mode Off
+
+<span class="comment"># Enable 8-bit input</span>
+<span class="built_in">set</span> meta-flag On
+<span class="built_in">set</span> input-meta On
+
+<span class="comment"># Turns off 8th bit stripping</span>
+<span class="built_in">set</span> convert-meta Off
+
+<span class="comment"># Keep the 8th bit for display</span>
+<span class="built_in">set</span> output-meta On
+
+<span class="comment"># none, visible or audible</span>
+<span class="built_in">set</span> bell-style none
+
+<span class="comment"># All of the following map the escape sequence of the value</span>
+<span class="comment"># contained in the 1st argument to the readline specific functions</span>
+<span class="string">&quot;\eOd&quot;</span>: backward-word
+<span class="string">&quot;\eOc&quot;</span>: forward-word
+
+<span class="comment"># for linux console</span>
+<span class="string">&quot;\e[1~&quot;</span>: beginning-of-line
+<span class="string">&quot;\e[4~&quot;</span>: end-of-line
+<span class="string">&quot;\e[5~&quot;</span>: beginning-of-history
+<span class="string">&quot;\e[6~&quot;</span>: end-of-history
+<span class="string">&quot;\e[3~&quot;</span>: delete-char
+<span class="string">&quot;\e[2~&quot;</span>: quoted-insert
+
+<span class="comment"># for xterm</span>
+<span class="string">&quot;\eOH&quot;</span>: beginning-of-line
+<span class="string">&quot;\eOF&quot;</span>: end-of-line
+
+<span class="comment"># for Konsole</span>
+<span class="string">&quot;\e[H&quot;</span>: beginning-of-line
+<span class="string">&quot;\e[F&quot;</span>: end-of-line
+
+<span class="comment"># End /etc/inputrc</span>
+EOF</code></pre>
+
+<p>创建<code>/etc/shells</code>文件</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/shells &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/shells</span>
+
+/bin/sh
+/bin/bash
+
+<span class="comment"># End /etc/shells</span>
+EOF</code></pre>
+
+<h1 id="使-LFS-系统可引导"><a href="#使-LFS-系统可引导" class="headerlink" title="使 LFS 系统可引导"></a>使 LFS 系统可引导</h1><p>创建<code>/etc/fstab</code>文件，这里涉及到文件系统的“名字”，我选择用UUID，可以通过<code>blkid</code>命令来查看文件系统的UUID，然后将值填入<code>/etc/fstab</code>中</p>
+<pre><code class="highlight bash">blkid</code></pre>
+
+<p>输出如下，其中<code>/dev/sdc1</code>是当前LFS分区所在的文件系统上，对应的UUID就是<code>315ffc52-a533-4a9d-954a-a1d6c891a25f</code></p>
+<pre><code class="highlight bash">/dev/nvme0n1p3: UUID=<span class="string">&quot;a9642acd-3e82-459c-b7ec-f0f846a5485d&quot;</span> BLOCK_SIZE=<span class="string">&quot;4096&quot;</span> TYPE=<span class="string">&quot;ext4&quot;</span> PARTUUID=<span class="string">&quot;e697a942-04c6-4f27-9514-ff7496ce1fe9&quot;</span>
+/dev/nvme0n1p1: UUID=<span class="string">&quot;270E-0D67&quot;</span> BLOCK_SIZE=<span class="string">&quot;512&quot;</span> TYPE=<span class="string">&quot;vfat&quot;</span> PARTUUID=<span class="string">&quot;364861e4-27a5-4c6c-9ff3-45eb29888856&quot;</span>
+/dev/nvme0n1p2: UUID=<span class="string">&quot;bc12805b-5399-46f8-94af-4ba4f1884420&quot;</span> TYPE=<span class="string">&quot;swap&quot;</span> PARTUUID=<span class="string">&quot;b90ad2a6-f3bb-4374-b9cc-88cd70e5ad57&quot;</span>
+/dev/sdc1: UUID=<span class="string">&quot;315ffc52-a533-4a9d-954a-a1d6c891a25f&quot;</span> BLOCK_SIZE=<span class="string">&quot;4096&quot;</span> TYPE=<span class="string">&quot;ext4&quot;</span> PARTUUID=<span class="string">&quot;0127e901-01&quot;</span>
+/dev/sdb1: UUID=<span class="string">&quot;bc14ec76-1e31-bdf8-b20b-4d19768c23eb&quot;</span> UUID_SUB=<span class="string">&quot;84c7d62a-420b-232d-5625-af84e9ad8d93&quot;</span> LABEL=<span class="string">&quot;debian:0&quot;</span> TYPE=<span class="string">&quot;linux_raid_member&quot;</span> PARTUUID=<span class="string">&quot;8a56aa87-01&quot;</span>
+/dev/md0: UUID=<span class="string">&quot;ee5405d0-c592-41cc-946c-d25e8c99fa3a&quot;</span> BLOCK_SIZE=<span class="string">&quot;4096&quot;</span> TYPE=<span class="string">&quot;ext4&quot;</span>
+/dev/sda1: UUID=<span class="string">&quot;bc14ec76-1e31-bdf8-b20b-4d19768c23eb&quot;</span> UUID_SUB=<span class="string">&quot;acfe69f5-9f53-56b8-cf6b-bd4cba4f4c5d&quot;</span> LABEL=<span class="string">&quot;debian:0&quot;</span> TYPE=<span class="string">&quot;linux_raid_member&quot;</span> PARTUUID=<span class="string">&quot;37f959a3-01&quot;</span></code></pre>
+
+<p>修改文件系统和类型，因为之前没有制作交换分区，故这里注释掉swap，而这里使用了UUID，所以需要使用<code>UUID=文件系统的UUID</code>的格式</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/fstab &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/fstab</span>
+
+UUID=315ffc52-a533-4a9d-954a-a1d6c891a25f    /            ext4      defaults            1     1
+<span class="comment"># /dev/nvme0n1p2     swap         swap       pri=1               0     0</span>
+proc           /proc          proc     nosuid,noexec,nodev 0     0
+sysfs          /sys           sysfs    nosuid,noexec,nodev 0     0
+devpts         /dev/pts       devpts   gid=5,mode=620      0     0
+tmpfs          /run           tmpfs    defaults            0     0
+devtmpfs       /dev           devtmpfs mode=0755,nosuid    0     0
+tmpfs          /dev/shm       tmpfs    nosuid,nodev        0     0
+cgroup2        /sys/fs/cgroup cgroup2  nosuid,noexec,nodev 0     0
+
+<span class="comment"># End /etc/fstab</span>
+EOF</code></pre>
+
+<p>现在可以安装内核了，首先准备编译内核</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+<span class="built_in">rm</span> -rf linux-6.10.5
+tar -xf linux-6.10.5.tar.xz 
+<span class="built_in">cd</span> linux-6.10.5
+make mrproper</code></pre>
+
+<p>配置内核选项</p>
+<pre><code class="highlight bash">make menuconfig</code></pre>
+
+<p>我的配置如下</p>
+<pre><code class="highlight bash">General setup ---&gt;
+  [ ] Compile the kernel with warnings as errors                        [WERROR]
+  CPU/Task time and stats accounting ---&gt;
+    [*] Pressure stall information tracking                                [PSI]
+    [ ]   Require boot parameter to <span class="built_in">enable</span> pressure stall information tracking
+                                                     ...  [PSI_DEFAULT_DISABLED]
+  &lt; &gt; Enable kernel headers through /sys/kernel/kheaders.tar.xz      [IKHEADERS]
+  [*] Control Group support ---&gt;                                       [CGROUPS]
+    [*] Memory controller                                                [MEMCG]
+  [ ] Configure standard kernel features (expert <span class="built_in">users</span>) ---&gt;            [EXPERT]
+
+Processor <span class="built_in">type</span> and features ---&gt;
+  [*] Build a relocatable kernel                                   [RELOCATABLE]
+  [*]   Randomize the address of the kernel image (KASLR)       [RANDOMIZE_BASE]
+  [*] Support x2apic                                                [X86_X2APIC]
+
+General architecture-dependent options ---&gt;
+  [*] Stack Protector buffer overflow detection                 [STACKPROTECTOR]
+  [*]   Strong Stack Protector                           [STACKPROTECTOR_STRONG]
+
+Device Drivers ---&gt;
+  Generic Driver Options ---&gt;
+    [ ] Support <span class="keyword">for</span> uevent helper                                [UEVENT_HELPER]
+    [*] Maintain a devtmpfs filesystem to mount at /dev               [DEVTMPFS]
+    [*]   Automount devtmpfs at /dev, after the kernel mounted the rootfs
+                                                           ...  [DEVTMPFS_MOUNT]
+  Graphics support ---&gt;
+    &lt; /*/M&gt; Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) ---&gt;
+                                                                      ...  [DRM]
+      <span class="comment"># If [DRM] is selected as * or M, this must be selected:</span>
+      [ /*] Enable legacy fbdev support <span class="keyword">for</span> your modesetting driver
+                                                      ...  [DRM_FBDEV_EMULATION]
+    Console display driver support ---&gt;
+      <span class="comment"># If [DRM] is selected as * or M, this must be selected:</span>
+      [ /*] Framebuffer Console support                    [FRAMEBUFFER_CONSOLE]
+
+  [*] PCI support ---&gt;                                                     [PCI]
+    [*] Message Signaled Interrupts (MSI and MSI-X)                    [PCI_MSI]
+  [*] IOMMU Hardware Support ---&gt;                                [IOMMU_SUPPORT]
+    [*] Support <span class="keyword">for</span> Interrupt Remapping                              [IRQ_REMAP]</code></pre>
+
+<p>现在开始编译内核</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>编译完成后复制内核映像到<code>/boot</code>目录下</p>
+<pre><code class="highlight bash"><span class="built_in">cp</span> -iv <span class="built_in">arch</span>/x86/boot/bzImage /boot/vmlinuz-6.10.5-lfs-12.2</code></pre>
+
+<blockquote>
+<p>System.map 是内核符号文件，它将内核 API 的每个函数入口点和运行时数据结构映射到它们的地址。它被用于调查分析内核可能出现的问题。执行以下命令安装该文件</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cp</span> -iv System.map /boot/System.map-6.10.5</code></pre>
+
+<p>保留一份内核配置文件供参考</p>
+<pre><code class="highlight bash"><span class="built_in">cp</span> -iv .config /boot/config-6.10.5</code></pre>
+
+<p>安装 Linux 内核文档</p>
+<pre><code class="highlight bash"><span class="built_in">cp</span> -r Documentation -T /usr/share/doc/linux-6.10.5</code></pre>
+
+<p>保留内核源码树</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R 0:0 .</code></pre>
+
+<p>配置 Linux 内核模块加载顺序，创建文件 &#x2F;etc&#x2F;modprobe.d&#x2F;usb.conf</p>
+<pre><code class="highlight bash">install -v -m755 -d /etc/modprobe.d
+<span class="built_in">cat</span> &gt; /etc/modprobe.d/usb.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/modprobe.d/usb.conf</span>
+
+install ohci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i ohci_hcd ; <span class="literal">true</span>
+install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; <span class="literal">true</span>
+
+<span class="comment"># End /etc/modprobe.d/usb.conf</span>
+EOF</code></pre>
+
+
+<p>安装GRUB</p>
+<pre><code class="highlight bash">grub-install /dev/sdc  --target i386-pc</code></pre>
+
+<p>因为是在U盘中制作LFS，所以需要进行额外步骤，也就是安装initrd<br>首先安装cpio，因为mkinitramfs依赖于cpio</p>
+<pre><code class="highlight bash"><span class="built_in">exit</span>
+<span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+wget https://ftp.gnu.org/gnu/cpio/cpio-2.15.tar.bz2
+<span class="built_in">chroot</span> <span class="string">&quot;<span class="variable">$LFS</span>&quot;</span> /usr/bin/env -i   \
+    HOME=/root                  \
+    TERM=<span class="string">&quot;<span class="variable">$TERM</span>&quot;</span>                \
+    PS1=<span class="string">&#x27;(lfs chroot) \u:\w\$ &#x27;</span> \
+    PATH=/usr/bin:/usr/sbin     \
+    MAKEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span>      \
+    TESTSUITEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span> \
+    /bin/bash --login</code></pre>
+
+<h2 id="cpio"><a href="#cpio" class="headerlink" title="cpio"></a>cpio</h2><p>解压cpio</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf cpio-2.15.tar.bz2
+<span class="built_in">cd</span> cpio-2.15</code></pre>
+
+<p>准备并编译cpio</p>
+<pre><code class="highlight bash">./configure --prefix=/usr \
+            --enable-mt   \
+            --with-rmt=/usr/libexec/rmt &amp;&amp;
+make &amp;&amp;
+makeinfo --html            -o doc/html      doc/cpio.texi &amp;&amp;
+makeinfo --html --no-split -o doc/cpio.html doc/cpio.texi &amp;&amp;
+makeinfo --plaintext       -o doc/cpio.txt  doc/cpio.texi</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">make check</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install &amp;&amp;
+install -v -m755 -d /usr/share/doc/cpio-2.15/html &amp;&amp;
+install -v -m644    doc/html/* \
+                    /usr/share/doc/cpio-2.15/html &amp;&amp;
+install -v -m644    doc/cpio.&#123;html,txt&#125; \
+                    /usr/share/doc/cpio-2.15</code></pre>
+
+<p>现在需要创建两个脚本</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /usr/sbin/mkinitramfs &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment">#!/bin/bash</span>
+<span class="comment"># This file based in part on the mkinitramfs script for the LFS LiveCD</span>
+<span class="comment"># written by Alexander E. Patrakov and Jeremy Huntwork.</span>
+
+<span class="function"><span class="title">copy</span></span>()
+&#123;
+  <span class="built_in">local</span> file
+
+  <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$2</span>&quot;</span> = <span class="string">&quot;lib&quot;</span> ]; <span class="keyword">then</span>
+    file=$(PATH=/usr/lib <span class="built_in">type</span> -p <span class="variable">$1</span>)
+  <span class="keyword">else</span>
+    file=$(<span class="built_in">type</span> -p <span class="variable">$1</span>)
+  <span class="keyword">fi</span>
+
+  <span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$file</span>&quot;</span> ] ; <span class="keyword">then</span>
+    <span class="built_in">cp</span> <span class="variable">$file</span> <span class="variable">$WDIR</span>/usr/<span class="variable">$2</span>
+  <span class="keyword">else</span>
+    <span class="built_in">echo</span> <span class="string">&quot;Missing required file: <span class="variable">$1</span> for directory <span class="variable">$2</span>&quot;</span>
+    <span class="built_in">rm</span> -rf <span class="variable">$WDIR</span>
+    <span class="built_in">exit</span> 1
+  <span class="keyword">fi</span>
+&#125;
+
+<span class="keyword">if</span> [ -z <span class="variable">$1</span> ] ; <span class="keyword">then</span>
+  INITRAMFS_FILE=initrd.img-no-kmods
+<span class="keyword">else</span>
+  KERNEL_VERSION=<span class="variable">$1</span>
+  INITRAMFS_FILE=initrd.img-<span class="variable">$KERNEL_VERSION</span>
+<span class="keyword">fi</span>
+
+<span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$KERNEL_VERSION</span>&quot;</span> ] &amp;&amp; [ ! -d <span class="string">&quot;/usr/lib/modules/<span class="variable">$1</span>&quot;</span> ] ; <span class="keyword">then</span>
+  <span class="built_in">echo</span> <span class="string">&quot;No modules directory named <span class="variable">$1</span>&quot;</span>
+  <span class="built_in">exit</span> 1
+<span class="keyword">fi</span>
+
+<span class="built_in">printf</span> <span class="string">&quot;Creating <span class="variable">$INITRAMFS_FILE</span>... &quot;</span>
+
+binfiles=<span class="string">&quot;sh cat cp dd killall ls mkdir mknod mount &quot;</span>
+binfiles=<span class="string">&quot;<span class="variable">$binfiles</span> umount sed sleep ln rm uname&quot;</span>
+binfiles=<span class="string">&quot;<span class="variable">$binfiles</span> readlink basename&quot;</span>
+
+<span class="comment"># Systemd installs udevadm in /bin. Other udev implementations have it in /sbin</span>
+<span class="keyword">if</span> [ -x /usr/bin/udevadm ] ; <span class="keyword">then</span> binfiles=<span class="string">&quot;<span class="variable">$binfiles</span> udevadm&quot;</span>; <span class="keyword">fi</span>
+
+sbinfiles=<span class="string">&quot;modprobe blkid switch_root&quot;</span>
+
+<span class="comment"># Optional files and locations</span>
+<span class="keyword">for</span> f <span class="keyword">in</span> mdadm mdmon udevd udevadm; <span class="keyword">do</span>
+  <span class="keyword">if</span> [ -x /usr/sbin/<span class="variable">$f</span> ] ; <span class="keyword">then</span> sbinfiles=<span class="string">&quot;<span class="variable">$sbinfiles</span> <span class="variable">$f</span>&quot;</span>; <span class="keyword">fi</span>
+<span class="keyword">done</span>
+
+<span class="comment"># Add lvm if present (cannot be done with the others because it</span>
+<span class="comment"># also needs dmsetup</span>
+<span class="keyword">if</span> [ -x /usr/sbin/lvm ] ; <span class="keyword">then</span> sbinfiles=<span class="string">&quot;<span class="variable">$sbinfiles</span> lvm dmsetup&quot;</span>; <span class="keyword">fi</span>
+
+unsorted=$(<span class="built_in">mktemp</span> /tmp/unsorted.XXXXXXXXXX)
+
+DATADIR=/usr/share/mkinitramfs
+INITIN=init.in
+
+<span class="comment"># Create a temporary working directory</span>
+WDIR=$(<span class="built_in">mktemp</span> -d /tmp/initrd-work.XXXXXXXXXX)
+
+<span class="comment"># Create base directory structure</span>
+<span class="built_in">mkdir</span> -p <span class="variable">$WDIR</span>/&#123;dev,run,sys,proc,usr/&#123;bin,lib/&#123;firmware,modules&#125;,sbin&#125;&#125;
+<span class="built_in">mkdir</span> -p <span class="variable">$WDIR</span>/etc/&#123;modprobe.d,udev/rules.d&#125;
+<span class="built_in">touch</span> <span class="variable">$WDIR</span>/etc/modprobe.d/modprobe.conf
+<span class="built_in">ln</span> -s usr/bin  <span class="variable">$WDIR</span>/bin
+<span class="built_in">ln</span> -s usr/lib  <span class="variable">$WDIR</span>/lib
+<span class="built_in">ln</span> -s usr/sbin <span class="variable">$WDIR</span>/sbin
+<span class="built_in">ln</span> -s lib      <span class="variable">$WDIR</span>/lib64
+
+<span class="comment"># Create necessary device nodes</span>
+<span class="built_in">mknod</span> -m 640 <span class="variable">$WDIR</span>/dev/console c 5 1
+<span class="built_in">mknod</span> -m 664 <span class="variable">$WDIR</span>/dev/null    c 1 3
+
+<span class="comment"># Install the udev configuration files</span>
+<span class="keyword">if</span> [ -f /etc/udev/udev.conf ]; <span class="keyword">then</span>
+  <span class="built_in">cp</span> /etc/udev/udev.conf <span class="variable">$WDIR</span>/etc/udev/udev.conf
+<span class="keyword">fi</span>
+
+<span class="keyword">for</span> file <span class="keyword">in</span> $(find /etc/udev/rules.d/ -<span class="built_in">type</span> f) ; <span class="keyword">do</span>
+  <span class="built_in">cp</span> <span class="variable">$file</span> <span class="variable">$WDIR</span>/etc/udev/rules.d
+<span class="keyword">done</span>
+
+<span class="comment"># Install any firmware present</span>
+<span class="built_in">cp</span> -a /usr/lib/firmware <span class="variable">$WDIR</span>/usr/lib
+
+<span class="comment"># Copy the RAID configuration file if present</span>
+<span class="keyword">if</span> [ -f /etc/mdadm.conf ] ; <span class="keyword">then</span>
+  <span class="built_in">cp</span> /etc/mdadm.conf <span class="variable">$WDIR</span>/etc
+<span class="keyword">fi</span>
+
+<span class="comment"># Install the init file</span>
+install -m0755 <span class="variable">$DATADIR</span>/<span class="variable">$INITIN</span> <span class="variable">$WDIR</span>/init
+
+<span class="keyword">if</span> [  -n <span class="string">&quot;<span class="variable">$KERNEL_VERSION</span>&quot;</span> ] ; <span class="keyword">then</span>
+  <span class="keyword">if</span> [ -x /usr/bin/kmod ] ; <span class="keyword">then</span>
+    binfiles=<span class="string">&quot;<span class="variable">$binfiles</span> kmod&quot;</span>
+  <span class="keyword">else</span>
+    binfiles=<span class="string">&quot;<span class="variable">$binfiles</span> lsmod&quot;</span>
+    sbinfiles=<span class="string">&quot;<span class="variable">$sbinfiles</span> insmod&quot;</span>
+  <span class="keyword">fi</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Install basic binaries</span>
+<span class="keyword">for</span> f <span class="keyword">in</span> <span class="variable">$binfiles</span> ; <span class="keyword">do</span>
+  ldd /usr/bin/<span class="variable">$f</span> | sed <span class="string">&quot;s/\t//&quot;</span> | <span class="built_in">cut</span> -d <span class="string">&quot; &quot;</span> -f1 &gt;&gt; <span class="variable">$unsorted</span>
+  copy /usr/bin/<span class="variable">$f</span> bin
+<span class="keyword">done</span>
+
+<span class="keyword">for</span> f <span class="keyword">in</span> <span class="variable">$sbinfiles</span> ; <span class="keyword">do</span>
+  ldd /usr/sbin/<span class="variable">$f</span> | sed <span class="string">&quot;s/\t//&quot;</span> | <span class="built_in">cut</span> -d <span class="string">&quot; &quot;</span> -f1 &gt;&gt; <span class="variable">$unsorted</span>
+  copy <span class="variable">$f</span> sbin
+<span class="keyword">done</span>
+
+<span class="comment"># Add udevd libraries if not in /usr/sbin</span>
+<span class="keyword">if</span> [ -x /usr/lib/udev/udevd ] ; <span class="keyword">then</span>
+  ldd /usr/lib/udev/udevd | sed <span class="string">&quot;s/\t//&quot;</span> | <span class="built_in">cut</span> -d <span class="string">&quot; &quot;</span> -f1 &gt;&gt; <span class="variable">$unsorted</span>
+<span class="keyword">elif</span> [ -x /usr/lib/systemd/systemd-udevd ] ; <span class="keyword">then</span>
+  ldd /usr/lib/systemd/systemd-udevd | sed <span class="string">&quot;s/\t//&quot;</span> | <span class="built_in">cut</span> -d <span class="string">&quot; &quot;</span> -f1 &gt;&gt; <span class="variable">$unsorted</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Add module symlinks if appropriate</span>
+<span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$KERNEL_VERSION</span>&quot;</span> ] &amp;&amp; [ -x /usr/bin/kmod ] ; <span class="keyword">then</span>
+  <span class="built_in">ln</span> -s kmod <span class="variable">$WDIR</span>/usr/bin/lsmod
+  <span class="built_in">ln</span> -s kmod <span class="variable">$WDIR</span>/usr/bin/insmod
+<span class="keyword">fi</span>
+
+<span class="comment"># Add lvm symlinks if appropriate</span>
+<span class="comment"># Also copy the lvm.conf file</span>
+<span class="keyword">if</span>  [ -x /usr/sbin/lvm ] ; <span class="keyword">then</span>
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/lvchange
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/lvrename
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/lvextend
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/lvcreate
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/lvdisplay
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/lvscan
+
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/pvchange
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/pvck
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/pvcreate
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/pvdisplay
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/pvscan
+
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/vgchange
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/vgcreate
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/vgscan
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/vgrename
+  <span class="built_in">ln</span> -s lvm <span class="variable">$WDIR</span>/usr/sbin/vgck
+  <span class="comment"># Conf file(s)</span>
+  <span class="built_in">cp</span> -a /etc/lvm <span class="variable">$WDIR</span>/etc
+<span class="keyword">fi</span>
+
+<span class="comment"># Install libraries</span>
+<span class="built_in">sort</span> <span class="variable">$unsorted</span> | <span class="built_in">uniq</span> | <span class="keyword">while</span> <span class="built_in">read</span> library ; <span class="keyword">do</span>
+<span class="comment"># linux-vdso and linux-gate are pseudo libraries and do not correspond to a file</span>
+<span class="comment"># libsystemd-shared is in /lib/systemd, so it is not found by copy, and</span>
+<span class="comment"># it is copied below anyway</span>
+  <span class="keyword">if</span> [[ <span class="string">&quot;<span class="variable">$library</span>&quot;</span> == linux-vdso.so.1 ]] ||
+     [[ <span class="string">&quot;<span class="variable">$library</span>&quot;</span> == linux-gate.so.1 ]] ||
+     [[ <span class="string">&quot;<span class="variable">$library</span>&quot;</span> == libsystemd-shared* ]]; <span class="keyword">then</span>
+    <span class="built_in">continue</span>
+  <span class="keyword">fi</span>
+
+  copy <span class="variable">$library</span> lib
+<span class="keyword">done</span>
+
+<span class="keyword">if</span> [ -d /usr/lib/udev ]; <span class="keyword">then</span>
+  <span class="built_in">cp</span> -a /usr/lib/udev <span class="variable">$WDIR</span>/usr/lib
+<span class="keyword">fi</span>
+<span class="keyword">if</span> [ -d /usr/lib/systemd ]; <span class="keyword">then</span>
+  <span class="built_in">cp</span> -a /usr/lib/systemd <span class="variable">$WDIR</span>/usr/lib
+<span class="keyword">fi</span>
+<span class="keyword">if</span> [ -d /usr/lib/elogind ]; <span class="keyword">then</span>
+  <span class="built_in">cp</span> -a /usr/lib/elogind <span class="variable">$WDIR</span>/usr/lib
+<span class="keyword">fi</span>
+
+<span class="comment"># Install the kernel modules if requested</span>
+<span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$KERNEL_VERSION</span>&quot;</span> ]; <span class="keyword">then</span>
+  find \
+     /usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>/kernel/&#123;crypto,fs,lib&#125;                      \
+     /usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>/kernel/drivers/&#123;block,ata,nvme,md,firewire&#125; \
+     /usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>/kernel/drivers/&#123;scsi,message,pcmcia,virtio&#125; \
+     /usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>/kernel/drivers/usb/&#123;host,storage&#125;           \
+     -<span class="built_in">type</span> f 2&gt; /dev/null | cpio --make-directories -p --quiet <span class="variable">$WDIR</span>
+
+  <span class="built_in">cp</span> /usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>/modules.&#123;<span class="built_in">builtin</span>,order&#125; \
+            <span class="variable">$WDIR</span>/usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>
+  <span class="keyword">if</span> [ -f /usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>/modules.builtin.modinfo ]; <span class="keyword">then</span>
+    <span class="built_in">cp</span> /usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>/modules.builtin.modinfo \
+            <span class="variable">$WDIR</span>/usr/lib/modules/<span class="variable">$KERNEL_VERSION</span>
+  <span class="keyword">fi</span>
+
+  depmod -b <span class="variable">$WDIR</span> <span class="variable">$KERNEL_VERSION</span>
+<span class="keyword">fi</span>
+
+( <span class="built_in">cd</span> <span class="variable">$WDIR</span> ; find . | cpio -o -H newc --quiet | gzip -9 ) &gt; <span class="variable">$INITRAMFS_FILE</span>
+
+<span class="comment"># Prepare early loading of microcode if available</span>
+<span class="keyword">if</span> <span class="built_in">ls</span> /usr/lib/firmware/intel-ucode/* &gt;/dev/null 2&gt;&amp;1 ||
+   <span class="built_in">ls</span> /usr/lib/firmware/amd-ucode/*   &gt;/dev/null 2&gt;&amp;1; <span class="keyword">then</span>
+
+<span class="comment"># first empty WDIR to reuse it</span>
+  <span class="built_in">rm</span> -r <span class="variable">$WDIR</span>/*
+
+  DSTDIR=<span class="variable">$WDIR</span>/kernel/x86/microcode
+  <span class="built_in">mkdir</span> -p <span class="variable">$DSTDIR</span>
+
+  <span class="keyword">if</span> [ -d /usr/lib/firmware/amd-ucode ]; <span class="keyword">then</span>
+    <span class="built_in">cat</span> /usr/lib/firmware/amd-ucode/microcode_amd*.bin &gt; <span class="variable">$DSTDIR</span>/AuthenticAMD.bin
+  <span class="keyword">fi</span>
+
+  <span class="keyword">if</span> [ -d /usr/lib/firmware/intel-ucode ]; <span class="keyword">then</span>
+    <span class="built_in">cat</span> /usr/lib/firmware/intel-ucode/* &gt; <span class="variable">$DSTDIR</span>/GenuineIntel.bin
+  <span class="keyword">fi</span>
+
+  ( <span class="built_in">cd</span> <span class="variable">$WDIR</span>; find . | cpio -o -H newc --quiet ) &gt; microcode.img
+  <span class="built_in">cat</span> microcode.img <span class="variable">$INITRAMFS_FILE</span> &gt; tmpfile
+  <span class="built_in">mv</span> tmpfile <span class="variable">$INITRAMFS_FILE</span>
+  <span class="built_in">rm</span> microcode.img
+<span class="keyword">fi</span>
+
+<span class="comment"># Remove the temporary directories and files</span>
+<span class="built_in">rm</span> -rf <span class="variable">$WDIR</span> <span class="variable">$unsorted</span>
+<span class="built_in">printf</span> <span class="string">&quot;done.\n&quot;</span>
+
+EOF
+
+<span class="built_in">chmod</span> 0755 /usr/sbin/mkinitramfs</code></pre>
+
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -p /usr/share/mkinitramfs &amp;&amp;
+<span class="built_in">cat</span> &gt; /usr/share/mkinitramfs/init.in &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment">#!/bin/sh</span>
+
+PATH=/usr/bin:/usr/sbin
+<span class="built_in">export</span> PATH
+
+<span class="function"><span class="title">problem</span></span>()
+&#123;
+   <span class="built_in">printf</span> <span class="string">&quot;Encountered a problem!\n\nDropping you to a shell.\n\n&quot;</span>
+   sh
+&#125;
+
+<span class="function"><span class="title">no_device</span></span>()
+&#123;
+   <span class="built_in">printf</span> <span class="string">&quot;The device %s, which is supposed to contain the\n&quot;</span> <span class="variable">$1</span>
+   <span class="built_in">printf</span> <span class="string">&quot;root file system, does not exist.\n&quot;</span>
+   <span class="built_in">printf</span> <span class="string">&quot;Please fix this problem and exit this shell.\n\n&quot;</span>
+&#125;
+
+<span class="function"><span class="title">no_mount</span></span>()
+&#123;
+   <span class="built_in">printf</span> <span class="string">&quot;Could not mount device %s\n&quot;</span> <span class="variable">$1</span>
+   <span class="built_in">printf</span> <span class="string">&quot;Sleeping forever. Please reboot and fix the kernel command line.\n\n&quot;</span>
+   <span class="built_in">printf</span> <span class="string">&quot;Maybe the device is formatted with an unsupported file system?\n\n&quot;</span>
+   <span class="built_in">printf</span> <span class="string">&quot;Or maybe filesystem type autodetection went wrong, in which case\n&quot;</span>
+   <span class="built_in">printf</span> <span class="string">&quot;you should add the rootfstype=... parameter to the kernel command line.\n\n&quot;</span>
+   <span class="built_in">printf</span> <span class="string">&quot;Available partitions:\n&quot;</span>
+&#125;
+
+<span class="function"><span class="title">do_mount_root</span></span>()
+&#123;
+   <span class="built_in">mkdir</span> /.root
+   [ -n <span class="string">&quot;<span class="variable">$rootflags</span>&quot;</span> ] &amp;&amp; rootflags=<span class="string">&quot;<span class="variable">$rootflags</span>,&quot;</span>
+   rootflags=<span class="string">&quot;$rootflags<span class="variable">$ro</span>&quot;</span>
+
+   <span class="keyword">case</span> <span class="string">&quot;<span class="variable">$root</span>&quot;</span> <span class="keyword">in</span>
+      /dev/*    ) device=<span class="variable">$root</span> ;;
+      UUID=*    ) <span class="built_in">eval</span> <span class="variable">$root</span>; device=<span class="string">&quot;/dev/disk/by-uuid/<span class="variable">$UUID</span>&quot;</span> ;;
+      PARTUUID=*) <span class="built_in">eval</span> <span class="variable">$root</span>; device=<span class="string">&quot;/dev/disk/by-partuuid/<span class="variable">$PARTUUID</span>&quot;</span> ;;
+      LABEL=*   ) <span class="built_in">eval</span> <span class="variable">$root</span>; device=<span class="string">&quot;/dev/disk/by-label/<span class="variable">$LABEL</span>&quot;</span> ;;
+      <span class="string">&quot;&quot;</span>        ) <span class="built_in">echo</span> <span class="string">&quot;No root device specified.&quot;</span> ; problem ;;
+   <span class="keyword">esac</span>
+
+   <span class="keyword">while</span> [ ! -b <span class="string">&quot;<span class="variable">$device</span>&quot;</span> ] ; <span class="keyword">do</span>
+       no_device <span class="variable">$device</span>
+       problem
+   <span class="keyword">done</span>
+
+   <span class="keyword">if</span> ! mount -n -t <span class="string">&quot;<span class="variable">$rootfstype</span>&quot;</span> -o <span class="string">&quot;<span class="variable">$rootflags</span>&quot;</span> <span class="string">&quot;<span class="variable">$device</span>&quot;</span> /.root ; <span class="keyword">then</span>
+       no_mount <span class="variable">$device</span>
+       <span class="built_in">cat</span> /proc/partitions
+       <span class="keyword">while</span> <span class="literal">true</span> ; <span class="keyword">do</span> <span class="built_in">sleep</span> 10000 ; <span class="keyword">done</span>
+   <span class="keyword">else</span>
+       <span class="built_in">echo</span> <span class="string">&quot;Successfully mounted device <span class="variable">$root</span>&quot;</span>
+   <span class="keyword">fi</span>
+&#125;
+
+<span class="function"><span class="title">do_try_resume</span></span>()
+&#123;
+   <span class="keyword">case</span> <span class="string">&quot;<span class="variable">$resume</span>&quot;</span> <span class="keyword">in</span>
+      UUID=* ) <span class="built_in">eval</span> <span class="variable">$resume</span>; resume=<span class="string">&quot;/dev/disk/by-uuid/<span class="variable">$UUID</span>&quot;</span>  ;;
+      LABEL=*) <span class="built_in">eval</span> <span class="variable">$resume</span>; resume=<span class="string">&quot;/dev/disk/by-label/<span class="variable">$LABEL</span>&quot;</span> ;;
+   <span class="keyword">esac</span>
+
+   <span class="keyword">if</span> <span class="variable">$noresume</span> || ! [ -b <span class="string">&quot;<span class="variable">$resume</span>&quot;</span> ]; <span class="keyword">then</span> <span class="built_in">return</span>; <span class="keyword">fi</span>
+
+   <span class="built_in">ls</span> -lH <span class="string">&quot;<span class="variable">$resume</span>&quot;</span> | ( <span class="built_in">read</span> x x x x maj min x
+       <span class="built_in">echo</span> -n <span class="variable">$&#123;maj%,&#125;</span>:<span class="variable">$min</span> &gt; /sys/power/resume )
+&#125;
+
+init=/sbin/init
+root=
+rootdelay=
+rootfstype=auto
+ro=<span class="string">&quot;ro&quot;</span>
+rootflags=
+device=
+resume=
+noresume=<span class="literal">false</span>
+
+mount -n -t devtmpfs devtmpfs /dev
+mount -n -t proc     proc     /proc
+mount -n -t sysfs    sysfs    /sys
+mount -n -t tmpfs    tmpfs    /run
+
+<span class="built_in">read</span> -r cmdline &lt; /proc/cmdline
+
+<span class="keyword">for</span> param <span class="keyword">in</span> <span class="variable">$cmdline</span> ; <span class="keyword">do</span>
+  <span class="keyword">case</span> <span class="variable">$param</span> <span class="keyword">in</span>
+    init=*      ) init=<span class="variable">$&#123;param#init=&#125;</span>             ;;
+    root=*      ) root=<span class="variable">$&#123;param#root=&#125;</span>             ;;
+    rootdelay=* ) rootdelay=<span class="variable">$&#123;param#rootdelay=&#125;</span>   ;;
+    rootfstype=*) rootfstype=<span class="variable">$&#123;param#rootfstype=&#125;</span> ;;
+    rootflags=* ) rootflags=<span class="variable">$&#123;param#rootflags=&#125;</span>   ;;
+    resume=*    ) resume=<span class="variable">$&#123;param#resume=&#125;</span>         ;;
+    noresume    ) noresume=<span class="literal">true</span>                   ;;
+    ro          ) ro=<span class="string">&quot;ro&quot;</span>                         ;;
+    rw          ) ro=<span class="string">&quot;rw&quot;</span>                         ;;
+  <span class="keyword">esac</span>
+<span class="keyword">done</span>
+
+<span class="comment"># udevd location depends on version</span>
+<span class="keyword">if</span> [ -x /sbin/udevd ]; <span class="keyword">then</span>
+  UDEVD=/sbin/udevd
+<span class="keyword">elif</span> [ -x /lib/udev/udevd ]; <span class="keyword">then</span>
+  UDEVD=/lib/udev/udevd
+<span class="keyword">elif</span> [ -x /lib/systemd/systemd-udevd ]; <span class="keyword">then</span>
+  UDEVD=/lib/systemd/systemd-udevd
+<span class="keyword">else</span>
+  <span class="built_in">echo</span> <span class="string">&quot;Cannot find udevd nor systemd-udevd&quot;</span>
+  problem
+<span class="keyword">fi</span>
+
+<span class="variable">$&#123;UDEVD&#125;</span> --daemon --resolve-names=never
+udevadm trigger
+udevadm settle
+
+<span class="keyword">if</span> [ -f /etc/mdadm.conf ] ; <span class="keyword">then</span> mdadm -As                       ; <span class="keyword">fi</span>
+<span class="keyword">if</span> [ -x /sbin/vgchange  ] ; <span class="keyword">then</span> /sbin/vgchange -a y &gt; /dev/null ; <span class="keyword">fi</span>
+<span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$rootdelay</span>&quot;</span>    ] ; <span class="keyword">then</span> <span class="built_in">sleep</span> <span class="string">&quot;<span class="variable">$rootdelay</span>&quot;</span>              ; <span class="keyword">fi</span>
+
+do_try_resume <span class="comment"># This function will not return if resuming from disk</span>
+do_mount_root
+
+killall -w <span class="variable">$&#123;UDEVD##*/&#125;</span>
+
+<span class="built_in">exec</span> switch_root /.root <span class="string">&quot;<span class="variable">$init</span>&quot;</span> <span class="string">&quot;<span class="variable">$@</span>&quot;</span>
+
+EOF</code></pre>
+
+<p>现在可以构建initramfs</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /boot
+mkinitramfs</code></pre>
+
+<p>生成 &#x2F;boot&#x2F;grub&#x2F;grub.cfg，这里需要获取到文件系统的UUID和分区的UUID，前面也已经通过<code>blkid</code>获取到了，其中文件系统的UUID指<code>UUID</code>，分区的UUID指<code>PARTUUID</code><br>可以通过</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /boot/grub/grub.cfg &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /boot/grub/grub.cfg</span>
+<span class="built_in">set</span> default=0
+<span class="built_in">set</span> <span class="built_in">timeout</span>=5
+
+insmod part_gpt
+insmod ext2
+search --<span class="built_in">set</span>=root --fs-uuid 315ffc52-a533-4a9d-954a-a1d6c891a25f
+
+menuentry <span class="string">&quot;GNU/Linux, Linux 6.10.5-lfs-12.2&quot;</span> &#123;
+        linux   /boot/vmlinuz-6.10.5-lfs-12.2 root=PARTUUID=0127e901-01 ro rootdelay=5
+        initrd /boot/initrd.img-no-kmods
+&#125;
+EOF</code></pre>
+
+<h1 id="收尾工作"><a href="#收尾工作" class="headerlink" title="收尾工作"></a>收尾工作</h1><p>创建<code>/etc/lfs-release</code>来定义LFS系统版本</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> 12.2 &gt; /etc/lfs-release</code></pre>
+
+<blockquote>
+<p>后续安装在系统上的软件包可能需要两个描述当前安装的系统的文件，这些软件包可能是二进制包，也可能是需要构建的源代码包。<br>第一个文件根据 Linux Standards Base (LSB) 的规则描述系统状态。运行命令创建该文件<br>修改<code>DISTRIB_CODENAME</code></p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/lsb-release &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+DISTRIB_ID=<span class="string">&quot;Linux From Scratch&quot;</span>
+DISTRIB_RELEASE=<span class="string">&quot;12.2&quot;</span>
+DISTRIB_CODENAME=<span class="string">&quot;Miku&quot;</span>
+DISTRIB_DESCRIPTION=<span class="string">&quot;Linux From Scratch&quot;</span>
+EOF</code></pre>
+
+<blockquote>
+<p>第二个文件基本上包含相同的信息，systemd 和一些图形桌面环境会使用它。运行命令创建该文件<br>修改<code>VERSION_CODENAME</code></p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/os-release &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+NAME=<span class="string">&quot;Linux From Scratch&quot;</span>
+VERSION=<span class="string">&quot;12.2&quot;</span>
+ID=lfs
+PRETTY_NAME=<span class="string">&quot;Linux From Scratch 12.2&quot;</span>
+VERSION_CODENAME=<span class="string">&quot;Finale&quot;</span>
+HOME_URL=<span class="string">&quot;https://www.linuxfromscratch.org/lfs/&quot;</span>
+EOF</code></pre>
+
+<p>现在所有工作都完成了，退出chroot环境</p>
+<pre><code class="highlight bash"><span class="built_in">logout</span></code></pre>
+
+<p>解除虚拟文件系统的挂载</p>
+<pre><code class="highlight bash">umount -v <span class="variable">$LFS</span>/dev/pts
+mountpoint -q <span class="variable">$LFS</span>/dev/shm &amp;&amp; umount -v <span class="variable">$LFS</span>/dev/shm
+umount -v <span class="variable">$LFS</span>/dev
+umount -v <span class="variable">$LFS</span>/run
+umount -v <span class="variable">$LFS</span>/proc
+umount -v <span class="variable">$LFS</span>/sys</code></pre>
+
+<p>解除 LFS 文件系统的挂载</p>
+<pre><code class="highlight bash">umount -v <span class="variable">$LFS</span></code></pre>
+
+<h1 id="安装到虚拟硬盘上"><a href="#安装到虚拟硬盘上" class="headerlink" title="安装到虚拟硬盘上"></a>安装到虚拟硬盘上</h1><p>之前已经安装好了整个LFS，但因为是在U盘上安装的，接下来会讲如何做可启动的镜像<br>首先确认LFS占用了多大空间，然后用<code>dd</code>制作一个大小差不多的文件，这里选择30G</p>
+<pre><code class="highlight bash"><span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=/path/to/your/img bs 1M count 30000</code></pre>
+
+<p>把这个文件挂载成回环设备，然后通过<code>losetup -l</code>确认回环设备的名字，我的是<code>/dev/loop0</code></p>
+<pre><code class="highlight bash">losetup -fP /path/to/your/img
+losetup -l</code></pre>
+
+<p>对这个回环设备进行分区操作</p>
+<pre><code class="highlight bash">fdisk /dev/loop0</code></pre>
+
+<p>在这个块设备上建立一个分区，然后在这个分区上建立一个<code>ext4</code>文件系统，我的分区名字叫做<code>/dev/loop0p1</code></p>
+<pre><code class="highlight bash">mkfs.ext4 /dev/loop0p1`</code></pre>
+
+<p>现在挂载这个分区</p>
+<pre><code class="highlight bash">mount /dev/loop0p1 /mnt/temp/</code></pre>
+
+<p>把LFS复制到分区里</p>
+<pre><code class="highlight bash"><span class="built_in">cp</span> <span class="variable">$LFS</span>/* /mnt/temp</code></pre>
+
+<p>把环境变量$LFS改成现在这个目录，像之前一样挂载好内核虚拟文件系统，然后进入chroot环境</p>
+<pre><code class="highlight bash"><span class="built_in">export</span> LFS=/mnt/temp
+
+mount -v --<span class="built_in">bind</span> /dev <span class="variable">$LFS</span>/dev
+mount -vt devpts devpts -o gid=5,mode=0620 <span class="variable">$LFS</span>/dev/pts
+mount -vt proc proc <span class="variable">$LFS</span>/proc
+mount -vt sysfs sysfs <span class="variable">$LFS</span>/sys
+mount -vt tmpfs tmpfs <span class="variable">$LFS</span>/run
+
+<span class="keyword">if</span> [ -h <span class="variable">$LFS</span>/dev/shm ]; <span class="keyword">then</span>
+  install -v -d -m 1777 $LFS$(<span class="built_in">realpath</span> /dev/shm)
+<span class="keyword">else</span>
+  mount -vt tmpfs -o nosuid,nodev tmpfs <span class="variable">$LFS</span>/dev/shm
+<span class="keyword">fi</span>
+
+<span class="built_in">chroot</span> <span class="string">&quot;<span class="variable">$LFS</span>&quot;</span> /usr/bin/env -i   \
+    HOME=/root                  \
+    TERM=<span class="string">&quot;<span class="variable">$TERM</span>&quot;</span>                \
+    PS1=<span class="string">&#x27;(lfs chroot) \u:\w\$ &#x27;</span> \
+    PATH=/usr/bin:/usr/sbin     \
+    MAKEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span>      \
+    TESTSUITEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span> \
+    /bin/bash --login</code></pre>
+
+<p>现在再安装一遍GRUB，这样就可以用虚拟硬盘上的GRUB启动系统了</p>
+<pre><code class="highlight bash">grub-install --boot-directory /boot --target i386-pc --allow-floppy /dev/loop0 --directory /usr/lib/grub/i386-pc</code></pre>
+
+<p>因为重新制作了文件系统，所以相应的<code>/etc/fstab</code>和<code>/boot/grub/grub.cfg</code>都需要像之前提到的一样修改</p>
+<p>退出系统并卸载所有分区，现在可以用QEMU启动系统了</p>
+<pre><code class="highlight bash"><span class="built_in">exit</span>
+
+umount -v <span class="variable">$LFS</span>/dev/pts
+mountpoint -q <span class="variable">$LFS</span>/dev/shm &amp;&amp; umount -v <span class="variable">$LFS</span>/dev/shm
+umount -v <span class="variable">$LFS</span>/dev
+umount -v <span class="variable">$LFS</span>/run
+umount -v <span class="variable">$LFS</span>/proc
+umount -v <span class="variable">$LFS</span>/sys
+
+umount -v <span class="variable">$LFS</span>
+
+losetup -d /dev/loop0
+
+qemu-system-x86_84 -hda /path/to/your/img</code></pre>
+        </article>
+
+        
+            
+  <div class="nexmoe-post-copyright">
+    <strong>本文作者：</strong>NakanoMiku<br>
+    
+    <strong>本文链接：</strong><a href="http://nakanomiku39.github.io/2024/10/05/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%884%EF%BC%89/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;10&#x2F;05&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%884%EF%BC%89&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;10&#x2F;05&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%884%EF%BC%89&#x2F;</a><br>
+
+    
+      <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+    
+  </div>
+
+
+        
+
+        <div class="nexmoe-post-meta nexmoe-rainbow">
+    
+        <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a>
+    
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/LFS/" rel="tag">LFS</a>
+    
+</div>
+
+    <!-- <div class="nexmoe-post-footer">
+        <section class="nexmoe-comment">
+    <div class="valine"></div>
+<script src='https://lib.baomitu.com/valine/1.3.9/Valine.min.js'></script>
+<script>
+    // 使用方法 https://valine.js.org/quickstart.html
+    new Valine({
+        el: '.valine',
+        appId: 'r5zxC0st0DDjPA9auXzMV7HY-gzGzoHsz',
+        appKey: '3bqCsovpyfTPHUzTHovd3V3V'
+    })
+</script>
+</section>
+    </div> -->
+</div>
+
+
+        <div class="nexmoe-post-right">
+          
+            <div class="nexmoe-fixed">
+              <div class="nexmoe-tool">
+                <a href="#" aria-label="回到顶部" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+              </div>
+            </div>
+          
+        </div>
+    </div>
+  </div>
+  <!-- <div id="nexmoe-pendant">
+    <div class="nexmoe-drawer mdui-drawer nexmoe-pd" id="drawer">
+        
+            <div class="nexmoe-pd-item">
+                <div class="clock">
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="needle" id="hours"></div>
+        <div class="needle" id="minutes"></div>
+        <div class="needle" id="seconds"></div>
+        <div class="clock_logo">
+
+        </div>
+
+    </div>
+<style>
+    .clock {
+        background-color: #ffffff;
+        width: 70vw;
+        height: 70vw;
+        max-width: 70vh;
+        max-height: 70vh;
+        border: solid 2.8vw #242424;
+        position: relative;
+        overflow: hidden;
+        border-radius: 50%;
+        box-sizing: border-box;
+        box-shadow: 0 1.4vw 2.8vw rgba(0, 0, 0, 0.8);
+        zoom:0.2
+    }
+
+    .memory {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .memory:nth-child(1) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(0deg) translateY(-520%);
+    }
+
+    .memory:nth-child(2) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(6deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(3) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(12deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(4) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(18deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(5) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(24deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(6) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(30deg) translateY(-520%);
+    }
+
+    .memory:nth-child(7) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(36deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(8) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(42deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(9) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(48deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(10) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(54deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(11) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(60deg) translateY(-520%);
+    }
+
+    .memory:nth-child(12) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(66deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(13) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(72deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(14) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(78deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(15) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(84deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(16) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(90deg) translateY(-520%);
+    }
+
+    .memory:nth-child(17) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(96deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(18) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(102deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(19) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(108deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(20) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(114deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(21) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(120deg) translateY(-520%);
+    }
+
+    .memory:nth-child(22) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(126deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(23) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(132deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(24) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(138deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(25) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(144deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(26) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(150deg) translateY(-520%);
+    }
+
+    .memory:nth-child(27) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(156deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(28) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(162deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(29) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(168deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(30) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(174deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(31) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(180deg) translateY(-520%);
+    }
+
+    .memory:nth-child(32) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(186deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(33) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(192deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(34) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(198deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(35) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(204deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(36) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(210deg) translateY(-520%);
+    }
+
+    .memory:nth-child(37) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(216deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(38) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(222deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(39) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(228deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(40) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(234deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(41) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(240deg) translateY(-520%);
+    }
+
+    .memory:nth-child(42) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(246deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(43) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(252deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(44) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(258deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(45) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(264deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(46) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(270deg) translateY(-520%);
+    }
+
+    .memory:nth-child(47) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(276deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(48) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(282deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(49) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(288deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(50) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(294deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(51) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-520%);
+    }
+
+    .memory:nth-child(52) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(306deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(53) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(312deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(54) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(318deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(55) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(324deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(56) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(330deg) translateY(-520%);
+    }
+
+    .memory:nth-child(57) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(336deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(58) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(342deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(59) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(348deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(60) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(354deg) translateY(-1461%);
+    }
+
+    .needle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .needle#hours {
+        background-color: #1f1f1f;
+        width: 4%;
+        height: 30%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#hours.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#hours:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#minutes {
+        background-color: #1f1f1f;
+        width: 2%;
+        height: 45%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#minutes.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#minutes:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#seconds {
+        background-color: #cb2f2f;
+        width: 1%;
+        height: 50%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#seconds.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#seconds:after {
+        content: '';
+        background-color: #cb2f2f;
+        width: 2.5vw;
+        height: 2.5vw;
+        max-width: 2.5vh;
+        max-height: 2.5vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .clock_logo{
+        width: 10vw;
+        height: 10vw;
+        max-width: 10vh;
+        max-height: 10vh;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+    @media (min-width: 100vh) {
+        .clock {
+            border: solid 2.8vh #242424;
+            box-shadow: 0 1.4vh 2.8vh rgba(0, 0, 0, 0.8);
+        }
+    }
+
+</style>
+
+
+
+
+
+            </div>
+        
+            <div class="nexmoe-pd-item">
+                <div class="qweather" >
+    <div id="he-plugin-standard"></div>
+    <div class="qweather-logo">
+
+    </div>
+
+</div>
+<style>
+    .qweather{
+        position: relative;
+    }
+    .qweather-logo{
+        position: absolute;
+        right: 0;
+        top: -15px;
+        width: 40px;
+        height: 40px;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+</style>
+<script>
+  WIDGET = {
+    "CONFIG": {
+      "layout": "2",
+      "width": "260",
+      "height": "220",
+      "background": "5",
+      "dataColor": "e67249",
+      "borderRadius": "15",
+      "key": "f74d1e1690e6432d801e97fa2f05a162"
+    }
+  }
+</script>
+<script src="https://widget.qweather.net/standard/static/js/he-standard-common.js?v=2.0"></script>
+
+            </div>
+        
+</div>
+<style>
+    .nexmoe-pd {
+        left: auto;
+        top: 40px;
+        right: 0;
+    }
+    .nexmoe-pd-item{
+       display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+</style>
+
+  </div> -->
+  <script src="https://lib.baomitu.com/lazysizes/5.1.0/lazysizes.min.js"></script>
+<script src="https://lib.baomitu.com/highlight.js/10.0.0/highlight.min.js"></script>
+<script src="https://lib.baomitu.com/mdui/0.4.3/js/mdui.min.js"></script>
+
+<script>
+	hljs.initHighlightingOnLoad();
+</script>
+
+<script src="https://lib.baomitu.com/jquery/3.5.1/jquery.slim.min.js"></script>
+<script src="/lib/fancybox/js/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/app.js?v=1728305945207"></script>
+
+<script src="https://lib.baomitu.com/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+<script>
+	$(".justified-gallery").justifiedGallery({
+		rowHeight: 160,
+		margins: 10,
+	});
+</script>
+
+  
+
+
+
+
+
+<!-- hexo injector body_end start -->
+<script src="/js/clock.js"></script>
+
+<script src="/js/webapp.js"></script>
+
+<script src="https://lib.baomitu.com/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script src="/lib/codeBlock/codeBlockFuction.js"></script>
+
+<script src="/lib/codeBlock/codeLang.js"></script>
+
+<script src="/lib/codeBlock/codeCopy.js"></script>
+
+<script src="/lib/codeBlock/codeShrink.js"></script>
+
+<link rel="stylesheet" href="/lib/codeBlock/matery.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+<script src="/js/search.js"></script>
+<!-- hexo injector body_end end --></body>
+</html>
+

@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+  
+  <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+  <title>构造基于x86_64的LFS（2） - NakanoMiku&#39;s page</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  
+  
+
+    <!-- Site Verification -->
+    <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+
+  <link rel="shortcut icon" href="/images/head/miku.jpg" type="image/jpg" />
+  <meta name="description" content="继续构造LFS，从构建交叉工具链和临时工具开始">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构造基于x86_64的LFS（2）">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/09/28/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89/index.html">
+<meta property="og:site_name" content="NakanoMiku&#39;s page">
+<meta property="og:description" content="继续构造LFS，从构建交叉工具链和临时工具开始">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-09-27T16:52:25.000Z">
+<meta property="article:modified_time" content="2024-10-07T08:24:57.112Z">
+<meta property="article:author" content="NakanoMiku">
+<meta property="article:tag" content="LFS">
+<meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="https://lib.baomitu.com/highlight.js/9.15.8/styles/atom-one-dark.min.css" crossorigin>
+  <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css">
+  <link rel="stylesheet" href="/lib/iconfont/iconfont.css">
+  <link rel="stylesheet" href="/lib/fancybox/css/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="https://lib.baomitu.com/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
+  
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_2421060_8z08qcz5sq3.css">
+  
+  <link rel="stylesheet" href="/css/style.css?v=1728305945208">
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="mdui-drawer-body-left">
+  
+  <div id="nexmoe-background">
+    <div class="nexmoe-bg" style="background-image: url(/images/background/ichika279-2.png)"></div>
+    <div class="nexmoe-small" style="background-image: url()"></div>
+    <div class="mdui-appbar mdui-shadow-0">
+      <div class="mdui-toolbar">
+        <a mdui-drawer="{target: '#drawer', swipe: true}" title="menu" class="mdui-btn mdui-btn-icon mdui-ripple"><i class="mdui-icon nexmoefont icon-menu"></i></a>
+        <div class="mdui-toolbar-spacer"></div>
+        <!--<a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>-->
+        <a href="/" title="NakanoMiku" class="mdui-btn mdui-btn-icon"><img src="/images/head/miku.jpg" alt="NakanoMiku"></a>
+       </div>
+    </div>
+  </div>
+  <div id="nexmoe-header">
+      <div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku" alt="NakanoMiku">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div class="nexmoe-count-item"><span>文章</span>7 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
+        <div class="nexmoe-count-item"><span>标签</span>4<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+        <div class="nexmoe-count-item"><span>分类</span>2<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-meishi"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-hanbao1"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    <aside id="nexmoe-sidebar">
+  
+  
+<!-- 站内搜索 -->
+
+<div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-search" >
+        <form id="search-form">
+            <label><input type="text" id="local-search-input" name="q" results="0" placeholder="站内搜索" class="input form-control" autocomplete="off" autocorrect="off"/></label>
+            <!-- 清空/重置搜索框 -->
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+        </form>
+    </div>
+    <div id="local-search-result"></div> <!-- 搜索结果区 -->
+    <!-- <p class='no-result'></p> 无匹配时显示，注意在 CSS 中设置默认隐藏 -->
+</div>
+
+
+  
+  <div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-social">
+        <a class="mdui-ripple" href="https://github.com/NakanoMiku39/" target="_blank" mdui-tooltip="{content: 'GitHub'}" style="color: rgb(25, 23, 23);background-color: rgba(25, 23, 23, .15);">
+            <i class="nexmoefont icon-github"></i>
+        </a>
+    </div>
+</div>
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章分类</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">7</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/php/" style="font-size: 15px;">php</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 15px;">我的世界</a>
+    </div>
+    
+  </div>
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章归档</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">7</span></li></ul>
+    </div>
+  </div>
+
+
+<style>
+.nexmoe-widget .archive-list-count{
+	position : absolute;
+	right: 15px;
+	top:9px;
+	color: #DDD;
+}
+</style>
+
+  
+</aside>
+    <div class="nexmoe-copyright">
+        &copy; 2024 NakanoMiku
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/tangyuxian/hexo-theme-tangyuxian" target="_blank">Tangyuxian</a><br/>
+        <a href="http://beian.miit.gov.cn" target="_blank"></a><br/>
+        
+        <div style="font-size: 12px">
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            本站总访问量  <a id="busuanzi_value_site_pv"></a> 次<br />
+            本站访客数<a id="busuanzi_value_site_uv"></a>人次
+        </div>
+        
+        
+    </div>
+
+</div><!-- .nexmoe-drawer -->
+
+  </div>
+  <div id="nexmoe-content">
+    <div class="nexmoe-primary">
+        <div class="nexmoe-post">
+    
+        <div class="nexmoe-post-cover" style="padding-bottom: 26.666666666666668%;">
+            <img data-src="/images/background/kanade541-2.png" data-sizes="auto" alt="构造基于x86_64的LFS（2）" class="lazyload">
+            <h1>构造基于x86_64的LFS（2）</h1>
+        </div>
+    
+
+        <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2024年09月28日</a>
+    <a><i class="nexmoefont icon-areachart"></i>5.6k 字</a>
+    <a><i class="nexmoefont icon-time-circle-fill"></i>大概 27 分钟</a>
+</div>
+
+        <div class="nexmoe-post-right">
+            
+        </div>
+
+        <article>
+            <p>继续构造LFS，从构建交叉工具链和临时工具开始</p>
+<span id="more"></span>
+<h1 id="编译交叉工具链"><a href="#编译交叉工具链" class="headerlink" title="编译交叉工具链"></a>编译交叉工具链</h1><p><strong>确认环境变量<code>$LFS</code>无误</strong>，随后切换到<code>$LFS/sources</code>目录下</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="variable">$LFS</span>
+<span class="built_in">cd</span> <span class="variable">$LFS</span>/sources</code></pre>
+
+<h2 id="Binutils"><a href="#Binutils" class="headerlink" title="Binutils"></a>Binutils</h2><p>第一个要构建的软件包是Binutils，因为在编译GCC前，GCC需要根据Binutils来决定启用哪些功能<br>先解压Binutils</p>
+<pre><code class="highlight bash">tar -xf binutils-2.43.1.tar.xz
+<span class="built_in">cd</span> binutils-2.43.1</code></pre>
+
+<p>创建一个新目录来构建Binutils，这个目录在<code>binutils-2.43.1</code>下</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span> build</code></pre>
+
+<p>准备编译Binutils</p>
+<pre><code class="highlight bash">../configure --prefix=<span class="variable">$LFS</span>/tools \
+             --with-sysroot=<span class="variable">$LFS</span> \
+             --target=<span class="variable">$LFS_TGT</span>   \
+             --disable-nls       \
+             --enable-gprofng=no \
+             --disable-werror    \
+             --enable-new-dtags  \
+             --enable-default-hash-style=gnu</code></pre>
+
+<p>开始编译，在编译完成后安装该软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<h2 id="GCC"><a href="#GCC" class="headerlink" title="GCC"></a>GCC</h2><p>现在可以构建GCC了，但是是Freestanding GCC，因为我们没有Glibc，更多内容可以看FAQ<br>这个GCC是一个交叉编译器<br>解压GCC</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf gcc-14.2.0.tar.xz
+<span class="built_in">cd</span> gcc-14.2.0</code></pre>
+
+<p>GCC依赖GMP、MPFR 和 MPC 这三个包，需要解压它们并重命名解压出的目录，这里<strong>依然在gcc-14.2.0目录下继续操作</strong>，完成后，gcc-14.2.0目录下应该多出了mpfr，gmp，mpc目录</p>
+<pre><code class="highlight bash">tar -xf ../mpfr-4.2.1.tar.xz
+<span class="built_in">mv</span> -v mpfr-4.2.1 mpfr
+tar -xf ../gmp-6.3.0.tar.xz
+<span class="built_in">mv</span> -v gmp-6.3.0 gmp
+tar -xf ../mpc-1.3.1.tar.gz
+<span class="built_in">mv</span> -v mpc-1.3.1 mpc</code></pre>
+
+<p>对于 x86_64 平台，还要设置存放 64 位库的默认目录为 “lib”</p>
+<pre><code class="highlight bash"><span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span>
+  x86_64)
+    sed -e <span class="string">&#x27;/m64=/s/lib64/lib/&#x27;</span> \
+        -i.orig gcc/config/i386/t-linux64
+ ;;
+<span class="keyword">esac</span></code></pre>
+
+<p>创建一个用于构建GCC的新目录</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span>       build</code></pre>
+
+<p>准备编译GCC</p>
+<pre><code class="highlight bash">../configure                  \
+    --target=<span class="variable">$LFS_TGT</span>         \
+    --prefix=<span class="variable">$LFS</span>/tools       \
+    --with-glibc-version=2.40 \
+    --with-sysroot=<span class="variable">$LFS</span>       \
+    --with-newlib             \
+    --without-headers         \
+    --enable-default-pie      \
+    --enable-default-ssp      \
+    --disable-nls             \
+    --disable-shared          \
+    --disable-multilib        \
+    --disable-threads         \
+    --disable-libatomic       \
+    --disable-libgomp         \
+    --disable-libquadmath     \
+    --disable-libssp          \
+    --disable-libvtv          \
+    --disable-libstdcxx       \
+    --enable-languages=c,c++</code></pre>
+
+<p>开始编译GCC，编译完成后安装GCC</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<blockquote>
+<p>刚刚构建的 GCC 安装了若干内部系统头文件。其中的 limits.h 一般来说，应该包含对应的系统头文件 limits.h，在我们的 LFS 环境中，就是 $LFS&#x2F;usr&#x2F;include&#x2F;limits.h。然而，在构建 GCC 的时候，$LFS&#x2F;usr&#x2F;include&#x2F;limits.h 还不存在，因此 GCC 安装的内部头文件是一个不完整的、自给自足的文件，不包含系统头文件提供的扩展特性。这对于构建临时的 Glibc 已经足够了，但后续工作将需要完整的内部头文件。使用以下命令创建一个完整版本的内部头文件，该命令与 GCC 构建系统在一般情况下生成该头文件的命令是一致的</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cd</span> ..
+<span class="built_in">cat</span> gcc/limitx.h gcc/glimits.h gcc/limity.h &gt; \
+  `<span class="built_in">dirname</span> $(<span class="variable">$LFS_TGT</span>-gcc -print-libgcc-file-name)`/include/limits.h</code></pre>
+
+<h2 id="Linux-API"><a href="#Linux-API" class="headerlink" title="Linux API"></a>Linux API</h2><p>安装Linux API头文件，解压源码后进入目录，这边虽然解压了整个内核，但目前只需要其中的API头文件供GLibc使用</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf linux-6.10.5.tar.xz
+<span class="built_in">cd</span> linux-6.10.5</code></pre>
+
+<p>确保软件包中没有遗留陈旧的文件</p>
+<pre><code class="highlight bash">make mrproper</code></pre>
+
+<p>从源代码中提取用户可见的头文件</p>
+<pre><code class="highlight bash">make headers
+find usr/include -<span class="built_in">type</span> f ! -name <span class="string">&#x27;*.h&#x27;</span> -delete
+<span class="built_in">cp</span> -rv usr/include <span class="variable">$LFS</span>/usr</code></pre>
+
+<h2 id="Glibc"><a href="#Glibc" class="headerlink" title="Glibc"></a>Glibc</h2><p>接下来安装Glibc，先创建一个 LSB 兼容性符号链接</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+<span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span>
+    i?86)   <span class="built_in">ln</span> -sfv ld-linux.so.2 <span class="variable">$LFS</span>/lib/ld-lsb.so.3
+    ;;
+    x86_64) <span class="built_in">ln</span> -sfv ../lib/ld-linux-x86-64.so.2 <span class="variable">$LFS</span>/lib64
+            <span class="built_in">ln</span> -sfv ../lib/ld-linux-x86-64.so.2 <span class="variable">$LFS</span>/lib64/ld-lsb-x86-64.so.3
+    ;;
+<span class="keyword">esac</span></code></pre>
+
+<p>解压Glibc，并打patch</p>
+<pre><code class="highlight bash">tar -xvf glibc-2.40.tar.xz
+<span class="built_in">cd</span> glibc-2.40
+patch -Np1 -i ../glibc-2.40-fhs-1.patch</code></pre>
+
+<p>创建一个用于构建Glibc的文件夹</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span> build</code></pre>
+
+<p>确保将 ldconfig 和 sln 工具安装到 &#x2F;usr&#x2F;sbin 目录中</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="string">&quot;rootsbindir=/usr/sbin&quot;</span> &gt; configparms</code></pre>
+
+<p>准备编译Glibc</p>
+<pre><code class="highlight bash">../configure                             \
+      --prefix=/usr                      \
+      --host=<span class="variable">$LFS_TGT</span>                    \
+      --build=$(../scripts/config.guess) \
+      --enable-kernel=4.19               \
+      --with-headers=<span class="variable">$LFS</span>/usr/include    \
+      --disable-nscd                     \
+      libc_cv_slibdir=/usr/lib</code></pre>
+
+<p>开始编译，然后安装。这里需要指定安装路径，否则默认会安装到宿主机的根目录，这里需要指定安装到<code>$LFS</code>，因为之后<code>$LFS</code>将成为根目录</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<p>改正 ldd 脚本中硬编码的可执行文件加载器路径</p>
+<pre><code class="highlight bash">sed <span class="string">&#x27;/RTLDLIST=/s@/usr@@g&#x27;</span> -i <span class="variable">$LFS</span>/usr/bin/ldd</code></pre>
+
+<p>现在需要检查新工具链是否能够正确编译和链接，也就是进行完整性检查</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="string">&#x27;int main()&#123;&#125;&#x27;</span> | <span class="variable">$LFS_TGT</span>-gcc -xc -
+readelf -l a.out | grep ld-linux</code></pre>
+
+<p>如果没有问题应该会出现下面的log，否则应当检查之前是否有步骤出现了问题</p>
+<pre><code class="highlight bash">[Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]</code></pre>
+
+<p>完成检查后删除测试文件</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -v a.out</code></pre>
+
+<h2 id="Libstdc"><a href="#Libstdc" class="headerlink" title="Libstdc++"></a>Libstdc++</h2><p>现在要构建Libstdc++，Libstdc++是GCC的一部分，所以需要解压GCC的源码包，但之前已经解压过一次了，可以再用</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/gcc-14.2.0</code></pre>
+
+<p>删除之前用过的构建目录并重新创建</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -rf build
+<span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span> build</code></pre>
+
+<p>准备编译Libstdc++</p>
+<pre><code class="highlight bash">../libstdc++-v3/configure           \
+    --host=<span class="variable">$LFS_TGT</span>                 \
+    --build=$(../config.guess)      \
+    --prefix=/usr                   \
+    --disable-multilib              \
+    --disable-nls                   \
+    --disable-libstdcxx-pch         \
+    --with-gxx-include-dir=/tools/<span class="variable">$LFS_TGT</span>/include/c++/14.2.0</code></pre>
+
+<p>开始编译，编译完成后安装这个库，然后移除对交叉编译有害的 libtool 档案文件</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install
+<span class="built_in">rm</span> -v <span class="variable">$LFS</span>/usr/lib/lib&#123;stdc++&#123;,exp,fs&#125;,supc++&#125;.la</code></pre>
+
+<h1 id="交叉编译临时工具"><a href="#交叉编译临时工具" class="headerlink" title="交叉编译临时工具"></a>交叉编译临时工具</h1><p>临时交叉工具链的编译暂时告一段落，现在要开始用刚刚构建的临时交叉工具链来交叉编译临时工具，这些临时工具将会使用刚刚编译安装的库  </p>
+<h2 id="M4"><a href="#M4" class="headerlink" title="M4"></a>M4</h2><p>第一个软件包是M4</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf m4-1.4.19.tar.xz
+<span class="built_in">cd</span> m4-1.4.19</code></pre>
+
+<h2 id="M4-1"><a href="#M4-1" class="headerlink" title="M4"></a>M4</h2><p>准备编译m4</p>
+<pre><code class="highlight bash">./configure --prefix=/usr   \
+            --host=<span class="variable">$LFS_TGT</span> \
+            --build=$(build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Ncurses"><a href="#Ncurses" class="headerlink" title="Ncurses"></a>Ncurses</h2><p>解压Ncurses</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xvf ncurses-6.5.tar.gz
+<span class="built_in">cd</span> ncurses-6.5</code></pre>
+
+<p>首先，保证在配置时优先查找 gawk 命令：</p>
+<pre><code class="highlight bash">sed -i s/mawk// configure</code></pre>
+
+<p>在宿主系统构建“tic”程序</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> build
+<span class="built_in">pushd</span> build
+  ../configure
+  make -C include
+  make -C progs tic
+<span class="built_in">popd</span></code></pre>
+
+<p>准备编译 Ncurses</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                \
+            --host=<span class="variable">$LFS_TGT</span>              \
+            --build=$(./config.guess)    \
+            --mandir=/usr/share/man      \
+            --with-manpage-format=normal \
+            --with-shared                \
+            --without-normal             \
+            --with-cxx-shared            \
+            --without-debug              \
+            --without-ada                \
+            --disable-stripping</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make
+make DESTDIR=<span class="variable">$LFS</span> TIC_PATH=$(<span class="built_in">pwd</span>)/build/progs/tic install
+<span class="built_in">ln</span> -sv libncursesw.so <span class="variable">$LFS</span>/usr/lib/libncurses.so
+sed -e <span class="string">&#x27;s/^#if.*XOPEN.*$/#if 1/&#x27;</span> \
+    -i <span class="variable">$LFS</span>/usr/include/curses.h</code></pre>
+
+<h2 id="Bash"><a href="#Bash" class="headerlink" title="Bash"></a>Bash</h2><p>解压Bash</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf bash-5.2.32.tar.gz
+<span class="built_in">cd</span> bash-5.2.32</code></pre>
+
+<p>准备编译Bash</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                      \
+            --build=$(sh support/config.guess) \
+            --host=<span class="variable">$LFS_TGT</span>                    \
+            --without-bash-malloc              \
+            bash_cv_strtold_broken=no</code></pre>
+
+<p>开始编译，完成后安装软件包，然后创建一个指向Bash的sh软连接，这样调用sh就会调用Bash</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install
+<span class="built_in">ln</span> -sv bash <span class="variable">$LFS</span>/bin/sh</code></pre>
+
+<h2 id="Coreutils"><a href="#Coreutils" class="headerlink" title="Coreutils"></a>Coreutils</h2><p>解压Coreutils</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf coreutils-9.5.tar.xz 
+<span class="built_in">cd</span> coreutils-9.5</code></pre>
+
+<p>准备编译 Coreutils</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                     \
+            --host=<span class="variable">$LFS_TGT</span>                   \
+            --build=$(build-aux/config.guess) \
+            --enable-install-program=hostname \
+            --enable-no-install-program=<span class="built_in">kill</span>,<span class="built_in">uptime</span></code></pre>
+
+<p>开始编译，完成后安装软件包，最后将程序移动到它们最终安装时的正确位置</p>
+<pre><code class="highlight bash">make
+make DESTDIR=<span class="variable">$LFS</span> install
+<span class="built_in">mv</span> -v <span class="variable">$LFS</span>/usr/bin/chroot              <span class="variable">$LFS</span>/usr/sbin
+<span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/usr/share/man/man8
+<span class="built_in">mv</span> -v <span class="variable">$LFS</span>/usr/share/man/man1/chroot.1 <span class="variable">$LFS</span>/usr/share/man/man8/chroot.8
+sed -i <span class="string">&#x27;s/&quot;1&quot;/&quot;8&quot;/&#x27;</span>                    <span class="variable">$LFS</span>/usr/share/man/man8/chroot.8</code></pre>
+
+<h2 id="Diffutils"><a href="#Diffutils" class="headerlink" title="Diffutils"></a>Diffutils</h2><p>解压Diffutils</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf diffutils-3.10.tar.xz
+<span class="built_in">cd</span> diffutils-3.10</code></pre>
+
+<p>准备编译Diffutils</p>
+<pre><code class="highlight bash">./configure --prefix=/usr   \
+            --host=<span class="variable">$LFS_TGT</span> \
+            --build=$(./build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="File"><a href="#File" class="headerlink" title="File"></a>File</h2><p>解压File</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf file-5.45.tar.gz 
+<span class="built_in">cd</span> file-5.45</code></pre>
+
+<blockquote>
+<p>宿主系统 file 命令的版本必须和正在构建的软件包相同，才能在构建过程中创建必要的特征数据文件。运行以下命令，构建 file 命令的一个临时副本：</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> build
+<span class="built_in">pushd</span> build
+  ../configure --disable-bzlib      \
+               --disable-libseccomp \
+               --disable-xzlib      \
+               --disable-zlib
+  make
+<span class="built_in">popd</span></code></pre>
+
+<p>准备编译File</p>
+<pre><code class="highlight bash">./configure --prefix=/usr --host=<span class="variable">$LFS_TGT</span> --build=$(./config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包，然后移除对交叉编译有害的 libtool 档案文件</p>
+<pre><code class="highlight bash">make FILE_COMPILE=$(<span class="built_in">pwd</span>)/build/src/file
+make DESTDIR=<span class="variable">$LFS</span> install
+<span class="built_in">rm</span> -v <span class="variable">$LFS</span>/usr/lib/libmagic.la</code></pre>
+
+<h2 id="Findutils"><a href="#Findutils" class="headerlink" title="Findutils"></a>Findutils</h2><p>解压Findutils</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf findutils-4.10.0.tar.xz 
+<span class="built_in">cd</span> findutils-4.10.0</code></pre>
+
+<p>准备编译 Findutils</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                   \
+            --localstatedir=/var/lib/locate \
+            --host=<span class="variable">$LFS_TGT</span>                 \
+            --build=$(build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Gawk"><a href="#Gawk" class="headerlink" title="Gawk"></a>Gawk</h2><p>解压Gawk</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf gawk-5.3.0.tar.xz
+<span class="built_in">cd</span> gawk-5.3.0</code></pre>
+
+<p>首先，确保不安装某些不需要的文件：</p>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;s/extras//&#x27;</span> Makefile.<span class="keyword">in</span></code></pre>
+
+<p>准备编译 Gawk</p>
+<pre><code class="highlight bash">./configure --prefix=/usr   \
+            --host=<span class="variable">$LFS_TGT</span> \
+            --build=$(build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Grep"><a href="#Grep" class="headerlink" title="Grep"></a>Grep</h2><p>解压Grep</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf grep-3.11.tar.xz
+<span class="built_in">cd</span> grep-3.11</code></pre>
+
+<p>准备编译Grep</p>
+<pre><code class="highlight bash">./configure --prefix=/usr   \
+            --host=<span class="variable">$LFS_TGT</span> \
+            --build=$(./build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Gzip"><a href="#Gzip" class="headerlink" title="Gzip"></a>Gzip</h2><p>解压Gzip</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf gzip-1.13.tar.xz 
+<span class="built_in">cd</span> gzip-1.13</code></pre>
+
+<p>准备编译Gzip</p>
+<pre><code class="highlight bash">./configure --prefix=/usr --host=<span class="variable">$LFS_TGT</span></code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Make"><a href="#Make" class="headerlink" title="Make"></a>Make</h2><p>解压Make</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf make-4.4.1.tar.gz 
+<span class="built_in">cd</span> make-4.4.1</code></pre>
+
+<p>准备编译Make</p>
+<pre><code class="highlight bash">./configure --prefix=/usr   \
+            --without-guile \
+            --host=<span class="variable">$LFS_TGT</span> \
+            --build=$(build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><p>解压Patch</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf patch-2.7.6.tar.xz
+<span class="built_in">cd</span> patch-2.7.6</code></pre>
+
+<p>准备编译Patch</p>
+<pre><code class="highlight bash">./configure --prefix=/usr   \
+            --host=<span class="variable">$LFS_TGT</span> \
+            --build=$(build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Sed"><a href="#Sed" class="headerlink" title="Sed"></a>Sed</h2><p>解压Patch</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf sed-4.9.tar.xz 
+<span class="built_in">cd</span> sed-4.9</code></pre>
+
+<p>准备编译Sed</p>
+<pre><code class="highlight bash">./configure --prefix=/usr   \
+            --host=<span class="variable">$LFS_TGT</span> \
+            --build=$(./build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Tar"><a href="#Tar" class="headerlink" title="Tar"></a>Tar</h2><p>解压Tar</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf tar-1.35.tar.xz
+<span class="built_in">cd</span> tar-1.35</code></pre>
+
+<p>准备编译Tar</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                     \
+            --host=<span class="variable">$LFS_TGT</span>                   \
+            --build=$(build-aux/config.guess)</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</code></pre>
+
+<h2 id="Xz"><a href="#Xz" class="headerlink" title="Xz"></a>Xz</h2><p>解压Xz</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/
+tar -xf xz-5.6.2.tar.xz
+<span class="built_in">cd</span> xz-5.6.2</code></pre>
+
+<p>准备编译Xz</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                     \
+            --host=<span class="variable">$LFS_TGT</span>                   \
+            --build=$(build-aux/config.guess) \
+            --disable-static                  \
+            --docdir=/usr/share/doc/xz-5.6.2</code></pre>
+
+<p>开始编译，完成后安装软件包，然后移除对交叉编译有害的 libtool 档案文件</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install
+<span class="built_in">rm</span> -v <span class="variable">$LFS</span>/usr/lib/liblzma.la</code></pre>
+
+<h2 id="Binutils-第二遍"><a href="#Binutils-第二遍" class="headerlink" title="Binutils 第二遍"></a>Binutils 第二遍</h2><p>之前已经解压过一遍源码了，所以只需删除构建目录</p>
+<blockquote>
+<p>Binutils 构建系统依赖附带的 libtool 拷贝链接内部静态库，但源码包内附带的 libiberty 和 zlib 不使用 libtool。这个区别可能导致构建得到的二进制程序和库错误地链接到宿主发行版的库。绕过这个问题：</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/binutils-2.43.1
+<span class="built_in">rm</span> -rf build
+sed <span class="string">&#x27;6009s/$add_dir//&#x27;</span> -i ltmain.sh</code></pre>
+
+<p>再次创建构建目录</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span>       build</code></pre>
+
+<p>准备编译 Binutils </p>
+<pre><code class="highlight bash">../configure                   \
+    --prefix=/usr              \
+    --build=$(../config.guess) \
+    --host=<span class="variable">$LFS_TGT</span>            \
+    --disable-nls              \
+    --enable-shared            \
+    --enable-gprofng=no        \
+    --disable-werror           \
+    --enable-64-bit-bfd        \
+    --enable-new-dtags         \
+    --enable-default-hash-style=gnu</code></pre>
+
+<p>开始编译，完成后安装软件包，然后移除对交叉编译有害的 libtool 档案文件，同时移除不必要的静态库</p>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install
+<span class="built_in">rm</span> -v <span class="variable">$LFS</span>/usr/lib/lib&#123;bfd,ctf,ctf-nobfd,opcodes,sframe&#125;.&#123;a,la&#125;</code></pre>
+
+
+<h2 id="GCC-第二遍"><a href="#GCC-第二遍" class="headerlink" title="GCC 第二遍"></a>GCC 第二遍</h2><p>因为前面已经解压过了，所以直接进入目录开始配置</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/gcc-14.2.0
+<span class="built_in">rm</span> -rf build
+<span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span>
+  x86_64)
+    sed -e <span class="string">&#x27;/m64=/s/lib64/lib/&#x27;</span> \
+        -i.orig gcc/config/i386/t-linux64
+  ;;
+<span class="keyword">esac</span></code></pre>
+
+<p>覆盖 libgcc 和 libstdc++ 头文件的构建规则，以允许在构建它们时启用 POSIX 线程支持：</p>
+<pre><code class="highlight bash">sed <span class="string">&#x27;/thread_header =/s/@.*@/gthr-posix.h/&#x27;</span> \
+    -i libgcc/Makefile.<span class="keyword">in</span> libstdc++-v3/include/Makefile.<span class="keyword">in</span></code></pre>
+
+<p>创建一个单独的目录用于构建GCC</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> build
+<span class="built_in">cd</span> build</code></pre>
+
+<p>准备编译GCC</p>
+<pre><code class="highlight bash">../configure                                       \
+    --build=$(../config.guess)                     \
+    --host=<span class="variable">$LFS_TGT</span>                                \
+    --target=<span class="variable">$LFS_TGT</span>                              \
+    LDFLAGS_FOR_TARGET=-L<span class="variable">$PWD</span>/<span class="variable">$LFS_TGT</span>/libgcc      \
+    --prefix=/usr                                  \
+    --with-build-sysroot=<span class="variable">$LFS</span>                      \
+    --enable-default-pie                           \
+    --enable-default-ssp                           \
+    --disable-nls                                  \
+    --disable-multilib                             \
+    --disable-libatomic                            \
+    --disable-libgomp                              \
+    --disable-libquadmath                          \
+    --disable-libsanitizer                         \
+    --disable-libssp                               \
+    --disable-libvtv                               \
+    --enable-languages=c,c++</code></pre>
+
+<p>开始编译，完成后安装软件包，然后创建一个符号链接</p>
+<blockquote>
+<p>许多程序和脚本运行 cc 而不是 gcc，因为前者能够保证程序的通用性，使它可以在所有 UNIX 系统上使用，无论是否安装了 GNU C 编译器。运行 cc 可以将选择 C 编译器的权力留给系统管理员</p>
+</blockquote>
+<pre><code class="highlight bash">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install
+<span class="built_in">ln</span> -sv gcc <span class="variable">$LFS</span>/usr/bin/cc</code></pre>
+
+<h1 id="进入-Chroot-并构建其他临时工具"><a href="#进入-Chroot-并构建其他临时工具" class="headerlink" title="进入 Chroot 并构建其他临时工具"></a>进入 Chroot 并构建其他临时工具</h1><p>现在已经解决了所有循环依赖的问题，可以开始使用<code>chroot</code>环境构建剩下的临时工具了。在这之前仍有一些准备工作需要完成，为了隔离环境的正常工作，必须它与正在运行的内核之间建立一些通信机制。<strong>这些通信机制通过所谓的虚拟内核文件系统实现，需要在进入chroot之前挂载它们，而接下来的命令都必须以root执行，且环境变量$LFS设置正确。在进入chroot之后仍然以root执行所有命令。</strong></p>
+<p>先切换到root，确保先从lfs用户中登出，<strong>重新设置环境变量并检查</strong></p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> su -
+<span class="built_in">whoami</span>
+<span class="built_in">export</span> LFS=/mnt/LFS
+<span class="built_in">echo</span> <span class="variable">$LFS</span></code></pre>
+
+<p>改变$LFS目录的所有者并检查</p>
+<blockquote>
+<p>目前，$LFS 中整个目录树的所有者都是 lfs，这个用户只在宿主系统存在。如果不改变 $LFS 中文件和目录的所有权，它们会被一个没有对应账户的用户 ID 所有。这是危险的，因为后续创建的新用户可能获得这个用户 ID，并成为 $LFS 中全部文件的所有者，从而产生恶意操作这些文件的可能。</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">chown</span> --from lfs -R root:root <span class="variable">$LFS</span>/&#123;usr,lib,var,etc,bin,sbin,tools&#125;
+<span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span>
+  x86_64) <span class="built_in">chown</span> --from lfs -R root:root <span class="variable">$LFS</span>/lib64 ;;
+<span class="keyword">esac</span>
+<span class="built_in">ls</span> -l <span class="variable">$LFS</span></code></pre>
+
+<p>创建虚拟文件系统的挂载点，这些挂载点都位于$LFS目录下，虚拟文件系统不会占用空间，然后挂载这些虚拟内核文件系统。<br>接下来需要把宿主机的&#x2F;dev绑定挂载到$LFS&#x2F;dev上，绑定挂载允许通过不同的位置访问一个目录树或一个文件；其他虚拟文件系统可以正常挂载处理</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/&#123;dev,proc,sys,run&#125;
+mount -v --<span class="built_in">bind</span> /dev <span class="variable">$LFS</span>/dev
+mount -vt devpts devpts -o gid=5,mode=0620 <span class="variable">$LFS</span>/dev/pts
+mount -vt proc proc <span class="variable">$LFS</span>/proc
+mount -vt sysfs sysfs <span class="variable">$LFS</span>/sys
+mount -vt tmpfs tmpfs <span class="variable">$LFS</span>/run</code></pre>
+
+<blockquote>
+<p>在某些宿主系统上，&#x2F;dev&#x2F;shm 是一个符号链接，通常指向 &#x2F;run&#x2F;shm 目录。我们已经在 &#x2F;run 下挂载了 tmpfs 文件系统，因此在这里只需要创建一个访问权限符合要求的目录。<br>在其他宿主系统上，&#x2F;dev&#x2F;shm 是一个 tmpfs 的挂载点。此时，绑定挂载 &#x2F;dev 只会在 chroot 环境中生成 &#x2F;dev&#x2F;shm 目录。这样，我们必须显式挂载一个 tmpfs</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="keyword">if</span> [ -h <span class="variable">$LFS</span>/dev/shm ]; <span class="keyword">then</span>
+  install -v -d -m 1777 $LFS$(<span class="built_in">realpath</span> /dev/shm)
+<span class="keyword">else</span>
+  mount -vt tmpfs -o nosuid,nodev tmpfs <span class="variable">$LFS</span>/dev/shm
+<span class="keyword">fi</span></code></pre>
+
+<p>现在可以进入chroot环境完成其他临时工具的安装了</p>
+<pre><code class="highlight bash"><span class="built_in">chroot</span> <span class="string">&quot;<span class="variable">$LFS</span>&quot;</span> /usr/bin/env -i   \
+    HOME=/root                  \
+    TERM=<span class="string">&quot;<span class="variable">$TERM</span>&quot;</span>                \
+    PS1=<span class="string">&#x27;(lfs chroot) \u:\w\$ &#x27;</span> \
+    PATH=/usr/bin:/usr/sbin     \
+    MAKEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span>      \
+    TESTSUITEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span> \
+    /bin/bash --login</code></pre>
+
+<blockquote>
+<p>从现在开始，就不再需要使用 LFS 环境变量，因为所有工作都被局限在 LFS 文件系统内。这是由于 chroot 命令启动 Bash 时，已经将根目录 (&#x2F;) 设置为 $LFS。<br>注意 &#x2F;tools&#x2F;bin 不在 PATH 中。这意味着<strong>不再使用交叉工具链</strong>。<br>另外，注意 bash 的提示符会包含 I have no name!。这是<strong>正常</strong>的，因为现在还没有创建 &#x2F;etc&#x2F;passwd 文件。</p>
+</blockquote>
+<p>在根目录下创建剩余的目录</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -pv /&#123;boot,home,mnt,opt,srv&#125;
+<span class="built_in">mkdir</span> -pv /etc/&#123;opt,sysconfig&#125;
+<span class="built_in">mkdir</span> -pv /lib/firmware
+<span class="built_in">mkdir</span> -pv /media/&#123;floppy,cdrom&#125;
+<span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;&#123;include,src&#125;
+<span class="built_in">mkdir</span> -pv /usr/lib/locale
+<span class="built_in">mkdir</span> -pv /usr/local/&#123;bin,lib,sbin&#125;
+<span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/&#123;color,dict,doc,info,locale,man&#125;
+<span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/&#123;misc,terminfo,zoneinfo&#125;
+<span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/man/man&#123;1..8&#125;
+<span class="built_in">mkdir</span> -pv /var/&#123;cache,<span class="built_in">local</span>,<span class="built_in">log</span>,mail,opt,spool&#125;
+<span class="built_in">mkdir</span> -pv /var/lib/&#123;color,misc,locate&#125;
+
+<span class="built_in">ln</span> -sfv /run /var/run
+<span class="built_in">ln</span> -sfv /run/lock /var/lock
+
+install -dv -m 0750 /root
+install -dv -m 1777 /tmp /var/tmp</code></pre>
+
+<blockquote>
+<p>历史上，Linux 曾在 &#x2F;etc&#x2F;mtab 维护已经挂载的文件系统的列表。现代内核在内部维护该列表，并通过 &#x2F;proc 文件系统将它展示给用户。为了满足一些仍然使用 &#x2F;etc&#x2F;mtab 的工具，执行以下命令，创建符号链接</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sv /proc/self/mounts /etc/mtab</code></pre>
+
+<p>创建一个基本的 &#x2F;etc&#x2F;hosts 文件</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/hosts &lt;&lt; <span class="string">EOF</span>
+<span class="string">127.0.0.1  localhost $(hostname)</span>
+<span class="string">::1        localhost</span>
+<span class="string">EOF</span></code></pre>
+
+<p>创建 <code>/etc/passwd</code> 和 <code>/etc/groups</code> 文件，加入root，使得root能被正常识别<br>在<code>/etc/passwd</code>中写入</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/passwd &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/dev/null:/usr/bin/false
+daemon:x:6:6:Daemon User:/dev/null:/usr/bin/false
+messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/usr/bin/false
+uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false
+nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false
+EOF</code></pre>
+
+<p>在&#x2F;etc&#x2F;group中写入</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/group &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+root:x:0:
+bin:x:1:daemon
+sys:x:2:
+kmem:x:3:
+tape:x:4:
+<span class="built_in">tty</span>:x:5:
+daemon:x:6:
+floppy:x:7:
+disk:x:8:
+lp:x:9:
+dialout:x:10:
+audio:x:11:
+video:x:12:
+utmp:x:13:
+cdrom:x:15:
+adm:x:16:
+messagebus:x:18:
+input:x:24:
+mail:x:34:
+kvm:x:61:
+uuidd:x:80:
+wheel:x:97:
+<span class="built_in">users</span>:x:999:
+nogroup:x:65534:
+EOF</code></pre>
+
+<p>一些软件包需要一个 locale</p>
+<pre><code class="highlight bash">localedef -i C -f UTF-8 C.UTF-8</code></pre>
+
+<p>创建一个用户，因为一些测试需要使用一个非特权用户，之后会删除</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="string">&quot;tester:x:101:101::/home/tester:/bin/bash&quot;</span> &gt;&gt; /etc/passwd
+<span class="built_in">echo</span> <span class="string">&quot;tester:x:101:&quot;</span> &gt;&gt; /etc/group
+install -o tester -d /home/tester</code></pre>
+
+<p>打开一个新shell，因为已经创建了&#x2F;etc&#x2F;passwd和&#x2F;etc&#x2F;group，用户名和组名可以正常解析了</p>
+<pre><code class="highlight bash"><span class="built_in">exec</span> /usr/bin/bash --login</code></pre>
+
+<p>为login、agetty 和 init 等程序创建日志文件</p>
+<pre><code class="highlight bash"><span class="built_in">touch</span> /var/log/&#123;btmp,lastlog,faillog,wtmp&#125;
+<span class="built_in">chgrp</span> -v utmp /var/log/lastlog
+<span class="built_in">chmod</span> -v 664  /var/log/lastlog
+<span class="built_in">chmod</span> -v 600  /var/log/btmp</code></pre>
+
+<blockquote>
+<p>login、agetty 和 init 等程序使用一些日志文件，以记录登录系统的用户和登录时间等信息。然而，这些程序不会创建不存在的日志文件<br>文件 &#x2F;var&#x2F;log&#x2F;wtmp 记录所有的登录和登出，文件 &#x2F;var&#x2F;log&#x2F;lastlog 记录每个用户最后登录的时间，文件 &#x2F;var&#x2F;log&#x2F;faillog 记录所有失败的登录尝试，文件 &#x2F;var&#x2F;log&#x2F;btmp 记录所有错误的登录尝试。</p>
+</blockquote>
+<p>现在可以继续安装软件包了</p>
+<h2 id="Gettext"><a href="#Gettext" class="headerlink" title="Gettext"></a>Gettext</h2><p>解压Gettext</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf gettext-0.22.5.tar.xz
+<span class="built_in">cd</span> gettext-0.22.5</code></pre>
+
+<p>准备编译Gettext</p>
+<pre><code class="highlight bash">./configure --disable-shared</code></pre>
+
+<p>开始编译，完成后安装其中的msgfmt，msgmerge xgettext 三个程序</p>
+<pre><code class="highlight bash">make
+<span class="built_in">cp</span> -v gettext-tools/src/&#123;msgfmt,msgmerge,xgettext&#125; /usr/bin</code></pre>
+
+<h2 id="Bison"><a href="#Bison" class="headerlink" title="Bison"></a>Bison</h2><p>解压Bison</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf bison-3.8.2.tar.xz
+<span class="built_in">cd</span> bison-3.8.2</code></pre>
+
+<p>准备编译Bison</p>
+<pre><code class="highlight bash">./configure --prefix=/usr \
+            --docdir=/usr/share/doc/bison-3.8.2</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<h2 id="Perl"><a href="#Perl" class="headerlink" title="Perl"></a>Perl</h2><p>解压Perl</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf perl-5.40.0.tar.xz
+<span class="built_in">cd</span> perl-5.40.0</code></pre>
+
+<p>准备编译Perl</p>
+<pre><code class="highlight bash">sh Configure -des                                         \
+             -D prefix=/usr                               \
+             -D vendorprefix=/usr                         \
+             -D useshrplib                                \
+             -D privlib=/usr/lib/perl5/5.40/core_perl     \
+             -D archlib=/usr/lib/perl5/5.40/core_perl     \
+             -D sitelib=/usr/lib/perl5/5.40/site_perl     \
+             -D sitearch=/usr/lib/perl5/5.40/site_perl    \
+             -D vendorlib=/usr/lib/perl5/5.40/vendor_perl \
+             -D vendorarch=/usr/lib/perl5/5.40/vendor_perl</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p>解压Python</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf Python-3.12.5.tar.xz 
+<span class="built_in">cd</span> Python-3.12.5</code></pre>
+
+<p>准备编译Python</p>
+<pre><code class="highlight bash">./configure --prefix=/usr   \
+            --enable-shared \
+            --without-ensurepip</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<h2 id="Texinfo"><a href="#Texinfo" class="headerlink" title="Texinfo"></a>Texinfo</h2><p>解压Texinfo</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf texinfo-7.1.tar.xz 
+<span class="built_in">cd</span> texinfo-7.1</code></pre>
+
+<p>准备编译Texinfo</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<h2 id="Util-linux"><a href="#Util-linux" class="headerlink" title="Util-linux"></a>Util-linux</h2><p>解压Util-linux</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf util-linux-2.40.2.tar.xz 
+<span class="built_in">cd</span> util-linux-2.40.2</code></pre>
+
+<p>创建<code>/var/lib/hwclock</code>目录作为adjtime文件的位置</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -pv /var/lib/hwclock</code></pre>
+
+<p>准备编译Util-linux</p>
+<pre><code class="highlight bash">./configure --libdir=/usr/lib     \
+            --runstatedir=/run    \
+            --disable-chfn-chsh   \
+            --disable-login       \
+            --disable-nologin     \
+            --disable-su          \
+            --disable-setpriv     \
+            --disable-runuser     \
+            --disable-pylibmount  \
+            --disable-static      \
+            --disable-liblastlog2 \
+            --without-python      \
+            ADJTIME_PATH=/var/lib/hwclock/adjtime \
+            --docdir=/usr/share/doc/util-linux-2.40.2</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<p>至此所有临时工具构建完成，现在需要清理和备份临时系统，首先删除已经安装的临时工具文档文件，以防止它们进入最终构建的系统</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -rf /usr/share/&#123;info,man,doc&#125;/*</code></pre>
+
+<blockquote>
+<p>其次，在现代 Linux 系统中，libtool 的 .la 文件仅用于 libltdl。LFS 中没有库通过 libltdl 加载，而且已知一些 .la 文件会导致 BLFS 软件包出现异常。现在删除这些文件</p>
+</blockquote>
+<pre><code class="highlight bash">find /usr/&#123;lib,libexec&#125; -name \*.la -delete</code></pre>
+
+<p>删除<code>/tools</code>目录</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -rf /tools</code></pre>
+
+<p>退出chroot环境，切换到root用户，设置并检查环境变量<code>$LFS</code>，然后准备备份整个系统</p>
+<pre><code class="highlight bash"><span class="built_in">exit</span>
+<span class="built_in">sudo</span> su -
+<span class="built_in">export</span> LFS=/mnt/LFS
+<span class="built_in">echo</span> <span class="variable">$LFS</span></code></pre>
+
+<p>先解除虚拟内核文件系统的挂载</p>
+<pre><code class="highlight bash">mountpoint -q <span class="variable">$LFS</span>/dev/shm &amp;&amp; umount <span class="variable">$LFS</span>/dev/shm
+umount <span class="variable">$LFS</span>/dev/pts
+umount <span class="variable">$LFS</span>/&#123;sys,proc,run,dev&#125;</code></pre>
+
+<p>开始备份</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> <span class="variable">$LFS</span>
+tar -cJpf <span class="variable">$HOME</span>/lfs-temp-tools-12.2.tar.xz .</code></pre>
+
+<p>现在可以开始构建LFS系统了</p>
+<h1 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h1><h2 id="明明文件夹的权限都设置对了但是make-install就是不成功（Permission-denied）？"><a href="#明明文件夹的权限都设置对了但是make-install就是不成功（Permission-denied）？" class="headerlink" title="明明文件夹的权限都设置对了但是make install就是不成功（Permission denied）？"></a>明明文件夹的权限都设置对了但是<code>make install</code>就是不成功（Permission denied）？</h2><p>可能是前面<code>~/.bashrc</code>中<code>LFS</code>的路径设置错了，如果不是这个问题，可以试着重新挂载LFS分区</p>
+<h2 id="为什么是这个构建流程？"><a href="#为什么是这个构建流程？" class="headerlink" title="为什么是这个构建流程？"></a>为什么是这个构建流程？</h2><p>这边有一篇很好的文章解释了构建流程中涉及到的循环依赖以及构建流程：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/110402378">编译工具链</a><br>个人理解为：当前主机有编译器二进制为体系结构A，可以生成目标代码A，然后需要编译出一个编译器二进制为体系结构A，可以生成目标代码B，最后用这个新编译器编译出一个编译器二进制为体系结构B，可以生成目标代码B</p>
+<h2 id="为什么需要虚拟内核文件系统？"><a href="#为什么需要虚拟内核文件系统？" class="headerlink" title="为什么需要虚拟内核文件系统？"></a>为什么需要虚拟内核文件系统？</h2><p>虚拟内核文件系统是指由内核产生而不存在于硬盘中的文件系统，但是存在于内存中</p>
+<h2 id="如何用备份进行还原"><a href="#如何用备份进行还原" class="headerlink" title="如何用备份进行还原"></a>如何用备份进行还原</h2><p>仔细根据<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter07/cleanup.html">7.13.3. 还原</a>进行还原操作</p>
+
+        </article>
+
+        
+            
+  <div class="nexmoe-post-copyright">
+    <strong>本文作者：</strong>NakanoMiku<br>
+    
+    <strong>本文链接：</strong><a href="http://nakanomiku39.github.io/2024/09/28/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;28&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;28&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89&#x2F;</a><br>
+
+    
+      <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+    
+  </div>
+
+
+        
+
+        <div class="nexmoe-post-meta nexmoe-rainbow">
+    
+        <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a>
+    
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/LFS/" rel="tag">LFS</a>
+    
+</div>
+
+    <!-- <div class="nexmoe-post-footer">
+        <section class="nexmoe-comment">
+    <div class="valine"></div>
+<script src='https://lib.baomitu.com/valine/1.3.9/Valine.min.js'></script>
+<script>
+    // 使用方法 https://valine.js.org/quickstart.html
+    new Valine({
+        el: '.valine',
+        appId: 'r5zxC0st0DDjPA9auXzMV7HY-gzGzoHsz',
+        appKey: '3bqCsovpyfTPHUzTHovd3V3V'
+    })
+</script>
+</section>
+    </div> -->
+</div>
+
+
+        <div class="nexmoe-post-right">
+          
+            <div class="nexmoe-fixed">
+              <div class="nexmoe-tool">
+                <a href="#" aria-label="回到顶部" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+              </div>
+            </div>
+          
+        </div>
+    </div>
+  </div>
+  <!-- <div id="nexmoe-pendant">
+    <div class="nexmoe-drawer mdui-drawer nexmoe-pd" id="drawer">
+        
+            <div class="nexmoe-pd-item">
+                <div class="clock">
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="needle" id="hours"></div>
+        <div class="needle" id="minutes"></div>
+        <div class="needle" id="seconds"></div>
+        <div class="clock_logo">
+
+        </div>
+
+    </div>
+<style>
+    .clock {
+        background-color: #ffffff;
+        width: 70vw;
+        height: 70vw;
+        max-width: 70vh;
+        max-height: 70vh;
+        border: solid 2.8vw #242424;
+        position: relative;
+        overflow: hidden;
+        border-radius: 50%;
+        box-sizing: border-box;
+        box-shadow: 0 1.4vw 2.8vw rgba(0, 0, 0, 0.8);
+        zoom:0.2
+    }
+
+    .memory {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .memory:nth-child(1) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(0deg) translateY(-520%);
+    }
+
+    .memory:nth-child(2) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(6deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(3) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(12deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(4) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(18deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(5) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(24deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(6) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(30deg) translateY(-520%);
+    }
+
+    .memory:nth-child(7) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(36deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(8) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(42deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(9) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(48deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(10) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(54deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(11) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(60deg) translateY(-520%);
+    }
+
+    .memory:nth-child(12) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(66deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(13) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(72deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(14) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(78deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(15) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(84deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(16) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(90deg) translateY(-520%);
+    }
+
+    .memory:nth-child(17) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(96deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(18) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(102deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(19) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(108deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(20) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(114deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(21) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(120deg) translateY(-520%);
+    }
+
+    .memory:nth-child(22) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(126deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(23) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(132deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(24) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(138deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(25) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(144deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(26) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(150deg) translateY(-520%);
+    }
+
+    .memory:nth-child(27) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(156deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(28) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(162deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(29) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(168deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(30) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(174deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(31) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(180deg) translateY(-520%);
+    }
+
+    .memory:nth-child(32) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(186deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(33) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(192deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(34) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(198deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(35) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(204deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(36) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(210deg) translateY(-520%);
+    }
+
+    .memory:nth-child(37) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(216deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(38) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(222deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(39) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(228deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(40) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(234deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(41) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(240deg) translateY(-520%);
+    }
+
+    .memory:nth-child(42) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(246deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(43) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(252deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(44) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(258deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(45) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(264deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(46) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(270deg) translateY(-520%);
+    }
+
+    .memory:nth-child(47) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(276deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(48) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(282deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(49) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(288deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(50) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(294deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(51) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-520%);
+    }
+
+    .memory:nth-child(52) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(306deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(53) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(312deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(54) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(318deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(55) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(324deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(56) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(330deg) translateY(-520%);
+    }
+
+    .memory:nth-child(57) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(336deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(58) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(342deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(59) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(348deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(60) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(354deg) translateY(-1461%);
+    }
+
+    .needle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .needle#hours {
+        background-color: #1f1f1f;
+        width: 4%;
+        height: 30%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#hours.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#hours:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#minutes {
+        background-color: #1f1f1f;
+        width: 2%;
+        height: 45%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#minutes.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#minutes:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#seconds {
+        background-color: #cb2f2f;
+        width: 1%;
+        height: 50%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#seconds.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#seconds:after {
+        content: '';
+        background-color: #cb2f2f;
+        width: 2.5vw;
+        height: 2.5vw;
+        max-width: 2.5vh;
+        max-height: 2.5vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .clock_logo{
+        width: 10vw;
+        height: 10vw;
+        max-width: 10vh;
+        max-height: 10vh;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+    @media (min-width: 100vh) {
+        .clock {
+            border: solid 2.8vh #242424;
+            box-shadow: 0 1.4vh 2.8vh rgba(0, 0, 0, 0.8);
+        }
+    }
+
+</style>
+
+
+
+
+
+            </div>
+        
+            <div class="nexmoe-pd-item">
+                <div class="qweather" >
+    <div id="he-plugin-standard"></div>
+    <div class="qweather-logo">
+
+    </div>
+
+</div>
+<style>
+    .qweather{
+        position: relative;
+    }
+    .qweather-logo{
+        position: absolute;
+        right: 0;
+        top: -15px;
+        width: 40px;
+        height: 40px;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+</style>
+<script>
+  WIDGET = {
+    "CONFIG": {
+      "layout": "2",
+      "width": "260",
+      "height": "220",
+      "background": "5",
+      "dataColor": "e67249",
+      "borderRadius": "15",
+      "key": "f74d1e1690e6432d801e97fa2f05a162"
+    }
+  }
+</script>
+<script src="https://widget.qweather.net/standard/static/js/he-standard-common.js?v=2.0"></script>
+
+            </div>
+        
+</div>
+<style>
+    .nexmoe-pd {
+        left: auto;
+        top: 40px;
+        right: 0;
+    }
+    .nexmoe-pd-item{
+       display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+</style>
+
+  </div> -->
+  <script src="https://lib.baomitu.com/lazysizes/5.1.0/lazysizes.min.js"></script>
+<script src="https://lib.baomitu.com/highlight.js/10.0.0/highlight.min.js"></script>
+<script src="https://lib.baomitu.com/mdui/0.4.3/js/mdui.min.js"></script>
+
+<script>
+	hljs.initHighlightingOnLoad();
+</script>
+
+<script src="https://lib.baomitu.com/jquery/3.5.1/jquery.slim.min.js"></script>
+<script src="/lib/fancybox/js/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/app.js?v=1728305945209"></script>
+
+<script src="https://lib.baomitu.com/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+<script>
+	$(".justified-gallery").justifiedGallery({
+		rowHeight: 160,
+		margins: 10,
+	});
+</script>
+
+  
+
+
+
+
+
+<!-- hexo injector body_end start -->
+<script src="/js/clock.js"></script>
+
+<script src="/js/webapp.js"></script>
+
+<script src="https://lib.baomitu.com/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script src="/lib/codeBlock/codeBlockFuction.js"></script>
+
+<script src="/lib/codeBlock/codeLang.js"></script>
+
+<script src="/lib/codeBlock/codeCopy.js"></script>
+
+<script src="/lib/codeBlock/codeShrink.js"></script>
+
+<link rel="stylesheet" href="/lib/codeBlock/matery.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+<script src="/js/search.js"></script>
+<!-- hexo injector body_end end --></body>
+</html>
+

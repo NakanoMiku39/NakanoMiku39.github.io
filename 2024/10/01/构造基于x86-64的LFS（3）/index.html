@@ -1,0 +1,2933 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+  
+  <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+  <title>构造基于x86_64的LFS（3） - NakanoMiku&#39;s page</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  
+  
+
+    <!-- Site Verification -->
+    <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+
+  <link rel="shortcut icon" href="/images/head/miku.jpg" type="image/jpg" />
+  <meta name="description" content="继续构造LFS，从安装基本系统软件开始">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构造基于x86_64的LFS（3）">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/10/01/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%883%EF%BC%89/index.html">
+<meta property="og:site_name" content="NakanoMiku&#39;s page">
+<meta property="og:description" content="继续构造LFS，从安装基本系统软件开始">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-09-30T23:43:24.000Z">
+<meta property="article:modified_time" content="2024-10-05T15:44:08.277Z">
+<meta property="article:author" content="NakanoMiku">
+<meta property="article:tag" content="LFS">
+<meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="https://lib.baomitu.com/highlight.js/9.15.8/styles/atom-one-dark.min.css" crossorigin>
+  <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css">
+  <link rel="stylesheet" href="/lib/iconfont/iconfont.css">
+  <link rel="stylesheet" href="/lib/fancybox/css/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="https://lib.baomitu.com/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
+  
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_2421060_8z08qcz5sq3.css">
+  
+  <link rel="stylesheet" href="/css/style.css?v=1728305945208">
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="mdui-drawer-body-left">
+  
+  <div id="nexmoe-background">
+    <div class="nexmoe-bg" style="background-image: url(/images/background/ichika279-2.png)"></div>
+    <div class="nexmoe-small" style="background-image: url()"></div>
+    <div class="mdui-appbar mdui-shadow-0">
+      <div class="mdui-toolbar">
+        <a mdui-drawer="{target: '#drawer', swipe: true}" title="menu" class="mdui-btn mdui-btn-icon mdui-ripple"><i class="mdui-icon nexmoefont icon-menu"></i></a>
+        <div class="mdui-toolbar-spacer"></div>
+        <!--<a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>-->
+        <a href="/" title="NakanoMiku" class="mdui-btn mdui-btn-icon"><img src="/images/head/miku.jpg" alt="NakanoMiku"></a>
+       </div>
+    </div>
+  </div>
+  <div id="nexmoe-header">
+      <div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku" alt="NakanoMiku">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div class="nexmoe-count-item"><span>文章</span>7 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
+        <div class="nexmoe-count-item"><span>标签</span>4<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+        <div class="nexmoe-count-item"><span>分类</span>2<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-meishi"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-hanbao1"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    <aside id="nexmoe-sidebar">
+  
+  
+<!-- 站内搜索 -->
+
+<div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-search" >
+        <form id="search-form">
+            <label><input type="text" id="local-search-input" name="q" results="0" placeholder="站内搜索" class="input form-control" autocomplete="off" autocorrect="off"/></label>
+            <!-- 清空/重置搜索框 -->
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+        </form>
+    </div>
+    <div id="local-search-result"></div> <!-- 搜索结果区 -->
+    <!-- <p class='no-result'></p> 无匹配时显示，注意在 CSS 中设置默认隐藏 -->
+</div>
+
+
+  
+  <div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-social">
+        <a class="mdui-ripple" href="https://github.com/NakanoMiku39/" target="_blank" mdui-tooltip="{content: 'GitHub'}" style="color: rgb(25, 23, 23);background-color: rgba(25, 23, 23, .15);">
+            <i class="nexmoefont icon-github"></i>
+        </a>
+    </div>
+</div>
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章分类</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">7</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/php/" style="font-size: 15px;">php</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 15px;">我的世界</a>
+    </div>
+    
+  </div>
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章归档</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">7</span></li></ul>
+    </div>
+  </div>
+
+
+<style>
+.nexmoe-widget .archive-list-count{
+	position : absolute;
+	right: 15px;
+	top:9px;
+	color: #DDD;
+}
+</style>
+
+  
+</aside>
+    <div class="nexmoe-copyright">
+        &copy; 2024 NakanoMiku
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/tangyuxian/hexo-theme-tangyuxian" target="_blank">Tangyuxian</a><br/>
+        <a href="http://beian.miit.gov.cn" target="_blank"></a><br/>
+        
+        <div style="font-size: 12px">
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            本站总访问量  <a id="busuanzi_value_site_pv"></a> 次<br />
+            本站访客数<a id="busuanzi_value_site_uv"></a>人次
+        </div>
+        
+        
+    </div>
+
+</div><!-- .nexmoe-drawer -->
+
+  </div>
+  <div id="nexmoe-content">
+    <div class="nexmoe-primary">
+        <div class="nexmoe-post">
+    
+        <div class="nexmoe-post-cover" style="padding-bottom: 26.666666666666668%;">
+            <img data-src="/images/background/ichika683-1.png" data-sizes="auto" alt="构造基于x86_64的LFS（3）" class="lazyload">
+            <h1>构造基于x86_64的LFS（3）</h1>
+        </div>
+    
+
+        <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2024年10月01日</a>
+    <a><i class="nexmoefont icon-areachart"></i>10.1k 字</a>
+    <a><i class="nexmoefont icon-time-circle-fill"></i>大概 53 分钟</a>
+</div>
+
+        <div class="nexmoe-post-right">
+            
+        </div>
+
+        <article>
+            <p>继续构造LFS，从安装基本系统软件开始</p>
+<span id="more"></span>
+
+<h1 id="安装基本系统软件"><a href="#安装基本系统软件" class="headerlink" title="安装基本系统软件"></a>安装基本系统软件</h1><p>因为上次备份系统离开了chroot环境，所有现在要重新进入，先挂载虚拟内核文件系统，再进入chroot<br>值得注意的是，这次也不需要设定环境变量$LFS</p>
+<pre><code class="highlight bash">mount -v --<span class="built_in">bind</span> /dev <span class="variable">$LFS</span>/dev
+mount -vt devpts devpts -o gid=5,mode=0620 <span class="variable">$LFS</span>/dev/pts
+mount -vt proc proc <span class="variable">$LFS</span>/proc
+mount -vt sysfs sysfs <span class="variable">$LFS</span>/sys
+mount -vt tmpfs tmpfs <span class="variable">$LFS</span>/run
+
+<span class="keyword">if</span> [ -h <span class="variable">$LFS</span>/dev/shm ]; <span class="keyword">then</span>
+  install -v -d -m 1777 $LFS$(<span class="built_in">realpath</span> /dev/shm)
+<span class="keyword">else</span>
+  mount -vt tmpfs -o nosuid,nodev tmpfs <span class="variable">$LFS</span>/dev/shm
+<span class="keyword">fi</span>
+
+<span class="built_in">chroot</span> <span class="string">&quot;<span class="variable">$LFS</span>&quot;</span> /usr/bin/env -i   \
+    HOME=/root                  \
+    TERM=<span class="string">&quot;<span class="variable">$TERM</span>&quot;</span>                \
+    PS1=<span class="string">&#x27;(lfs chroot) \u:\w\$ &#x27;</span> \
+    PATH=/usr/bin:/usr/sbin     \
+    MAKEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span>      \
+    TESTSUITEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span> \
+    /bin/bash --login</code></pre>
+
+<p>这里将不涉及任何软件包管理，而是直接进入到软件包的安装  </p>
+<h2 id="Man-pages"><a href="#Man-pages" class="headerlink" title="Man-pages"></a>Man-pages</h2><blockquote>
+<p>Man-pages 软件包包含 2,400 多个手册页。<br>解压Man-pages</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf man-pages-6.9.1.tar.xz 
+<span class="built_in">cd</span> man-pages-6.9.1</code></pre>
+
+<blockquote>
+<p>移除描述密码散列函数的两个手册页。Libxcrypt 会提供这些手册页的更好版本。</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -v man3/crypt*</code></pre>
+
+<p>安装Man-pages</p>
+<pre><code class="highlight bash">make prefix=/usr install</code></pre>
+
+<h2 id="Iana-Etc"><a href="#Iana-Etc" class="headerlink" title="Iana-Etc"></a>Iana-Etc</h2><blockquote>
+<p>Iana-Etc 软件包包含网络服务和协议的数据。<br>解压Iana-Etc</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf iana-etc-20240806.tar.gz
+<span class="built_in">cd</span> iana-etc-20240806</code></pre>
+
+<p>只需把文件复制到正确位置就行</p>
+<pre><code class="highlight bash"><span class="built_in">cp</span> services protocols /etc</code></pre>
+
+<h2 id="Glibc"><a href="#Glibc" class="headerlink" title="Glibc"></a>Glibc</h2><p>进入Glibc，先打一个补丁</p>
+<blockquote>
+<p>一些 Glibc 程序使用与 FHS 不兼容的 &#x2F;var&#x2F;db 目录存放它们的运行时数据。应用一个补丁，使得这些程序在 FHS 兼容的位置存放运行时数据</p>
+</blockquote>
+<pre><code class="highlight bash">patch -Np1 -i ../glibc-2.40-fhs-1.patch</code></pre>
+
+<p>删除之前的build目录并新建一个</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -rf build/
+<span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span>       build</code></pre>
+
+<p>确保将 <code>ldconfig</code> 和 <code>sln</code> 工具安装到 <code>/usr/sbin</code> 目录中</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="string">&quot;rootsbindir=/usr/sbin&quot;</span> &gt; configparms</code></pre>
+
+<p>准备编译Gblic</p>
+<pre><code class="highlight bash">../configure --prefix=/usr                            \
+             --disable-werror                         \
+             --enable-kernel=4.19                     \
+             --enable-stack-protector=strong          \
+             --disable-nscd                           \
+             libc_cv_slibdir=/usr/lib</code></pre>
+
+<p>编译Glibc</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>编译完成后进行测试，在这之前需要先跳过一些测试</p>
+<pre><code class="highlight bash">sed <span class="string">&#x27;/test-installation/s@$(PERL)@echo not running@&#x27;</span> -i ../Makefile
+<span class="built_in">touch</span> /etc/ld.so.conf
+make check</code></pre>
+
+<p>测试通过后安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<p>改正 ldd 脚本中硬编码的可执行文件加载器路径</p>
+<pre><code class="highlight bash">sed <span class="string">&#x27;/RTLDLIST=/s@/usr@@g&#x27;</span> -i /usr/bin/ldd</code></pre>
+
+<p>安装locale，这里就直接安装所有的了。</p>
+<pre><code class="highlight bash">make localedata/install-locales</code></pre>
+
+<blockquote>
+<p>由于 Glibc 的默认值在网络环境下不能很好地工作，需要创建配置文件 &#x2F;etc&#x2F;nsswitch.conf</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/nsswitch.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/nsswitch.conf</span>
+
+passwd: files
+group: files
+shadow: files
+
+hosts: files dns
+networks: files
+
+protocols: files
+services: files
+ethers: files
+rpc: files
+
+<span class="comment"># End /etc/nsswitch.conf</span>
+EOF</code></pre>
+
+<p>安装并设置时区数据</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; temp.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+tar -xf ../../tzdata2024a.tar.gz
+
+ZONEINFO=/usr/share/zoneinfo
+<span class="built_in">mkdir</span> -pv <span class="variable">$ZONEINFO</span>/&#123;posix,right&#125;
+
+<span class="keyword">for</span> tz <span class="keyword">in</span> etcetera southamerica northamerica europe africa antarctica  \
+          asia australasia backward; <span class="keyword">do</span>
+    zic -L /dev/null   -d <span class="variable">$ZONEINFO</span>       <span class="variable">$&#123;tz&#125;</span>
+    zic -L /dev/null   -d <span class="variable">$ZONEINFO</span>/posix <span class="variable">$&#123;tz&#125;</span>
+    zic -L leapseconds -d <span class="variable">$ZONEINFO</span>/right <span class="variable">$&#123;tz&#125;</span>
+<span class="keyword">done</span>
+
+<span class="built_in">cp</span> -v zone.tab zone1970.tab iso3166.tab <span class="variable">$ZONEINFO</span>
+zic -d <span class="variable">$ZONEINFO</span> -p America/New_York
+<span class="built_in">unset</span> ZONEINFO
+EOF
+
+<span class="built_in">chmod</span> +x temp.sh
+./temp.sh
+<span class="built_in">rm</span> temp.sh</code></pre>
+
+<p>确定本地时区</p>
+<pre><code class="highlight bash">tzselect</code></pre>
+
+<p>然后根据时区创建&#x2F;etc&#x2F;localtime，<strong>根据上面脚本的运行结果自行决定是否替换<code>Asia/Shanghai</code>字段</strong></p>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</code></pre>
+
+<p>现在配置动态加载器，创建一个新的&#x2F;etc&#x2F;ld.so.conf</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/ld.so.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/ld.so.conf</span>
+/usr/local/lib
+/opt/lib
+
+EOF</code></pre>
+
+<h2 id="Zlib"><a href="#Zlib" class="headerlink" title="Zlib"></a>Zlib</h2><p>解压Zlib</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf zlib-1.3.1.tar.gz
+<span class="built_in">cd</span> zlib-1.3.1</code></pre>
+
+<p>准备编译Zlib</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<p>删除无用的静态库</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -fv /usr/lib/libz.a</code></pre>
+
+<h2 id="Bzip2"><a href="#Bzip2" class="headerlink" title="Bzip2"></a>Bzip2</h2><p>解压Bzip2</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf bzip2-1.0.8.tar.gz
+<span class="built_in">cd</span> bzip2-1.0.8</code></pre>
+
+<p>打补丁</p>
+<pre><code class="highlight bash">patch -Np1 -i ../bzip2-1.0.8-install_docs-1.patch</code></pre>
+
+<blockquote>
+<p>以下命令保证安装的符号链接是相对的</p>
+</blockquote>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;s@\(ln -s -f \)$(PREFIX)/bin/@\1@&#x27;</span> Makefile</code></pre>
+
+<blockquote>
+<p>确保手册页被安装到正确位置</p>
+</blockquote>
+<pre><code class="highlight bash">sed -i <span class="string">&quot;s@(PREFIX)/man@(PREFIX)/share/man@g&quot;</span> Makefile</code></pre>
+
+<p>准备编译Bzip2</p>
+<pre><code class="highlight bash">make -f Makefile-libbz2_so
+make clean</code></pre>
+
+<p>开始编译并测试软件包</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make PREFIX=/usr install</code></pre>
+
+<p>安装共享库</p>
+<pre><code class="highlight bash"><span class="built_in">cp</span> -av libbz2.so.* /usr/lib
+<span class="built_in">ln</span> -sv libbz2.so.1.0.8 /usr/lib/libbz2.so</code></pre>
+
+<blockquote>
+<p>安装链接到共享库的 bzip2 二进制程序到 &#x2F;bin 目录，并将两个和 bzip2 完全相同的文件替换成符号链接</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; temp.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="built_in">cp</span> -v bzip2-shared /usr/bin/bzip2
+<span class="keyword">for</span> i <span class="keyword">in</span> /usr/bin/&#123;bzcat,bunzip2&#125;; <span class="keyword">do</span>
+  <span class="built_in">ln</span> -sfv bzip2 <span class="variable">$i</span>
+<span class="keyword">done</span>
+EOF
+
+<span class="built_in">chmod</span> +x temp.sh
+./temp.sh
+<span class="built_in">rm</span> temp.sh</code></pre>
+
+<p>删除无用的静态库</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -fv /usr/lib/libbz2.a</code></pre>
+
+<h2 id="Xz"><a href="#Xz" class="headerlink" title="Xz"></a>Xz</h2><p>之前已经解压过了，直接进入Xz目录</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/xz-5.6.2</code></pre>
+
+<p>准备编译Xz</p>
+<pre><code class="highlight bash">./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/xz-5.6.2</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Lz4"><a href="#Lz4" class="headerlink" title="Lz4"></a>Lz4</h2><p>解压Lz4</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf lz4-1.10.0.tar.gz 
+<span class="built_in">cd</span> lz4-1.10.0/</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make BUILD_STATIC=no PREFIX=/usr
+make -j1 check
+make BUILD_STATIC=no PREFIX=/usr install</code></pre>
+
+<h2 id="Zstd"><a href="#Zstd" class="headerlink" title="Zstd"></a>Zstd</h2><p>解压Zstd</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf zstd-1.5.6.tar.gz 
+<span class="built_in">cd</span> zstd-1.5.6/</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make prefix=/usr
+make check
+make prefix=/usr install</code></pre>
+
+<p>删除静态库</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -v /usr/lib/libzstd.a</code></pre>
+
+<h2 id="File"><a href="#File" class="headerlink" title="File"></a>File</h2><p>进入File目录</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/File-5.45/</code></pre>
+
+<p>准备编译File</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Readline"><a href="#Readline" class="headerlink" title="Readline"></a>Readline</h2><p>解压Readline</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf readline-8.2.13.tar.gz
+<span class="built_in">cd</span> readline-8.2.13</code></pre>
+
+<blockquote>
+<p>重新安装 Readline 会导致旧版本的库被重命名为 &lt;库名称&gt;.old。这一般不是问题，但某些情况下会触发 ldconfig 的一个链接 bug。运行下面的两条 sed 命令防止这种情况：</p>
+</blockquote>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;/MV.*old/d&#x27;</span> Makefile.<span class="keyword">in</span>
+sed -i <span class="string">&#x27;/&#123;OLDSUFF&#125;/c:&#x27;</span> support/shlib-install</code></pre>
+
+<blockquote>
+<p>下面防止在共享库中硬编码库文件搜索路径 (rpath)。该软件包在安装到标准位置时并不需要 rpath，而且 rpath 在一些情况下会产生我们不希望的副作用，甚至导致安全问题</p>
+</blockquote>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;s/-Wl,-rpath,[^ ]*//&#x27;</span> support/shobj-conf</code></pre>
+
+<p>准备编译Readline</p>
+<pre><code class="highlight bash">./configure --prefix=/usr    \
+            --disable-static \
+            --with-curses    \
+            --docdir=/usr/share/doc/readline-8.2.13</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make SHLIB_LIBS=<span class="string">&quot;-lncursesw&quot;</span>
+make SHLIB_LIBS=<span class="string">&quot;-lncursesw&quot;</span> install</code></pre>
+
+<p>安装软件包的文档</p>
+<pre><code class="highlight bash">install -v -m644 doc/*.&#123;ps,pdf,html,dvi&#125; /usr/share/doc/readline-8.2.13</code></pre>
+
+<h2 id="M4"><a href="#M4" class="headerlink" title="M4"></a>M4</h2><p>进入M4目录</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/m4-1.4.19</code></pre>
+
+<p>准备编译M4</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Bc"><a href="#Bc" class="headerlink" title="Bc"></a>Bc</h2><p>解压Bc</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf bc-6.7.6.tar.xz 
+<span class="built_in">cd</span> bc-6.7.6</code></pre>
+
+<p>准备编译Bc</p>
+<pre><code class="highlight bash">CC=gcc ./configure --prefix=/usr -G -O3 -r</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make <span class="built_in">test</span>
+make install</code></pre>
+
+<h2 id="Flex"><a href="#Flex" class="headerlink" title="Flex"></a>Flex</h2><p>解压Flex</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf flex-2.6.4.tar.gz
+<span class="built_in">cd</span> flex-2.6.4</code></pre>
+
+<p>准备编译Flex</p>
+<pre><code class="highlight bash">./configure --prefix=/usr \
+            --docdir=/usr/share/doc/flex-2.6.4 \
+            --disable-static</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<p>创建软连接</p>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sv flex   /usr/bin/lex
+<span class="built_in">ln</span> -sv flex.1 /usr/share/man/man1/lex.1</code></pre>
+
+
+<h2 id="Tcl"><a href="#Tcl" class="headerlink" title="Tcl"></a>Tcl</h2><p>解压Tcl</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /source/
+tar -xf tcl8.6.14-src.tar.gz 
+<span class="built_in">cd</span> tcl8.6.14</code></pre>
+
+<p>准备编译Tcl</p>
+<pre><code class="highlight bash">SRCDIR=$(<span class="built_in">pwd</span>)
+<span class="built_in">cd</span> unix
+./configure --prefix=/usr           \
+            --mandir=/usr/share/man \
+            --disable-rpath</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make
+
+sed -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>/unix|/usr/lib|&quot;</span> \
+    -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>|/usr/include|&quot;</span>  \
+    -i tclConfig.sh
+
+sed -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>/unix/pkgs/tdbc1.1.7|/usr/lib/tdbc1.1.7|&quot;</span> \
+    -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>/pkgs/tdbc1.1.7/generic|/usr/include|&quot;</span>    \
+    -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>/pkgs/tdbc1.1.7/library|/usr/lib/tcl8.6|&quot;</span> \
+    -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>/pkgs/tdbc1.1.7|/usr/include|&quot;</span>            \
+    -i pkgs/tdbc1.1.7/tdbcConfig.sh
+
+sed -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>/unix/pkgs/itcl4.2.4|/usr/lib/itcl4.2.4|&quot;</span> \
+    -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>/pkgs/itcl4.2.4/generic|/usr/include|&quot;</span>    \
+    -e <span class="string">&quot;s|<span class="variable">$SRCDIR</span>/pkgs/itcl4.2.4|/usr/include|&quot;</span>            \
+    -i pkgs/itcl4.2.4/itclConfig.sh
+
+<span class="built_in">unset</span> SRCDIR</code></pre>
+
+<p>测试编译结果，然后安装软件包</p>
+<pre><code class="highlight bash">make <span class="built_in">test</span>
+make install</code></pre>
+
+<blockquote>
+<p>将安装好的库加上写入权限，以便将来移除调试符号</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">chmod</span> -v u+w /usr/lib/libtcl8.6.so</code></pre>
+
+<blockquote>
+<p>安装 Tcl 的头文件。下一个软件包 Expect 需要它们才能构建</p>
+</blockquote>
+<pre><code class="highlight bash">make install-private-headers</code></pre>
+
+<blockquote>
+<p>创建一个必要的符号链接</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sfv tclsh8.6 /usr/bin/tclsh</code></pre>
+<blockquote>
+<p>重命名一个与 Perl 手册页文件名冲突的手册页</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">mv</span> /usr/share/man/man3/&#123;Thread,Tcl_Thread&#125;.3</code></pre>
+
+<p>安装文档</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> ..
+tar -xf ../tcl8.6.14-html.tar.gz --strip-components=1
+<span class="built_in">mkdir</span> -v -p /usr/share/doc/tcl-8.6.14
+<span class="built_in">cp</span> -v -r  ./html/* /usr/share/doc/tcl-8.6.14</code></pre>
+
+<h2 id="Expect"><a href="#Expect" class="headerlink" title="Expect"></a>Expect</h2><p>解压Expect</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf expect5.45.4.tar.gz
+<span class="built_in">cd</span> expect5.45.4</code></pre>
+
+<p>Expect 需要伪终端 (PTY) 才能正常工作。进行简单测试以验证 PTY 是否在 chroot 环境中正常工作，若输出ok则继续，否则仔细阅读处理方法<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter08/expect.html">8.17.1. 安装 Expect</a></p>
+<pre><code class="highlight bash">python3 -c <span class="string">&#x27;from pty import spawn; spawn([&quot;echo&quot;, &quot;ok&quot;])&#x27;</span></code></pre>
+
+<p>打patch</p>
+<pre><code class="highlight bash">patch -Np1 -i ../expect-5.45.4-gcc14-1.patch</code></pre>
+
+<p>准备编译Expect</p>
+<pre><code class="highlight bash">./configure --prefix=/usr           \
+            --with-tcl=/usr/lib     \
+            --enable-shared         \
+            --disable-rpath         \
+            --mandir=/usr/share/man \
+            --with-tclinclude=/usr/include</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make <span class="built_in">test</span>
+make install
+<span class="built_in">ln</span> -svf expect5.45.4/libexpect5.45.4.so /usr/lib</code></pre>
+
+<h2 id="DejaGNU"><a href="#DejaGNU" class="headerlink" title="DejaGNU"></a>DejaGNU</h2><p>解压DejaGNU</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf dejagnu-1.6.3.tar.gz
+<span class="built_in">cd</span> dejagnu-1.6.3</code></pre>
+
+<p>单独创建一个目录用于构建</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span>       build</code></pre>
+
+<p>准备编译DejaGNU</p>
+<pre><code class="highlight bash">../configure --prefix=/usr
+makeinfo --html --no-split -o doc/dejagnu.html ../doc/dejagnu.texi
+makeinfo --plaintext       -o doc/dejagnu.txt  ../doc/dejagnu.texi</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">make check</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install
+install -v -dm755  /usr/share/doc/dejagnu-1.6.3
+install -v -m644   doc/dejagnu.&#123;html,txt&#125; /usr/share/doc/dejagnu-1.6.3</code></pre>
+
+<h2 id="Pkgconf"><a href="#Pkgconf" class="headerlink" title="Pkgconf"></a>Pkgconf</h2><p>解压Pkgconf</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf pkgconf-2.3.0.tar.xz
+<span class="built_in">cd</span> pkgconf-2.3.0</code></pre>
+
+<p>准备编译Pkgconf</p>
+<pre><code class="highlight bash">./configure --prefix=/usr              \
+            --disable-static           \
+            --docdir=/usr/share/doc/pkgconf-2.3.0</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<blockquote>
+<p>为了维持与原始的 Pkg-config 软件包的兼容性，创建两个符号链接</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sv pkgconf   /usr/bin/pkg-config
+<span class="built_in">ln</span> -sv pkgconf.1 /usr/share/man/man1/pkg-config.1</code></pre>
+
+<h2 id="Binutils"><a href="#Binutils" class="headerlink" title="Binutils"></a>Binutils</h2><p>重新创建单独用于构建的目录</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+<span class="built_in">rm</span> -rf build/
+<span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span>       build</code></pre>
+
+<p>准备编译Binutils</p>
+<pre><code class="highlight bash">../configure --prefix=/usr       \
+             --sysconfdir=/etc   \
+             --enable-gold       \
+             --enable-ld=default \
+             --enable-plugins    \
+             --enable-shared     \
+             --disable-werror    \
+             --enable-64-bit-bfd \
+             --enable-new-dtags  \
+             --with-system-zlib  \
+             --enable-default-hash-style=gnu</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make tooldir=/usr</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">make -k check</code></pre>
+
+<blockquote>
+<p>Gold 测试套件中，有十二项测试在构建 GCC 时启用 –enable-default-pie 和 –enable-default-ssp 的情况下会失败。请仔细核对失败的测试数量</p>
+</blockquote>
+<p>安装软件包</p>
+<pre><code class="highlight bash">make tooldir=/usr install</code></pre>
+
+<p>删除无用的静态库</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -fv /usr/lib/lib&#123;bfd,ctf,ctf-nobfd,gprofng,opcodes,sframe&#125;.a</code></pre>
+
+<h2 id="GMP"><a href="#GMP" class="headerlink" title="GMP"></a>GMP</h2><p>解压GMP</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf gmp-6.3.0.tar.xz
+<span class="built_in">cd</span> gmp-6.3.0</code></pre>
+
+<p>准备编译GMP</p>
+<pre><code class="highlight bash">./configure --prefix=/usr    \
+            --enable-cxx     \
+            --disable-static \
+            --docdir=/usr/share/doc/gmp-6.3.0</code></pre>
+
+<p>开始编译，完成后生成HTML文档</p>
+<pre><code class="highlight bash">make &amp;&amp; make html</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">make check 2&gt;&amp;1 | <span class="built_in">tee</span> gmp-check-log</code></pre>
+
+<blockquote>
+<p>务必确认测试套件中至少 199 项测试通过。运行以下命令检验结果</p>
+</blockquote>
+<pre><code class="highlight bash">awk <span class="string">&#x27;/# PASS:/&#123;total+=$3&#125; ; END&#123;print total&#125;&#x27;</span> gmp-check-log</code></pre>
+
+<p>安装软件包及其文档</p>
+<pre><code class="highlight bash">make install &amp;&amp; make install-html</code></pre>
+
+<h2 id="MPFR"><a href="#MPFR" class="headerlink" title="MPFR"></a>MPFR</h2><p>解压MPFR</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf mpfr-4.2.1.tar.xz 
+<span class="built_in">cd</span> mpfr-4.2.1</code></pre>
+
+<p>准备编译MPFR</p>
+<pre><code class="highlight bash">./configure --prefix=/usr        \
+            --disable-static     \
+            --enable-thread-safe \
+            --docdir=/usr/share/doc/mpfr-4.2.1</code></pre>
+
+<p>开始编译，并生成HTML文档</p>
+<pre><code class="highlight bash">make &amp;&amp; make html</code></pre>
+
+<p>测试编译结果，并确认所有 198 项测试都能通过</p>
+<pre><code class="highlight bash">make check</code></pre>
+
+<p>安装软件包和文档</p>
+<pre><code class="highlight bash">make install &amp;&amp; make install-html</code></pre>
+
+<h2 id="MPC"><a href="#MPC" class="headerlink" title="MPC"></a>MPC</h2><p>解压MPC</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf mpc-1.3.1.tar.gz
+<span class="built_in">cd</span> mpc-1.3.1</code></pre>
+
+<p>准备编译MPC</p>
+<pre><code class="highlight bash">./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/mpc-1.3.1</code></pre>
+
+<p>开始编译并生成HTML文档</p>
+<pre><code class="highlight bash">make &amp;&amp; make html</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">make check</code></pre>
+
+<p>安装软件包和文档</p>
+<pre><code class="highlight bash">make install &amp;&amp; make install-html</code></pre>
+
+<h2 id="Attr"><a href="#Attr" class="headerlink" title="Attr"></a>Attr</h2><p>解压Attr</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf attr-2.5.2.tar.gz 
+<span class="built_in">cd</span> attr-2.5.2</code></pre>
+
+<p>准备编译Attr</p>
+<pre><code class="highlight bash">./configure --prefix=/usr     \
+            --disable-static  \
+            --sysconfdir=/etc \
+            --docdir=/usr/share/doc/attr-2.5.2</code></pre>
+
+<p>开始编译，然后测试编译结果，完成后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Acl"><a href="#Acl" class="headerlink" title="Acl"></a>Acl</h2><p>解压Acl</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf acl-2.3.2.tar.xz 
+<span class="built_in">cd</span> acl-2.3.2</code></pre>
+
+<p>准备编译Acl</p>
+<pre><code class="highlight bash">./configure --prefix=/usr         \
+            --disable-static      \
+            --docdir=/usr/share/doc/acl-2.3.2</code></pre>
+
+<p>开始编译，完成后安装软件包</p>
+<pre><code class="highlight bash">make &amp;&amp; make install</code></pre>
+
+<h2 id="Libcap"><a href="#Libcap" class="headerlink" title="Libcap"></a>Libcap</h2><p>解压Libcap</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf libcap-2.70.tar.xz
+<span class="built_in">cd</span> libcap-2.70</code></pre>
+
+<p>防止静态库的安装</p>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;/install -m.*STA/d&#x27;</span> libcap/Makefile</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make prefix=/usr lib=lib</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">make <span class="built_in">test</span></code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make prefix=/usr lib=lib install</code></pre>
+
+<h2 id="Libxcrypt"><a href="#Libxcrypt" class="headerlink" title="Libxcrypt"></a>Libxcrypt</h2><p>解压Libxcrypt</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf libxcrypt-4.4.36.tar.xz
+<span class="built_in">cd</span> libxcrypt-4.4.36</code></pre>
+
+<p>准备编译Libxcrypt</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                \
+            --enable-hashes=strong,glibc \
+            --enable-obsolete-api=no     \
+            --disable-static             \
+            --disable-failure-tokens</code></pre>
+
+<p>开始编译，然后测试编译结果，完成后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Shadow"><a href="#Shadow" class="headerlink" title="Shadow"></a>Shadow</h2><p>解压Shadow</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf shadow-4.16.0.tar.xz 
+<span class="built_in">cd</span> shadow-4.16.0</code></pre>
+
+<blockquote>
+<p>禁止该软件包安装 groups 程序和它的手册页，因为 Coreutils 会提供更好的版本</p>
+</blockquote>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;s/groups$(EXEEXT) //&#x27;</span> src/Makefile.<span class="keyword">in</span>
+find man -name Makefile.<span class="keyword">in</span> -<span class="built_in">exec</span> sed -i <span class="string">&#x27;s/groups\.1 / /&#x27;</span>   &#123;&#125; \;
+find man -name Makefile.<span class="keyword">in</span> -<span class="built_in">exec</span> sed -i <span class="string">&#x27;s/getspnam\.3 / /&#x27;</span> &#123;&#125; \;
+find man -name Makefile.<span class="keyword">in</span> -<span class="built_in">exec</span> sed -i <span class="string">&#x27;s/passwd\.5 / /&#x27;</span>   &#123;&#125; \;</code></pre>
+
+<blockquote>
+<p>不使用默认的 crypt 加密方法，使用安全程度高很多的 YESCRYPT 算法加密密码，这也允许设定长度超过 8 个字符的密码。还需要把过时的用户邮箱位置 &#x2F;var&#x2F;spool&#x2F;mail 改为当前普遍使用的 &#x2F;var&#x2F;mail 目录。另外，从默认的 PATH 中删除&#x2F;bin 和 &#x2F;sbin，因为它们只是指向 &#x2F;usr 中对应目录的符号链接</p>
+</blockquote>
+<pre><code class="highlight bash">sed -e <span class="string">&#x27;s:#ENCRYPT_METHOD DES:ENCRYPT_METHOD YESCRYPT:&#x27;</span> \
+    -e <span class="string">&#x27;s:/var/spool/mail:/var/mail:&#x27;</span>                   \
+    -e <span class="string">&#x27;/PATH=/&#123;s@/sbin:@@;s@/bin:@@&#125;&#x27;</span>                  \
+    -i etc/login.defs</code></pre>
+
+<p>准备编译Shadow</p>
+<pre><code class="highlight bash"><span class="built_in">touch</span> /usr/bin/passwd
+./configure --sysconfdir=/etc   \
+            --disable-static    \
+            --with-&#123;b,<span class="built_in">yes</span>&#125;crypt \
+            --without-libbsd    \
+            --with-group-name-max-length=32</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make exec_prefix=/usr install
+make -C man install-man</code></pre>
+
+<p>对用户和组启用Shadow加密</p>
+<pre><code class="highlight bash">pwconv
+grpconv</code></pre>
+
+<blockquote>
+<p>为了修改默认参数，必须创建 &#x2F;etc&#x2F;default&#x2F;useradd 文件，并定制其内容，以满足您的特定需要</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -p /etc/default
+useradd -D --gid 999</code></pre>
+
+<p>设置root密码</p>
+<pre><code class="highlight bash">passwd root</code></pre>
+
+<h2 id="GCC"><a href="#GCC" class="headerlink" title="GCC"></a>GCC</h2><blockquote>
+<p>在 x86_64 上构建时，修改存放 64 位库的默认路径为 “lib”</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/gcc-14.2.0
+<span class="built_in">rm</span> -rf build/
+<span class="built_in">cat</span> &gt; temp.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span>
+  x86_64)
+    sed -e <span class="string">&#x27;/m64=/s/lib64/lib/&#x27;</span> \
+        -i.orig gcc/config/i386/t-linux64
+  ;;
+<span class="keyword">esac</span>
+EOF
+
+<span class="built_in">chmod</span> +x temp.sh
+./temp.sh
+<span class="built_in">rm</span> temp.sh
+<span class="built_in">mkdir</span> -v build/
+<span class="built_in">cd</span> build/</code></pre>
+
+<p>准备编译GCC</p>
+<pre><code class="highlight bash">../configure --prefix=/usr            \
+             LD=ld                    \
+             --enable-languages=c,c++ \
+             --enable-default-pie     \
+             --enable-default-ssp     \
+             --enable-host-pie        \
+             --disable-multilib       \
+             --disable-bootstrap      \
+             --disable-fixincludes    \
+             --with-system-zlib</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>移除或修复若干已知会失败的测试</p>
+<pre><code class="highlight bash">sed -e <span class="string">&#x27;/cpython/d&#x27;</span>               -i ../gcc/testsuite/gcc.dg/plugin/plugin.exp
+sed -e <span class="string">&#x27;s/no-pic /&amp;-no-pie /&#x27;</span>     -i ../gcc/testsuite/gcc.target/i386/pr113689-1.c
+sed -e <span class="string">&#x27;s/300000/(1|300000)/&#x27;</span>     -i ../libgomp/testsuite/libgomp.c-c++-common/pr109062.c
+sed -e <span class="string">&#x27;s/&#123; target nonpic &#125; //&#x27;</span> \
+    -e <span class="string">&#x27;/GOTPCREL/d&#x27;</span>              -i ../gcc/testsuite/gcc.target/i386/fentryname3.c</code></pre>
+
+<p>以非特权用户身份测试编译结果，但出错时继续执行其他测试</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R tester .
+su tester -c <span class="string">&quot;PATH=<span class="variable">$PATH</span> make -k check&quot;</span></code></pre>
+
+<p>查看测试结果</p>
+<pre><code class="highlight bash">../contrib/test_summary</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<blockquote>
+<p>GCC 构建目录目前属于用户 tester，导致安装的头文件目录 (及其内容) 具有不正确的所有权。将所有者修改为 root 用户和组</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -v -R root:root \
+    /usr/lib/gcc/$(gcc -dumpmachine)/14.2.0/include&#123;,-fixed&#125;</code></pre>
+
+<p>创建一个 FHS 因 “历史原因” 要求的符号链接</p>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -svr /usr/bin/cpp /usr/lib</code></pre>
+
+<p>创建一个软链接cc指向C编译器</p>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sv gcc.1 /usr/share/man/man1/cc.1</code></pre>
+
+<p>创建一个兼容性符号链接，以支持在构建程序时使用链接时优化 (LTO)</p>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sfv ../../libexec/gcc/$(gcc -dumpmachine)/14.2.0/liblto_plugin.so \
+        /usr/lib/bfd-plugins/</code></pre>
+
+<p>进行下列完整性检查</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="string">&#x27;int main()&#123;&#125;&#x27;</span> &gt; dummy.c
+cc dummy.c -v -Wl,--verbose &amp;&gt; dummy.log
+readelf -l a.out | grep <span class="string">&#x27;: /lib&#x27;</span></code></pre>
+
+<p>以下是期望输出</p>
+<pre><code class="highlight bash">[Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]</code></pre>
+
+<blockquote>
+<p>下面确认我们在使用正确的启动文件</p>
+</blockquote>
+<pre><code class="highlight bash">grep -E -o <span class="string">&#x27;/usr/lib.*/S?crt[1in].*succeeded&#x27;</span> dummy.log</code></pre>
+
+<p>以下是期望输出</p>
+<pre><code class="highlight bash">/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.0/../../../../lib/Scrt1.o succeeded
+/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.0/../../../../lib/crti.o succeeded
+/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.0/../../../../lib/crtn.o succeeded</code></pre>
+
+<p>确认编译器能正确查找头文件</p>
+<pre><code class="highlight bash">grep -B4 <span class="string">&#x27;^ /usr/include&#x27;</span> dummy.log</code></pre>
+
+<p>以下是期望输出</p>
+<pre><code class="highlight bash"><span class="comment">#include &lt;...&gt; search starts here:</span>
+ /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.0/include
+ /usr/local/include
+ /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.0/include-fixed
+ /usr/include</code></pre>
+
+<p>确认新的链接器使用了正确的搜索路径</p>
+<pre><code class="highlight bash">grep <span class="string">&#x27;SEARCH.*/usr/lib&#x27;</span> dummy.log |sed <span class="string">&#x27;s|; |\n|g&#x27;</span></code></pre>
+
+<p>忽略包含 ‘-linux-gnu’ 的路径，以下是期望输出</p>
+<pre><code class="highlight bash">SEARCH_DIR(<span class="string">&quot;/usr/x86_64-pc-linux-gnu/lib64&quot;</span>)
+SEARCH_DIR(<span class="string">&quot;/usr/local/lib64&quot;</span>)
+SEARCH_DIR(<span class="string">&quot;/lib64&quot;</span>)
+SEARCH_DIR(<span class="string">&quot;/usr/lib64&quot;</span>)
+SEARCH_DIR(<span class="string">&quot;/usr/x86_64-pc-linux-gnu/lib&quot;</span>)
+SEARCH_DIR(<span class="string">&quot;/usr/local/lib&quot;</span>)
+SEARCH_DIR(<span class="string">&quot;/lib&quot;</span>)
+SEARCH_DIR(<span class="string">&quot;/usr/lib&quot;</span>);</code></pre>
+
+<p>确认使用了正确的 libc</p>
+<pre><code class="highlight bash">grep <span class="string">&quot;/lib.*/libc.so.6 &quot;</span> dummy.log</code></pre>
+
+<p>以下是期望输出</p>
+<pre><code class="highlight bash">attempt to open /usr/lib/libc.so.6 succeeded</code></pre>
+
+<p>确认 GCC 使用了正确的动态链接器</p>
+<pre><code class="highlight bash">grep found dummy.log</code></pre>
+
+<p>以下是期望输出 (不同平台的动态链接器名称可能不同)</p>
+<pre><code class="highlight bash">found ld-linux-x86-64.so.2 at /usr/lib/ld-linux-x86-64.so.2</code></pre>
+
+<blockquote>
+<p><strong>如果输出和以上描述不符，或者根本没有输出，那么必然有什么地方出了严重错误。检查并重新跟踪以上步骤，找到问题的原因，并修复它。在继续构建前必须解决这里发现的所有问题。</strong></p>
+</blockquote>
+<p>删除测试文件</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -v dummy.c a.out dummy.log</code></pre>
+
+<p>移动一个位置不正确的文件</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -pv /usr/share/gdb/auto-load/usr/lib
+<span class="built_in">mv</span> -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib</code></pre>
+
+<h2 id="Ncurses"><a href="#Ncurses" class="headerlink" title="Ncurses"></a>Ncurses</h2><p>准备编译Ncurses</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/ncurses-6.5
+./configure --prefix=/usr           \
+            --mandir=/usr/share/man \
+            --with-shared           \
+            --without-debug         \
+            --without-normal        \
+            --with-cxx-shared       \
+            --enable-pc-files       \
+            --with-pkg-config-libdir=/usr/lib/pkgconfig</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make DESTDIR=<span class="variable">$PWD</span>/dest install
+install -vm755 dest/usr/lib/libncursesw.so.6.5 /usr/lib
+<span class="built_in">rm</span> -v  dest/usr/lib/libncursesw.so.6.5
+sed -e <span class="string">&#x27;s/^#if.*XOPEN.*$/#if 1/&#x27;</span> \
+    -i dest/usr/include/curses.h
+<span class="built_in">cp</span> -av dest/* /</code></pre>
+
+<blockquote>
+<p>许多程序仍然希望链接器能够找到非宽字符版本的 Ncurses 库。通过使用符号链接和链接脚本，诱导它们链接到宽字符库 (注意这里扩展名为 so 的链接只有在已经编辑 curses.h 使之总是使用宽字符 ABI 时才安全)</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; temp.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="keyword">for</span> lib <span class="keyword">in</span> ncurses form panel menu ; <span class="keyword">do</span>
+    <span class="built_in">ln</span> -sfv lib<span class="variable">$&#123;lib&#125;</span>w.so /usr/lib/lib<span class="variable">$&#123;lib&#125;</span>.so
+    <span class="built_in">ln</span> -sfv <span class="variable">$&#123;lib&#125;</span>w.pc    /usr/lib/pkgconfig/<span class="variable">$&#123;lib&#125;</span>.pc
+<span class="keyword">done</span>
+EOF
+
+<span class="built_in">chmod</span> +x temp.sh
+./temp.sh
+<span class="built_in">rm</span> temp.sh</code></pre>
+
+<p>创建软链接以确保老式程序仍然能构建</p>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sfv libncursesw.so /usr/lib/libcurses.so</code></pre>
+
+<p>安装文档</p>
+<pre><code class="highlight bash"><span class="built_in">cp</span> -v -R doc -T /usr/share/doc/ncurses-6.5</code></pre>
+
+<h2 id="Sed"><a href="#Sed" class="headerlink" title="Sed"></a>Sed</h2><p>准备编译Sed</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/sed-4.9
+./configure --prefix=/usr</code></pre>
+
+<p>开始编译，并生成HTML文档</p>
+<pre><code class="highlight bash">make &amp;&amp; make html</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R tester .
+su tester -c <span class="string">&quot;PATH=<span class="variable">$PATH</span> make check&quot;</span></code></pre>
+
+<p>安装软件包和文档</p>
+<pre><code class="highlight bash">make install
+install -d -m755           /usr/share/doc/sed-4.9
+install -m644 doc/sed.html /usr/share/doc/sed-4.9</code></pre>
+
+<h2 id="Psmisc"><a href="#Psmisc" class="headerlink" title="Psmisc"></a>Psmisc</h2><p>解压Psmisc</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf psmisc-23.7.tar.xz
+<span class="built_in">cd</span> psmisc-23.7</code></pre>
+
+<p>准备编译Psmisc</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Gettext"><a href="#Gettext" class="headerlink" title="Gettext"></a>Gettext</h2><p>准备编译Gettext</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+<span class="built_in">rm</span> -rf gettext-0.22.5
+tar -xf gettext-0.22.5.tar.xz
+<span class="built_in">cd</span> gettext-0.22.5
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/gettext-0.22.5</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install
+<span class="built_in">chmod</span> -v 0755 /usr/lib/preloadable_libintl.so</code></pre>
+
+<h2 id="Bison"><a href="#Bison" class="headerlink" title="Bison"></a>Bison</h2><p>准备编译Bison</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/bison-3.8.2
+./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.8.2</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Grep"><a href="#Grep" class="headerlink" title="Grep"></a>Grep</h2><blockquote>
+<p>移除使用 egrep 和 fgrep 时的警告，它会导致一些软件包测试失败</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+<span class="built_in">rm</span> -rf grep-3.11
+tar -xf grep-3.11.tar.xz
+<span class="built_in">cd</span> grep-3.11
+sed -i <span class="string">&quot;s/echo/#echo/&quot;</span> src/egrep.sh</code></pre>
+
+<p>准备编译Grep</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Bash"><a href="#Bash" class="headerlink" title="Bash"></a>Bash</h2><p>准备编译Bash<br>解压Bash</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+<span class="built_in">rm</span> -rf bash-5.2.32
+tar -xvf bash-5.2.32.tar.gz
+<span class="built_in">cd</span> bash-5.2.32</code></pre>
+
+<pre><code class="highlight bash">./configure --prefix=/usr             \
+            --without-bash-malloc     \
+            --with-installed-readline \
+            bash_cv_strtold_broken=no \
+            --docdir=/usr/share/doc/bash-5.2.32</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<blockquote>
+<p>确保 tester 用户可以写入源代码目录，该软件包的测试套件被设计为以非 root 用户身份运行，且该用户必须是标准输入所连接的终端的所有者。为了满足这一条件，使用 Expect 生成一个新的伪终端，并以 tester 用户身份运行测试</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R tester .
+su -s /usr/bin/expect tester &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="built_in">set</span> <span class="built_in">timeout</span> -1
+spawn make tests
+expect eof
+lassign [<span class="built_in">wait</span>] _ _ _ value
+<span class="built_in">exit</span> <span class="variable">$value</span>
+EOF</code></pre>
+
+<blockquote>
+<p>测试套件使用 diff 检测测试脚本输出和预期是否存在不同。diff 的任何输出 (以 &lt; 和 &gt; 开头) 都表示测试失败，除非有消息提示可以忽略这里报告的差别。已知一项名为 run-builtins 的测试在一些宿主系统上可能失败，此时该测试输出的第一行和预期存在不同。</p>
+</blockquote>
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<blockquote>
+<p>执行新编译的 bash 程序 (替换当前正在执行的版本)</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">exec</span> /usr/bin/bash --login</code></pre>
+
+<h2 id="Libtool"><a href="#Libtool" class="headerlink" title="Libtool"></a>Libtool</h2><p>解压Libtool</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf libtool-2.4.7.tar.xz 
+<span class="built_in">cd</span> libtool-2.4.7</code></pre>
+
+<p>准备编译Libtool</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包，删除掉无用的静态库</p>
+<pre><code class="highlight bash">make
+make -k check
+make install
+<span class="built_in">rm</span> -fv /usr/lib/libltdl.a</code></pre>
+
+<h2 id="GDBM"><a href="#GDBM" class="headerlink" title="GDBM"></a>GDBM</h2><p>解压GDBM</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf gdbm-1.24.tar.gz 
+<span class="built_in">cd</span> gdbm-1.24</code></pre>
+
+<p>准备编译GDBM</p>
+<pre><code class="highlight bash">./configure --prefix=/usr    \
+            --disable-static \
+            --enable-libgdbm-compat</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Gperf"><a href="#Gperf" class="headerlink" title="Gperf"></a>Gperf</h2><p>解压Gperf</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf gperf-3.1.tar.gz
+<span class="built_in">cd</span> gperf-3.1</code></pre>
+
+<p>准备编译 Gperf</p>
+<pre><code class="highlight bash">./configure --prefix=/usr --docdir=/usr/share/doc/gperf-3.1</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make -j1 check
+make install</code></pre>
+
+<h2 id="Expat"><a href="#Expat" class="headerlink" title="Expat"></a>Expat</h2><p>解压Expat</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf expat-2.6.2.tar.xz
+<span class="built_in">cd</span> expat-2.6.2</code></pre>
+
+<p>准备编译Expat</p>
+<pre><code class="highlight bash">./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/expat-2.6.2</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install
+install -v -m644 doc/*.&#123;html,css&#125; /usr/share/doc/expat-2.6.2</code></pre>
+
+<h2 id="Inetutils"><a href="#Inetutils" class="headerlink" title="Inetutils"></a>Inetutils</h2><p>解压Inetutils</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf inetutils-2.5.tar.xz
+<span class="built_in">cd</span> inetutils-2.5</code></pre>
+
+<p>使得该软件包能够用 gcc-14.1 或更新版本构建</p>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;s/def HAVE_TERMCAP_TGETENT/ 1/&#x27;</span> telnet/telnet.c</code></pre>
+
+<p>准备编译Inetutils</p>
+<pre><code class="highlight bash">./configure --prefix=/usr        \
+            --bindir=/usr/bin    \
+            --localstatedir=/var \
+            --disable-logger     \
+            --disable-whois      \
+            --disable-rcp        \
+            --disable-rexec      \
+            --disable-rlogin     \
+            --disable-rsh        \
+            --disable-servers</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<p>将一个程序移动到正确位置</p>
+<pre><code class="highlight bash"><span class="built_in">mv</span> -v /usr/&#123;,s&#125;bin/ifconfig</code></pre>
+
+<h2 id="Less"><a href="#Less" class="headerlink" title="Less"></a>Less</h2><p>解压Less</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf less-661.tar.gz
+<span class="built_in">cd</span> less-661</code></pre>
+
+<p>准备编译 Less</p>
+<pre><code class="highlight bash">./configure --prefix=/usr --sysconfdir=/etc</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Perl"><a href="#Perl" class="headerlink" title="Perl"></a>Perl</h2><blockquote>
+<p>该版本的 Perl 会构建 Compress::Raw::ZLib 和 Compress::Raw::BZip2 模块。默认情况下 Perl 会使用内部的源码副本构建它们。执行以下命令，使得 Perl 使用已经安装到系统上的库</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">export</span> BUILD_ZLIB=False
+<span class="built_in">export</span> BUILD_BZIP2=0</code></pre>
+
+<p>准备编译Perl</p>
+<pre><code class="highlight bash">sh Configure -des                                          \
+             -D prefix=/usr                                \
+             -D vendorprefix=/usr                          \
+             -D privlib=/usr/lib/perl5/5.40/core_perl      \
+             -D archlib=/usr/lib/perl5/5.40/core_perl      \
+             -D sitelib=/usr/lib/perl5/5.40/site_perl      \
+             -D sitearch=/usr/lib/perl5/5.40/site_perl     \
+             -D vendorlib=/usr/lib/perl5/5.40/vendor_perl  \
+             -D vendorarch=/usr/lib/perl5/5.40/vendor_perl \
+             -D man1dir=/usr/share/man/man1                \
+             -D man3dir=/usr/share/man/man3                \
+             -D pager=<span class="string">&quot;/usr/bin/less -isR&quot;</span>                 \
+             -D useshrplib                                 \
+             -D usethreads</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">TEST_JOBS=$(<span class="built_in">nproc</span>) make test_harness</code></pre>
+
+<p>安装软件包并清理环境变量</p>
+<pre><code class="highlight bash">make install
+<span class="built_in">unset</span> BUILD_ZLIB BUILD_BZIP2</code></pre>
+
+<h2 id="XML-Parser"><a href="#XML-Parser" class="headerlink" title="XML::Parser"></a>XML::Parser</h2><p>解压XML::Parser</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf XML-Parser-2.47.tar.gz
+<span class="built_in">cd</span> XML-Parser-2.47</code></pre>
+
+<p>准备编译 XML::Parser</p>
+<pre><code class="highlight bash">perl Makefile.PL</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make <span class="built_in">test</span>
+make install</code></pre>
+
+<h2 id="Intltool"><a href="#Intltool" class="headerlink" title="Intltool"></a>Intltool</h2><p>解压Intltool</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf intltool-0.51.0.tar.gz
+<span class="built_in">cd</span> intltool-0.51.0</code></pre>
+
+<p>修复由 perl-5.22 及更新版本导致的警告</p>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;s:\\\$&#123;:\\\$\\&#123;:&#x27;</span> intltool-update.in</code></pre>
+
+<p>准备编译 Intltool</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install
+install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO</code></pre>
+
+<h2 id="Autoconf"><a href="#Autoconf" class="headerlink" title="Autoconf"></a>Autoconf</h2><p>解压Autoconf</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf autoconf-2.72.tar.xz
+<span class="built_in">cd</span> autoconf-2.72</code></pre>
+
+<p>准备编译 Autoconf</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Automake"><a href="#Automake" class="headerlink" title="Automake"></a>Automake</h2><p>解压 Automake</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf automake-1.17.tar.xz 
+<span class="built_in">cd</span> automake-1.17</code></pre>
+
+<p>准备编译 Automake</p>
+<pre><code class="highlight bash">./configure --prefix=/usr --docdir=/usr/share/doc/automake-1.17</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make -j$(($(nproc)&gt;<span class="number">4</span>?$(nproc):<span class="number">4</span>)) check
+make install</code></pre>
+
+<h2 id="OpenSSL"><a href="#OpenSSL" class="headerlink" title="OpenSSL"></a>OpenSSL</h2><p>解压OpenSSL</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf openssl-3.3.1.tar.gz
+<span class="built_in">cd</span> openssl-3.3.1</code></pre>
+
+<p>准备编译 OpenSSL</p>
+<pre><code class="highlight bash">./config --prefix=/usr         \
+         --openssldir=/etc/ssl \
+         --libdir=lib          \
+         shared                \
+         zlib-dynamic</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">HARNESS_JOBS=$(<span class="built_in">nproc</span>) make <span class="built_in">test</span></code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;/INSTALL_LIBS/s/libcrypto.a libssl.a//&#x27;</span> Makefile
+make MANSUFFIX=ssl install</code></pre>
+
+<p>将版本号添加到文档目录名，以和其他软件包保持一致</p>
+<pre><code class="highlight bash"><span class="built_in">mv</span> -v /usr/share/doc/openssl /usr/share/doc/openssl-3.3.1</code></pre>
+
+<p>安装文档</p>
+<pre><code class="highlight bash"><span class="built_in">cp</span> -vfr doc/* /usr/share/doc/openssl-3.3.1</code></pre>
+
+<h2 id="Kmod"><a href="#Kmod" class="headerlink" title="Kmod"></a>Kmod</h2><p>解压Kmod</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf kmod-33.tar.xz
+<span class="built_in">cd</span> kmod-33</code></pre>
+
+<p>准备编译Kmod</p>
+<pre><code class="highlight bash">./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --with-openssl    \
+            --with-xz         \
+            --with-zstd       \
+            --with-zlib       \
+            --disable-manpages</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install
+
+<span class="built_in">cat</span> &gt; temp.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="keyword">for</span> target <span class="keyword">in</span> depmod insmod modinfo modprobe rmmod; <span class="keyword">do</span>
+  <span class="built_in">ln</span> -sfv ../bin/kmod /usr/sbin/<span class="variable">$target</span>
+  <span class="built_in">rm</span> -fv /usr/bin/<span class="variable">$target</span>
+<span class="keyword">done</span>
+EOF
+
+<span class="built_in">chmod</span> +x temp.sh
+./temp.sh
+<span class="built_in">rm</span> temp.sh</code></pre>
+
+<h2 id="Elfutils中的Libelf"><a href="#Elfutils中的Libelf" class="headerlink" title="Elfutils中的Libelf"></a>Elfutils中的Libelf</h2><p>解压Elfutils</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf elfutils-0.191.tar.bz2 
+<span class="built_in">cd</span> elfutils-0.191</code></pre>
+
+<p>准备编译Libelf</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                \
+            --disable-debuginfod         \
+            --enable-libdebuginfod=dummy</code></pre>
+
+<p>开始编译，然后测试编译结果</p>
+<pre><code class="highlight bash">make
+make check</code></pre>
+
+<p>安装Libelf</p>
+<pre><code class="highlight bash">make -C libelf install
+install -vm644 config/libelf.pc /usr/lib/pkgconfig
+<span class="built_in">rm</span> /usr/lib/libelf.a</code></pre>
+
+<h2 id="Libffi"><a href="#Libffi" class="headerlink" title="Libffi"></a>Libffi</h2><p>解压Libffi</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf libffi-3.4.6.tar.gz 
+<span class="built_in">cd</span> libffi-3.4.6.</code></pre>
+
+<p>准备编译 Libffi</p>
+<pre><code class="highlight bash">./configure --prefix=/usr          \
+            --disable-static       \
+            --with-gcc-arch=native</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p>解压Python</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -rf Python-3.12.5
+tar -xf Python-3.12.5.tar.xz
+<span class="built_in">cd</span> Python-3.12.5</code></pre>
+
+<p>准备编译 Python</p>
+<pre><code class="highlight bash">./configure --prefix=/usr        \
+            --enable-shared      \
+            --with-system-expat  \
+            --enable-optimizations</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make <span class="built_in">test</span> TESTOPTS=<span class="string">&quot;--timeout 120&quot;</span>
+make install</code></pre>
+
+<blockquote>
+<p>在引导 LFS 系统并配置网络连接后，则会出现一条不同的警告信息，指示用户使用 PyPI 提供的，预先构建的 wheel 档案更新 pip3 (如果有更新的版本)。但是对于 LFS，我们认为 pip3 是 Python 3 的一部分，因此不应单独升级它。另外，使用预先构建的 wheel 包也会偏离我们的目标：从源代码构建 Linux 系统。因此，应该忽略关于 pip3 新版本的警告。如果您不想看到这些警告，可以执行以下命令，创建配置文件，以禁止这些警告</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/pip.conf &lt;&lt; <span class="string">EOF</span>
+<span class="string">[global]</span>
+<span class="string">root-user-action = ignore</span>
+<span class="string">disable-pip-version-check = true</span>
+<span class="string">EOF</span></code></pre>
+
+<p>安装文档</p>
+<pre><code class="highlight bash">install -v -dm755 /usr/share/doc/python-3.12.5/html
+
+tar --no-same-owner \
+    -xvf ../python-3.12.5-docs-html.tar.bz2
+<span class="built_in">cp</span> -R --no-preserve=mode python-3.12.5-docs-html/* \
+    /usr/share/doc/python-3.12.5/html</code></pre>
+
+<h2 id="Flit-Core"><a href="#Flit-Core" class="headerlink" title="Flit-Core"></a>Flit-Core</h2><p>解压Flit-Core</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf flit_core-3.9.0.tar.gz 
+<span class="built_in">cd</span> flit_core-3.9.0</code></pre>
+
+<p>开始构建，然后安装软件包</p>
+<pre><code class="highlight bash">pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps <span class="variable">$PWD</span>
+pip3 install --no-index --no-user --find-links dist flit_core</code></pre>
+
+<h2 id="Wheel"><a href="#Wheel" class="headerlink" title="Wheel"></a>Wheel</h2><p>解压Wheel</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xvf wheel-0.44.0.tar.gz
+<span class="built_in">cd</span> wheel-0.44.0</code></pre>
+
+<p>编译Wheel，然后安装</p>
+<pre><code class="highlight bash">pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps <span class="variable">$PWD</span>
+pip3 install --no-index --find-links=dist wheel</code></pre>
+
+<h2 id="Setuptools"><a href="#Setuptools" class="headerlink" title="Setuptools"></a>Setuptools</h2><p>解压Setuptools</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf setuptools-72.2.0.tar.gz
+<span class="built_in">cd</span> setuptools-72.2.0</code></pre>
+
+<p>开始构建，然后安装软件包</p>
+<pre><code class="highlight bash">pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps <span class="variable">$PWD</span>
+pip3 install --no-index --find-links dist setuptools</code></pre>
+
+<h2 id="Ninja"><a href="#Ninja" class="headerlink" title="Ninja"></a>Ninja</h2><p>解压Ninja</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf ninja-1.12.1.tar.gz
+<span class="built_in">cd</span> ninja-1.12.1</code></pre>
+
+<p>开始构建，然后安装软件包</p>
+<pre><code class="highlight bash">python3 configure.py --bootstrap
+install -vm755 ninja /usr/bin/
+install -vDm644 misc/bash-completion /usr/share/bash-completion/completions/ninja
+install -vDm644 misc/zsh-completion  /usr/share/zsh/site-functions/_ninja</code></pre>
+
+<h2 id="Meson"><a href="#Meson" class="headerlink" title="Meson"></a>Meson</h2><p>解压Meson</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf meson-1.5.1.tar.gz 
+<span class="built_in">cd</span> meson-1.5.1</code></pre>
+
+<p>编译Meson，然后安装软件包</p>
+<pre><code class="highlight bash">pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps <span class="variable">$PWD</span>
+pip3 install --no-index --find-links dist meson
+install -vDm644 data/shell-completions/bash/meson /usr/share/bash-completion/completions/meson
+install -vDm644 data/shell-completions/zsh/_meson /usr/share/zsh/site-functions/_meson</code></pre>
+
+<h2 id="Coreutils"><a href="#Coreutils" class="headerlink" title="Coreutils"></a>Coreutils</h2><p>打patch</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/coreutils-9.5
+patch -Np1 -i ../coreutils-9.5-i18n-2.patch</code></pre>
+
+<p>准备编译 Coreutils</p>
+<pre><code class="highlight bash">autoreconf -fiv
+FORCE_UNSAFE_CONFIGURE=1 ./configure \
+            --prefix=/usr            \
+            --enable-no-install-program=<span class="built_in">kill</span>,<span class="built_in">uptime</span></code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash">make NON_ROOT_USERNAME=tester check-root
+groupadd -g 102 dummy -U tester
+<span class="built_in">chown</span> -R tester . 
+su tester -c <span class="string">&quot;PATH=<span class="variable">$PATH</span> make -k RUN_EXPENSIVE_TESTS=yes check&quot;</span> \
+   &lt; /dev/null
+groupdel dummy</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<p>将程序移动到 FHS 要求的位置</p>
+<pre><code class="highlight bash"><span class="built_in">mv</span> -v /usr/bin/chroot /usr/sbin
+<span class="built_in">mv</span> -v /usr/share/man/man1/chroot.1 /usr/share/man/man8/chroot.8
+sed -i <span class="string">&#x27;s/&quot;1&quot;/&quot;8&quot;/&#x27;</span> /usr/share/man/man8/chroot.8</code></pre>
+
+<h2 id="Check"><a href="#Check" class="headerlink" title="Check"></a>Check</h2><p>解压Check</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf check-0.15.2.tar.gz
+<span class="built_in">cd</span> check-0.15.2</code></pre>
+<p>准备编译Check</p>
+<pre><code class="highlight bash">./configure --prefix=/usr --disable-static</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make docdir=/usr/share/doc/check-0.15.2 install</code></pre>
+
+<h2 id="Diffutils"><a href="#Diffutils" class="headerlink" title="Diffutils"></a>Diffutils</h2><p>解压Diffutils</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf diffutils-3.10.tar.xz
+<span class="built_in">cd</span> diffutils-3.10</code></pre>
+
+<p>准备编译Diffutils</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，然后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make docdir=/usr/share/doc/check-0.15.2 install</code></pre>
+
+<h2 id="Gawk"><a href="#Gawk" class="headerlink" title="Gawk"></a>Gawk</h2><p>确保不安装某些不需要的文件</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> gawk-5.3.0
+sed -i <span class="string">&#x27;s/extras//&#x27;</span> Makefile.<span class="keyword">in</span></code></pre>
+
+<p>准备编译 Gawk</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R tester .
+su tester -c <span class="string">&quot;PATH=<span class="variable">$PATH</span> make check&quot;</span></code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -f /usr/bin/gawk-5.3.0
+make install</code></pre>
+
+<h2 id="Findutils"><a href="#Findutils" class="headerlink" title="Findutils"></a>Findutils</h2><p>解压Findutils</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf findutils-4.10.0.tar.xz 
+<span class="built_in">cd</span> findutils-4.10.0</code></pre>
+
+<p>准备编译 Findutils</p>
+<pre><code class="highlight bash">./configure --prefix=/usr --localstatedir=/var/lib/locate</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R tester .
+su tester -c <span class="string">&quot;PATH=<span class="variable">$PATH</span> make check&quot;</span></code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<h2 id="Groff"><a href="#Groff" class="headerlink" title="Groff"></a>Groff</h2><p>解压Groff</p>
+<pre><code class="highlight bash">tar -xf groff-1.23.0.tar.gz</code></pre>
+
+<p>准备编译 Groff</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="GRUB"><a href="#GRUB" class="headerlink" title="GRUB"></a>GRUB</h2><p>解压GRUB</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf grub-2.12.tar.xz 
+<span class="built_in">cd</span> grub-2.12</code></pre>
+
+<blockquote>
+<p><strong>移除所有可能影响构建的环境变量</strong></p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">unset</span> &#123;C,CPP,CXX,LD&#125;FLAGS</code></pre>
+
+<p>补充源码包发布时缺失的一个文件</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> depends bli part_gpt &gt; grub-core/extra_deps.lst</code></pre>
+
+<p>准备编译GRUB</p>
+<pre><code class="highlight bash">./configure --prefix=/usr          \
+            --sysconfdir=/etc      \
+            --disable-efiemu       \
+            --disable-werror</code></pre>
+
+<p>开始编译，然后安装软件包</p>
+<pre><code class="highlight bash">make
+make install
+<span class="built_in">mv</span> -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions</code></pre>
+
+<h2 id="Gzip"><a href="#Gzip" class="headerlink" title="Gzip"></a>Gzip</h2><p>解压Gzip</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+<span class="built_in">rm</span> -rf gzip-1.13
+tar -xf gzip-1.13.tar.xz 
+<span class="built_in">cd</span> gzip-1.13</code></pre>
+
+<p>准备编译Gzip</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="IPRoute2"><a href="#IPRoute2" class="headerlink" title="IPRoute2"></a>IPRoute2</h2><p>解压IPRoute2</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf iproute2-6.10.0.tar.xz
+<span class="built_in">cd</span> iproute2-6.10.0</code></pre>
+
+<blockquote>
+<p>该软件包中的 arpd 程序依赖于 LFS 不安装的 Berkeley DB，因此不会被构建。然而，用于 arpd 的一个目录和它的手册页仍会被安装。运行以下命令以防止它们的安装</p>
+</blockquote>
+<pre><code class="highlight bash">sed -i /ARPD/d Makefile
+<span class="built_in">rm</span> -fv man/man8/arpd.8</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make NETNS_RUN_DIR=/run/netns</code></pre>
+
+<p>安装软件包和文档</p>
+<pre><code class="highlight bash">make SBINDIR=/usr/sbin install
+<span class="built_in">mkdir</span> -pv             /usr/share/doc/iproute2-6.10.0
+<span class="built_in">cp</span> -v COPYING README* /usr/share/doc/iproute2-6.10.0</code></pre>
+
+<h2 id="Kbd"><a href="#Kbd" class="headerlink" title="Kbd"></a>Kbd</h2><p>解压Kbd</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf kbd-2.6.4.tar.xz
+<span class="built_in">cd</span> kbd-2.6.4</code></pre>
+
+<p>打patch</p>
+<pre><code class="highlight bash">patch -Np1 -i ../kbd-2.6.4-backspace-1.patch</code></pre>
+
+<blockquote>
+<p>删除多余的 resizecons 程序 (它需要已经不存在的 svgalib 提供视频模式文件 —— 一般使用 setfont 即可调整控制台大小) 及其手册页</p>
+</blockquote>
+<pre><code class="highlight bash">sed -i <span class="string">&#x27;/RESIZECONS_PROGS=/s/yes/no/&#x27;</span> configure
+sed -i <span class="string">&#x27;s/resizecons.8 //&#x27;</span> docs/man/man8/Makefile.<span class="keyword">in</span></code></pre>
+
+<p>准备编译 Kbd</p>
+<pre><code class="highlight bash">./configure --prefix=/usr --disable-vlock</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包和文档</p>
+<pre><code class="highlight bash">make
+make check
+make install
+<span class="built_in">cp</span> -R -v docs/doc -T /usr/share/doc/kbd-2.6.4</code></pre>
+
+<h2 id="Libpipeline"><a href="#Libpipeline" class="headerlink" title="Libpipeline"></a>Libpipeline</h2><p>解压Libpipeline</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf libpipeline-1.5.7.tar.gz 
+<span class="built_in">cd</span> libpipeline-1.5.7</code></pre>
+
+<p>准备编译 Libpipeline</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Make"><a href="#Make" class="headerlink" title="Make"></a>Make</h2><p>解压Make</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+<span class="built_in">rm</span> -rf make-4.4.1
+tar -xf make-4.4.1.tar.gz
+<span class="built_in">cd</span> make-4.4.1</code></pre>
+
+<p>准备编译 Make</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R tester .
+su tester -c <span class="string">&quot;PATH=<span class="variable">$PATH</span> make check&quot;</span></code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><p>解压Patch</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf patch-2.7.6.tar.xz 
+<span class="built_in">cd</span> patch-2.7.6</code></pre>
+
+<p>准备编译 Patch</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Tar"><a href="#Tar" class="headerlink" title="Tar"></a>Tar</h2><p>解压Tar</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+<span class="built_in">rm</span> -rf tar-1.35
+tar -xf tar-1.35.tar.xz
+<span class="built_in">cd</span> tar-1.35</code></pre>
+
+<p>准备编译 Tar</p>
+<pre><code class="highlight bash">FORCE_UNSAFE_CONFIGURE=1  \
+./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install
+make -C doc install-html docdir=/usr/share/doc/tar-1.35</code></pre>
+
+<p>测试出现错误</p>
+<pre><code class="highlight bash">233: capabilities: binary store/restore              FAILED (capabs_raw01.at:28)</code></pre>
+
+<h2 id="Texinfo"><a href="#Texinfo" class="headerlink" title="Texinfo"></a>Texinfo</h2><p>解压Texinfo</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+<span class="built_in">rm</span> -rf texinfo-7.1
+tar -xf texinfo-7.1.tar.xz
+<span class="built_in">cd</span> texinfo-7.1</code></pre>
+
+<p>准备编译Texinfo</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Vim"><a href="#Vim" class="headerlink" title="Vim"></a>Vim</h2><p>解压Vim</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf vim-9.1.0660.tar.gz
+<span class="built_in">cd</span> vim-9.1.0660</code></pre>
+
+<p>修改 vimrc 配置文件的默认位置为 &#x2F;etc</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="string">&#x27;#define SYS_VIMRC_FILE &quot;/etc/vimrc&quot;&#x27;</span> &gt;&gt; src/feature.h</code></pre>
+
+<p>准备编译 Vim</p>
+<pre><code class="highlight bash">./configure --prefix=/usr</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R tester .
+su tester -c <span class="string">&quot;TERM=xterm-256color LANG=en_US.UTF-8 make -j1 test&quot;</span> \
+   &amp;&gt; vim-test.log</code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<blockquote>
+<p>为了在用户习惯性地输入 vi 时能够执行 vim，为二进制程序和各种语言的手册页创建符号链接</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sv vim /usr/bin/vi
+<span class="built_in">cat</span> &gt; temp.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="keyword">for</span> L <span class="keyword">in</span>  /usr/share/man/&#123;,*/&#125;man1/vim.1; <span class="keyword">do</span>
+    <span class="built_in">ln</span> -sv vim.1 $(<span class="built_in">dirname</span> <span class="variable">$L</span>)/vi.1
+<span class="keyword">done</span>
+EOF
+
+<span class="built_in">chmod</span> +x temp.sh
+./temp.sh
+<span class="built_in">rm</span> temp.sh</code></pre>
+
+<blockquote>
+<p>创建符号链接，使得可以通过 &#x2F;usr&#x2F;share&#x2F;doc&#x2F;vim-9.1.0660 访问文档，这个路径与其他软件包的文档位置格式一致</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sv ../vim/vim91/doc /usr/share/doc/vim-9.1.0660</code></pre>
+
+<p>创建默认Vim配置文件</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/vimrc &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="string">&quot; Begin /etc/vimrc</span>
+<span class="string"></span>
+<span class="string">&quot;</span> Ensure defaults are <span class="built_in">set</span> before customizing settings, not after
+<span class="built_in">source</span> <span class="variable">$VIMRUNTIME</span>/defaults.vim
+<span class="built_in">let</span> skip_defaults_vim=1
+
+<span class="built_in">set</span> nocompatible
+<span class="built_in">set</span> backspace=2
+<span class="built_in">set</span> mouse=
+syntax on
+<span class="keyword">if</span> (&amp;term == <span class="string">&quot;xterm&quot;</span>) || (&amp;term == <span class="string">&quot;putty&quot;</span>)
+  <span class="built_in">set</span> background=dark
+endif
+
+<span class="string">&quot; End /etc/vimrc</span>
+<span class="string">EOF</span></code></pre>
+
+<h2 id="MarkupSafe"><a href="#MarkupSafe" class="headerlink" title="MarkupSafe"></a>MarkupSafe</h2><p>解压MarkupSafe</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf MarkupSafe-2.1.5.tar.gz 
+<span class="built_in">cd</span> MarkupSafe-2.1.5</code></pre>
+
+<p>编译MarkupSafe，然后安装软件包</p>
+<pre><code class="highlight bash">pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps <span class="variable">$PWD</span>
+pip3 install --no-index --no-user --find-links dist Markupsafe</code></pre>
+
+<h2 id="Jinja2"><a href="#Jinja2" class="headerlink" title="Jinja2"></a>Jinja2</h2><p>解压Jinja2</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf jinja2-3.1.4.tar.gz 
+<span class="built_in">cd</span> jinja2-3.1.4
+</code></pre>
+<p>构建Jinja2，然后安装软件包</p>
+<pre><code class="highlight bash">pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps <span class="variable">$PWD</span>
+pip3 install --no-index --no-user --find-links dist Jinja2</code></pre>
+
+<h2 id="Systemd中的Udev"><a href="#Systemd中的Udev" class="headerlink" title="Systemd中的Udev"></a>Systemd中的Udev</h2><p>解压Systemd</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources/
+tar -xf systemd-256.4.tar.gz 
+<span class="built_in">cd</span> systemd-256.4</code></pre>
+
+<blockquote>
+<p>从默认的 udev 规则中删除不必要的组 render 和 sgx</p>
+</blockquote>
+<pre><code class="highlight bash">sed -i -e <span class="string">&#x27;s/GROUP=&quot;render&quot;/GROUP=&quot;video&quot;/&#x27;</span> \
+       -e <span class="string">&#x27;s/GROUP=&quot;sgx&quot;, //&#x27;</span> rules.d/50-udev-default.rules.in</code></pre>
+
+<blockquote>
+<p>删除一条需要完整安装 Systemd 的 udev 规则</p>
+</blockquote>
+<pre><code class="highlight bash">sed <span class="string">&#x27;/systemd-sysctl/s/^/#/&#x27;</span> -i rules.d/99-systemd.rules.in</code></pre>
+
+<blockquote>
+<p>调整硬编码的网络配置文件路径，使之适合单独安装 udev</p>
+</blockquote>
+<pre><code class="highlight bash">sed <span class="string">&#x27;/NETWORK_DIRS/s/systemd/udev/&#x27;</span> -i src/basic/path-lookup.h</code></pre>
+
+<p>创建一个用于构建的目录</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span> build</code></pre>
+
+<p>准备编译Udev</p>
+<pre><code class="highlight bash">meson setup ..                  \
+      --prefix=/usr             \
+      --buildtype=release       \
+      -D mode=release           \
+      -D dev-kvm-mode=0660      \
+      -D link-udev-shared=<span class="literal">false</span> \
+      -D logind=<span class="literal">false</span>           \
+      -D vconsole=<span class="literal">false</span></code></pre>
+
+<blockquote>
+<p>获取软件包提供的 udev 辅助程序列表并将其保存到环境变量中</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">export</span> udev_helpers=$(grep <span class="string">&quot;&#x27;name&#x27; :&quot;</span> ../src/udev/meson.build | \
+                      awk <span class="string">&#x27;&#123;print $3&#125;&#x27;</span> | <span class="built_in">tr</span> -d <span class="string">&quot;,&#x27;&quot;</span> | grep -v <span class="string">&#x27;udevadm&#x27;</span>)</code></pre>
+
+<blockquote>
+<p>只构建 udev 需要的组件</p>
+</blockquote>
+<pre><code class="highlight bash">ninja udevadm systemd-hwdb                                           \
+      $(ninja -n | grep -Eo <span class="string">&#x27;(src/(lib)?udev|rules.d|hwdb.d)/[^ ]*&#x27;</span>) \
+      $(<span class="built_in">realpath</span> libudev.so --relative-to .)                         \
+      <span class="variable">$udev_helpers</span></code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">install -vm755 -d &#123;/usr/lib,/etc&#125;/udev/&#123;hwdb.d,rules.d,network&#125;
+install -vm755 -d /usr/&#123;lib,share&#125;/pkgconfig
+install -vm755 udevadm                             /usr/bin/
+install -vm755 systemd-hwdb                        /usr/bin/udev-hwdb
+<span class="built_in">ln</span>      -svfn  ../bin/udevadm                      /usr/sbin/udevd
+<span class="built_in">cp</span>      -av    libudev.so&#123;,*[0-9]&#125;                 /usr/lib/
+install -vm644 ../src/libudev/libudev.h            /usr/include/
+install -vm644 src/libudev/*.pc                    /usr/lib/pkgconfig/
+install -vm644 src/udev/*.pc                       /usr/share/pkgconfig/
+install -vm644 ../src/udev/udev.conf               /etc/udev/
+install -vm644 rules.d/* ../rules.d/README         /usr/lib/udev/rules.d/
+install -vm644 $(find ../rules.d/*.rules \
+                      -not -name <span class="string">&#x27;*power-switch*&#x27;</span>) /usr/lib/udev/rules.d/
+install -vm644 hwdb.d/*  ../hwdb.d/&#123;*.hwdb,README&#125; /usr/lib/udev/hwdb.d/
+install -vm755 <span class="variable">$udev_helpers</span>                       /usr/lib/udev
+install -vm644 ../network/99-default.link          /usr/lib/udev/network</code></pre>
+
+<blockquote>
+<p>安装一些在 LFS 环境中很有用的自定义规则和支持文件</p>
+</blockquote>
+<pre><code class="highlight bash">tar -xvf ../../udev-lfs-20230818.tar.xz
+make -f udev-lfs-20230818/Makefile.lfs install</code></pre>
+
+<p>安装手册页</p>
+<pre><code class="highlight bash">tar -xf ../../systemd-man-pages-256.4.tar.xz                            \
+    --no-same-owner --strip-components=1                              \
+    -C /usr/share/man --wildcards <span class="string">&#x27;*/udev*&#x27;</span> <span class="string">&#x27;*/libudev*&#x27;</span>              \
+                                  <span class="string">&#x27;*/systemd.link.5&#x27;</span>                  \
+                                  <span class="string">&#x27;*/systemd-&#x27;</span>&#123;hwdb,udevd.service&#125;.8
+
+sed <span class="string">&#x27;s|systemd/network|udev/network|&#x27;</span>                                 \
+    /usr/share/man/man5/systemd.link.5                                \
+  &gt; /usr/share/man/man5/udev.link.5
+
+sed <span class="string">&#x27;s/systemd\(\\\?-\)/udev\1/&#x27;</span> /usr/share/man/man8/systemd-hwdb.8   \
+                               &gt; /usr/share/man/man8/udev-hwdb.8
+
+sed <span class="string">&#x27;s|lib.*udevd|sbin/udevd|&#x27;</span>                                        \
+    /usr/share/man/man8/systemd-udevd.service.8                       \
+  &gt; /usr/share/man/man8/udevd.8
+
+<span class="built_in">rm</span> /usr/share/man/man*/systemd*</code></pre>
+
+<blockquote>
+<p>移除 udev_helpers 变量</p>
+</blockquote>
+<pre><code class="highlight bash"><span class="built_in">unset</span> udev_helpers</code></pre>
+
+<blockquote>
+<p>硬件设备的相关信息被维护在 &#x2F;etc&#x2F;udev&#x2F;hwdb.d 和 &#x2F;usr&#x2F;lib&#x2F;udev&#x2F;hwdb.d 目录中。Udev 需要将这些信息编译到二进制数据库 &#x2F;etc&#x2F;udev&#x2F;hwdb.bin 中。初始化该数据库</p>
+</blockquote>
+<pre><code class="highlight bash">udev-hwdb update</code></pre>
+
+<h2 id="Man-DB"><a href="#Man-DB" class="headerlink" title="Man-DB"></a>Man-DB</h2><p>解压Man-DB</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf man-db-2.12.1.tar.xz 
+<span class="built_in">cd</span> man-db-2.12.1</code></pre>
+
+<p>准备编译 Man-DB</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                         \
+            --docdir=/usr/share/doc/man-db-2.12.1 \
+            --sysconfdir=/etc                     \
+            --disable-setuid                      \
+            --enable-cache-owner=bin              \
+            --with-browser=/usr/bin/lynx          \
+            --with-vgrind=/usr/bin/vgrind         \
+            --with-grap=/usr/bin/grap             \
+            --with-systemdtmpfilesdir=            \
+            --with-systemdsystemunitdir=</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<h2 id="Procps-ng"><a href="#Procps-ng" class="headerlink" title="Procps-ng"></a>Procps-ng</h2><p>解压Procps-ng</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf procps-ng-4.0.4.tar.xz
+<span class="built_in">cd</span> procps-ng-4.0.4</code></pre>
+
+<p>准备编译 Procps-ng</p>
+<pre><code class="highlight bash">./configure --prefix=/usr                           \
+            --docdir=/usr/share/doc/procps-ng-4.0.4 \
+            --disable-static                        \
+            --disable-kill</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -R tester .
+su tester -c <span class="string">&quot;PATH=<span class="variable">$PATH</span> make check&quot;</span></code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<h2 id="Util-Linux"><a href="#Util-Linux" class="headerlink" title="Util-Linux"></a>Util-Linux</h2><p>解压Util-Linux</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+<span class="built_in">rm</span> -rf util-linux-2.40.2
+tar -xf util-linux-2.40.2.tar.xz 
+<span class="built_in">cd</span> util-linux-2.40.2</code></pre>
+
+<p>准备编译 Util-linux</p>
+<pre><code class="highlight bash">./configure --bindir=/usr/bin     \
+            --libdir=/usr/lib     \
+            --runstatedir=/run    \
+            --sbindir=/usr/sbin   \
+            --disable-chfn-chsh   \
+            --disable-login       \
+            --disable-nologin     \
+            --disable-su          \
+            --disable-setpriv     \
+            --disable-runuser     \
+            --disable-pylibmount  \
+            --disable-liblastlog2 \
+            --disable-static      \
+            --without-python      \
+            --without-systemd     \
+            --without-systemdsystemunitdir        \
+            ADJTIME_PATH=/var/lib/hwclock/adjtime \
+            --docdir=/usr/share/doc/util-linux-2.40.2</code></pre>
+
+<p>开始编译</p>
+<pre><code class="highlight bash">make</code></pre>
+
+<p>测试编译结果</p>
+<pre><code class="highlight bash"><span class="built_in">touch</span> /etc/fstab
+<span class="built_in">chown</span> -R tester .
+su tester -c <span class="string">&quot;make -k check&quot;</span></code></pre>
+
+<p>安装软件包</p>
+<pre><code class="highlight bash">make install</code></pre>
+
+<h2 id="E2fsprogs"><a href="#E2fsprogs" class="headerlink" title="E2fsprogs"></a>E2fsprogs</h2><p>解压E2fsprogs</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf e2fsprogs-1.47.1.tar.gz
+<span class="built_in">cd</span> e2fsprogs-1.47.1</code></pre>
+
+<p>创建一个用于构建的目录</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v build
+<span class="built_in">cd</span>       build</code></pre>
+
+<p>准备编译 E2fsprogs</p>
+<pre><code class="highlight bash">../configure --prefix=/usr           \
+             --sysconfdir=/etc       \
+             --enable-elf-shlibs     \
+             --disable-libblkid      \
+             --disable-libuuid       \
+             --disable-uuidd         \
+             --disable-fsck</code></pre>
+
+<p>开始编译，完成后测试编译结果，最后安装软件包</p>
+<pre><code class="highlight bash">make
+make check
+make install</code></pre>
+
+<p>删除无用的静态库</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -fv /usr/lib/&#123;libcom_err,libe2p,libext2fs,libss&#125;.a</code></pre>
+
+<blockquote>
+<p>该软件包安装了一个 gzip 压缩的 .info 文件，却没有更新系统的 dir 文件。执行以下命令解压该文件，并更新系统 dir 文件</p>
+</blockquote>
+<pre><code class="highlight bash">gunzip -v /usr/share/info/libext2fs.info.gz
+install-info --dir-file=/usr/share/info/dir /usr/share/info/libext2fs.info</code></pre>
+
+<p>安装文档</p>
+<pre><code class="highlight bash">makeinfo -o      doc/com_err.info ../lib/et/com_err.texinfo
+install -v -m644 doc/com_err.info /usr/share/info
+install-info --dir-file=/usr/share/info/dir /usr/share/info/com_err.info</code></pre>
+
+<blockquote>
+<p>&#x2F;etc&#x2F;mke2fs.conf 包含 mke2fs 一些命令行选项的默认值。您可以修改这些默认值，使之符合您的需求。例如，一些工具 (未被 LFS 或 BLFS 包含) 无法识别启用了 metadata_csum_seed 特性的 ext4 文件系统。如果需要使用这样的工具，可以执行命令，从默认的 ext4 特性列表中移除该特性</p>
+</blockquote>
+<pre><code class="highlight bash">sed <span class="string">&#x27;s/metadata_csum_seed,//&#x27;</span> -i /etc/mke2fs.conf</code></pre>
+
+<h2 id="Sysklogd"><a href="#Sysklogd" class="headerlink" title="Sysklogd"></a>Sysklogd</h2><p>解压Sysklogd</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf sysklogd-2.6.1.tar.gz
+<span class="built_in">cd</span> sysklogd-2.6.1</code></pre>
+
+<p>准备编译Sysklogd</p>
+<pre><code class="highlight bash">./configure --prefix=/usr      \
+            --sysconfdir=/etc  \
+            --runstatedir=/run \
+            --without-logger</code></pre>
+
+<p>开始编译，然后安装软件包</p>
+<pre><code class="highlight bash">make
+make install</code></pre>
+
+<p>创建一个新的 &#x2F;etc&#x2F;syslog.conf 文件</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/syslog.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/syslog.conf</span>
+
+auth,authpriv.* -/var/log/auth.log
+*.*;auth,authpriv.none -/var/log/sys.log
+daemon.* -/var/log/daemon.log
+kern.* -/var/log/kern.log
+mail.* -/var/log/mail.log
+user.* -/var/log/user.log
+*.emerg *
+
+<span class="comment"># Do not open any internet ports.</span>
+secure_mode 2
+
+<span class="comment"># End /etc/syslog.conf</span>
+EOF</code></pre>
+
+<h2 id="SysVinit"><a href="#SysVinit" class="headerlink" title="SysVinit"></a>SysVinit</h2><p>解压SysVinit</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> /sources
+tar -xf sysvinit-3.10.tar.xz 
+<span class="built_in">cd</span> sysvinit-3.10</code></pre>
+
+<p>打patch</p>
+<pre><code class="highlight bash">patch -Np1 -i ../sysvinit-3.10-consolidated-1.patch</code></pre>
+
+<p>开始编译，然后安装软件包</p>
+<pre><code class="highlight bash">make
+make install</code></pre>
+
+<p>软件包基本安装完毕，这里不进行符号移除，有需要可以查看手册<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter08/stripping.html">8.84. 移除调试符号</a></p>
+<p>现在清除测试时遗留的一些文件</p>
+<pre><code class="highlight bash"><span class="built_in">rm</span> -rf /tmp/&#123;*,.*&#125;
+find /usr/lib /usr/libexec -name \*.la -delete
+find /usr -depth -name $(<span class="built_in">uname</span> -m)-lfs-linux-gnu\* | xargs <span class="built_in">rm</span> -rf
+userdel -r tester</code></pre>
+        </article>
+
+        
+            
+  <div class="nexmoe-post-copyright">
+    <strong>本文作者：</strong>NakanoMiku<br>
+    
+    <strong>本文链接：</strong><a href="http://nakanomiku39.github.io/2024/10/01/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%883%EF%BC%89/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;10&#x2F;01&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%883%EF%BC%89&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;10&#x2F;01&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%883%EF%BC%89&#x2F;</a><br>
+
+    
+      <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+    
+  </div>
+
+
+        
+
+        <div class="nexmoe-post-meta nexmoe-rainbow">
+    
+        <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a>
+    
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/LFS/" rel="tag">LFS</a>
+    
+</div>
+
+    <!-- <div class="nexmoe-post-footer">
+        <section class="nexmoe-comment">
+    <div class="valine"></div>
+<script src='https://lib.baomitu.com/valine/1.3.9/Valine.min.js'></script>
+<script>
+    // 使用方法 https://valine.js.org/quickstart.html
+    new Valine({
+        el: '.valine',
+        appId: 'r5zxC0st0DDjPA9auXzMV7HY-gzGzoHsz',
+        appKey: '3bqCsovpyfTPHUzTHovd3V3V'
+    })
+</script>
+</section>
+    </div> -->
+</div>
+
+
+        <div class="nexmoe-post-right">
+          
+            <div class="nexmoe-fixed">
+              <div class="nexmoe-tool">
+                <a href="#" aria-label="回到顶部" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+              </div>
+            </div>
+          
+        </div>
+    </div>
+  </div>
+  <!-- <div id="nexmoe-pendant">
+    <div class="nexmoe-drawer mdui-drawer nexmoe-pd" id="drawer">
+        
+            <div class="nexmoe-pd-item">
+                <div class="clock">
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="needle" id="hours"></div>
+        <div class="needle" id="minutes"></div>
+        <div class="needle" id="seconds"></div>
+        <div class="clock_logo">
+
+        </div>
+
+    </div>
+<style>
+    .clock {
+        background-color: #ffffff;
+        width: 70vw;
+        height: 70vw;
+        max-width: 70vh;
+        max-height: 70vh;
+        border: solid 2.8vw #242424;
+        position: relative;
+        overflow: hidden;
+        border-radius: 50%;
+        box-sizing: border-box;
+        box-shadow: 0 1.4vw 2.8vw rgba(0, 0, 0, 0.8);
+        zoom:0.2
+    }
+
+    .memory {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .memory:nth-child(1) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(0deg) translateY(-520%);
+    }
+
+    .memory:nth-child(2) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(6deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(3) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(12deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(4) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(18deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(5) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(24deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(6) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(30deg) translateY(-520%);
+    }
+
+    .memory:nth-child(7) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(36deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(8) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(42deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(9) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(48deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(10) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(54deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(11) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(60deg) translateY(-520%);
+    }
+
+    .memory:nth-child(12) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(66deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(13) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(72deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(14) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(78deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(15) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(84deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(16) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(90deg) translateY(-520%);
+    }
+
+    .memory:nth-child(17) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(96deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(18) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(102deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(19) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(108deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(20) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(114deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(21) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(120deg) translateY(-520%);
+    }
+
+    .memory:nth-child(22) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(126deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(23) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(132deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(24) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(138deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(25) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(144deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(26) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(150deg) translateY(-520%);
+    }
+
+    .memory:nth-child(27) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(156deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(28) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(162deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(29) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(168deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(30) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(174deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(31) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(180deg) translateY(-520%);
+    }
+
+    .memory:nth-child(32) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(186deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(33) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(192deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(34) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(198deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(35) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(204deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(36) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(210deg) translateY(-520%);
+    }
+
+    .memory:nth-child(37) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(216deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(38) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(222deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(39) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(228deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(40) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(234deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(41) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(240deg) translateY(-520%);
+    }
+
+    .memory:nth-child(42) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(246deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(43) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(252deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(44) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(258deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(45) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(264deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(46) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(270deg) translateY(-520%);
+    }
+
+    .memory:nth-child(47) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(276deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(48) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(282deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(49) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(288deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(50) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(294deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(51) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-520%);
+    }
+
+    .memory:nth-child(52) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(306deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(53) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(312deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(54) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(318deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(55) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(324deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(56) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(330deg) translateY(-520%);
+    }
+
+    .memory:nth-child(57) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(336deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(58) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(342deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(59) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(348deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(60) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(354deg) translateY(-1461%);
+    }
+
+    .needle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .needle#hours {
+        background-color: #1f1f1f;
+        width: 4%;
+        height: 30%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#hours.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#hours:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#minutes {
+        background-color: #1f1f1f;
+        width: 2%;
+        height: 45%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#minutes.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#minutes:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#seconds {
+        background-color: #cb2f2f;
+        width: 1%;
+        height: 50%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#seconds.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#seconds:after {
+        content: '';
+        background-color: #cb2f2f;
+        width: 2.5vw;
+        height: 2.5vw;
+        max-width: 2.5vh;
+        max-height: 2.5vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .clock_logo{
+        width: 10vw;
+        height: 10vw;
+        max-width: 10vh;
+        max-height: 10vh;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+    @media (min-width: 100vh) {
+        .clock {
+            border: solid 2.8vh #242424;
+            box-shadow: 0 1.4vh 2.8vh rgba(0, 0, 0, 0.8);
+        }
+    }
+
+</style>
+
+
+
+
+
+            </div>
+        
+            <div class="nexmoe-pd-item">
+                <div class="qweather" >
+    <div id="he-plugin-standard"></div>
+    <div class="qweather-logo">
+
+    </div>
+
+</div>
+<style>
+    .qweather{
+        position: relative;
+    }
+    .qweather-logo{
+        position: absolute;
+        right: 0;
+        top: -15px;
+        width: 40px;
+        height: 40px;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+</style>
+<script>
+  WIDGET = {
+    "CONFIG": {
+      "layout": "2",
+      "width": "260",
+      "height": "220",
+      "background": "5",
+      "dataColor": "e67249",
+      "borderRadius": "15",
+      "key": "f74d1e1690e6432d801e97fa2f05a162"
+    }
+  }
+</script>
+<script src="https://widget.qweather.net/standard/static/js/he-standard-common.js?v=2.0"></script>
+
+            </div>
+        
+</div>
+<style>
+    .nexmoe-pd {
+        left: auto;
+        top: 40px;
+        right: 0;
+    }
+    .nexmoe-pd-item{
+       display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+</style>
+
+  </div> -->
+  <script src="https://lib.baomitu.com/lazysizes/5.1.0/lazysizes.min.js"></script>
+<script src="https://lib.baomitu.com/highlight.js/10.0.0/highlight.min.js"></script>
+<script src="https://lib.baomitu.com/mdui/0.4.3/js/mdui.min.js"></script>
+
+<script>
+	hljs.initHighlightingOnLoad();
+</script>
+
+<script src="https://lib.baomitu.com/jquery/3.5.1/jquery.slim.min.js"></script>
+<script src="/lib/fancybox/js/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/app.js?v=1728305945208"></script>
+
+<script src="https://lib.baomitu.com/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+<script>
+	$(".justified-gallery").justifiedGallery({
+		rowHeight: 160,
+		margins: 10,
+	});
+</script>
+
+  
+
+
+
+
+
+<!-- hexo injector body_end start -->
+<script src="/js/clock.js"></script>
+
+<script src="/js/webapp.js"></script>
+
+<script src="https://lib.baomitu.com/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script src="/lib/codeBlock/codeBlockFuction.js"></script>
+
+<script src="/lib/codeBlock/codeLang.js"></script>
+
+<script src="/lib/codeBlock/codeCopy.js"></script>
+
+<script src="/lib/codeBlock/codeShrink.js"></script>
+
+<link rel="stylesheet" href="/lib/codeBlock/matery.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+<script src="/js/search.js"></script>
+<!-- hexo injector body_end end --></body>
+</html>
+
