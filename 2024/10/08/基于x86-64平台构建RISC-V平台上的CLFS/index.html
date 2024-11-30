@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+  
+  <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+  <title>基于x86_64平台构建RISC-V平台上的CLFS - NakanoMiku&#39;s page</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  
+  
+
+    <!-- Site Verification -->
+    <meta name="baidu-site-verification" content="code-J1Qg17G6wT" />
+
+  <link rel="shortcut icon" href="/images/head/miku.jpg" type="image/jpg" />
+  <meta name="description" content="这次是尝试在x86_64平台上交叉编译出RISC-V的LFS，其中的过程会有所不同我没有成功通过GRUB启动这个CLFS，这里只能通过挂载内核和根文件系统的方式启动CLFS手册链接：https:&#x2F;&#x2F;www.linuxfromscratch.org&#x2F;~xry111&#x2F;lfs&#x2F;view&#x2F;clfs-ng-systemd&#x2F;index.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于x86_64平台构建RISC-V平台上的CLFS">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/10/08/%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS/index.html">
+<meta property="og:site_name" content="NakanoMiku&#39;s page">
+<meta property="og:description" content="这次是尝试在x86_64平台上交叉编译出RISC-V的LFS，其中的过程会有所不同我没有成功通过GRUB启动这个CLFS，这里只能通过挂载内核和根文件系统的方式启动CLFS手册链接：https:&#x2F;&#x2F;www.linuxfromscratch.org&#x2F;~xry111&#x2F;lfs&#x2F;view&#x2F;clfs-ng-systemd&#x2F;index.html">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-10-08T02:53:25.000Z">
+<meta property="article:modified_time" content="2024-11-28T15:26:46.282Z">
+<meta property="article:author" content="NakanoMiku">
+<meta property="article:tag" content="LFS">
+<meta property="article:tag" content="x86_64">
+<meta property="article:tag" content="RISC-V">
+<meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="https://lib.baomitu.com/highlight.js/9.15.8/styles/atom-one-dark.min.css" crossorigin>
+  <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css">
+  <link rel="stylesheet" href="/lib/iconfont/iconfont.css">
+  <link rel="stylesheet" href="/lib/fancybox/css/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="https://lib.baomitu.com/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
+  
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_2421060_8z08qcz5sq3.css">
+  
+  <link rel="stylesheet" href="/css/style.css?v=1732971761732">
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="mdui-drawer-body-left">
+  
+  <div id="nexmoe-background">
+    <div class="nexmoe-bg" style="background-image: url(/images/background/ichika279-2.png)"></div>
+    <div class="nexmoe-small" style="background-image: url()"></div>
+    <div class="mdui-appbar mdui-shadow-0">
+      <div class="mdui-toolbar">
+        <a mdui-drawer="{target: '#drawer', swipe: true}" title="menu" class="mdui-btn mdui-btn-icon mdui-ripple"><i class="mdui-icon nexmoefont icon-menu"></i></a>
+        <div class="mdui-toolbar-spacer"></div>
+        <!--<a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>-->
+        <a href="/" title="NakanoMiku" class="mdui-btn mdui-btn-icon"><img src="/images/head/miku.jpg" alt="NakanoMiku"></a>
+       </div>
+    </div>
+  </div>
+  <div id="nexmoe-header">
+      <div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku" alt="NakanoMiku">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div class="nexmoe-count-item"><span>文章</span>10 <div class="item-radius"></div><div class="item-radius item-right"></div> </div>
+        <div class="nexmoe-count-item"><span>标签</span>12<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+        <div class="nexmoe-count-item"><span>分类</span>3<div class="item-radius"></div><div class="item-radius item-right"></div></div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-meishi"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-hanbao1"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    <aside id="nexmoe-sidebar">
+  
+  
+<!-- 站内搜索 -->
+
+<div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-search" >
+        <form id="search-form">
+            <label><input type="text" id="local-search-input" name="q" results="0" placeholder="站内搜索" class="input form-control" autocomplete="off" autocorrect="off"/></label>
+            <!-- 清空/重置搜索框 -->
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+        </form>
+    </div>
+    <div id="local-search-result"></div> <!-- 搜索结果区 -->
+    <!-- <p class='no-result'></p> 无匹配时显示，注意在 CSS 中设置默认隐藏 -->
+</div>
+
+
+  
+  <div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-social">
+        <a class="mdui-ripple" href="https://github.com/NakanoMiku39/" target="_blank" mdui-tooltip="{content: 'GitHub'}" style="color: rgb(25, 23, 23);background-color: rgba(25, 23, 23, .15);">
+            <i class="nexmoefont icon-github"></i>
+        </a>
+    </div>
+</div>
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章分类</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/Debian/">Debian</a>
+          <span class="category-list-count">1</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">10</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/Locale/" style="font-size: 10px;">Locale</a> <a href="/tags/RISC-V/" style="font-size: 10px;">RISC-V</a> <a href="/tags/Samba/" style="font-size: 10px;">Samba</a> <a href="/tags/Windows/" style="font-size: 10px;">Windows</a> <a href="/tags/ipv6/" style="font-size: 10px;">ipv6</a> <a href="/tags/php/" style="font-size: 15px;">php</a> <a href="/tags/x86-64/" style="font-size: 20px;">x86_64</a> <a href="/tags/%E4%B8%AD%E6%96%87/" style="font-size: 10px;">中文</a> <a href="/tags/%E5%AD%97%E4%BD%93/" style="font-size: 10px;">字体</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 15px;">我的世界</a>
+    </div>
+    
+  </div>
+
+  
+  
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">文章归档</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">10</span></li></ul>
+    </div>
+  </div>
+
+
+<style>
+.nexmoe-widget .archive-list-count{
+	position : absolute;
+	right: 15px;
+	top:9px;
+	color: #DDD;
+}
+</style>
+
+  
+</aside>
+    <div class="nexmoe-copyright">
+        &copy; 2024 NakanoMiku
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/tangyuxian/hexo-theme-tangyuxian" target="_blank">Tangyuxian</a><br/>
+        <a href="http://beian.miit.gov.cn" target="_blank"></a><br/>
+        
+        <div style="font-size: 12px">
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            本站总访问量  <a id="busuanzi_value_site_pv"></a> 次<br />
+            本站访客数<a id="busuanzi_value_site_uv"></a>人次
+        </div>
+        
+        
+    </div>
+
+</div><!-- .nexmoe-drawer -->
+
+  </div>
+  <div id="nexmoe-content">
+    <div class="nexmoe-primary">
+        <div class="nexmoe-post">
+    
+        <div class="nexmoe-post-cover" style="padding-bottom: 26.666666666666668%;">
+            <img data-src="/images/background/ichika683-2.png" data-sizes="auto" alt="基于x86_64平台构建RISC-V平台上的CLFS" class="lazyload">
+            <h1>基于x86_64平台构建RISC-V平台上的CLFS</h1>
+        </div>
+    
+
+        <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2024年10月08日</a>
+    <a><i class="nexmoefont icon-areachart"></i>3.1k 字</a>
+    <a><i class="nexmoefont icon-time-circle-fill"></i>大概 17 分钟</a>
+</div>
+
+        <div class="nexmoe-post-right">
+            
+        </div>
+
+        <article>
+            <p>这次是尝试在x86_64平台上交叉编译出RISC-V的LFS，其中的过程会有所不同<br>我没有成功通过GRUB启动这个CLFS，这里只能通过挂载内核和根文件系统的方式启动<br>CLFS手册链接：<a target="_blank" rel="noopener" href="https://www.linuxfromscratch.org/~xry111/lfs/view/clfs-ng-systemd/index.html">https://www.linuxfromscratch.org/~xry111/lfs/view/clfs-ng-systemd/index.html</a></p>
+<span id="more"></span>
+
+<p>之前在x86_64平台上构建同是x86_64的LFS并不是真正的交叉编译，且由于平台相同，可以借助chroot轻松完成软件的安装，而这次为真正的交叉编译，<strong>无法采取像之前一样的chroot方法进行安装，而是需要进行一些调整。</strong><br>这次使用的手册<strong>并没有直接使用交叉编译</strong>，而是使用了交叉编译应该使用的方法，但我会真正的使用交叉编译的方法构建CLFS，并且这次会使用<code>systemd</code>引导内核。<br>这次的构建流程并不会很详细，只会挑重点说明</p>
+<h1 id="准备宿主系统"><a href="#准备宿主系统" class="headerlink" title="准备宿主系统"></a>准备宿主系统</h1><p>因为上次已经检查过了，所以这次跳过检查，先设置好环境变量LFS</p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> su -
+<span class="built_in">export</span> LFS=/mnt/LFS</code></pre>
+
+<h1 id="软件包和补丁"><a href="#软件包和补丁" class="headerlink" title="软件包和补丁"></a>软件包和补丁</h1><p>获取必要的软件包</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v <span class="variable">$LFS</span>/sources
+<span class="built_in">chmod</span> -v a+wt <span class="variable">$LFS</span>/sources
+<span class="built_in">cd</span> <span class="variable">$LFS</span>/sources
+wget https://www.linuxfromscratch.org/~xry111/lfs/view/clfs-ng-systemd/wget-list-systemd
+wget --input-file=wget-list-systemd --<span class="built_in">continue</span> --directory-prefix=<span class="variable">$LFS</span>/sources</code></pre>
+
+<h1 id="最后的准备工作"><a href="#最后的准备工作" class="headerlink" title="最后的准备工作"></a>最后的准备工作</h1><p>创建好目录布局和用于放交叉编译工具链的目录</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/&#123;boot,etc,var&#125; <span class="variable">$LFS</span>/usr/&#123;bin,lib,sbin&#125;
+
+<span class="keyword">for</span> i <span class="keyword">in</span> bin lib sbin; <span class="keyword">do</span>
+  <span class="built_in">ln</span> -sv usr/<span class="variable">$i</span> <span class="variable">$LFS</span>/<span class="variable">$i</span>
+<span class="keyword">done</span>
+
+<span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/tools</code></pre>
+
+<p>新增lfs用户，之前已经创建过一次了，所以直接改变目录所有者，然后切换到lfs用户<br>这里需要注意的是，因为目标平台是RISC-V，所以环境<code>LFS_TGT</code>需要设置成<code>riscv64-lfs-linux-gnu</code></p>
+<pre><code class="highlight bash"><span class="built_in">chown</span> -v lfs <span class="variable">$LFS</span>/&#123;usr&#123;,/*&#125;,lib*,boot,var,etc,bin,sbin,tools&#125;
+su - lfs</code></pre>
+
+<p>配置一下lfs用户的工作环境</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; ~/.bash_profile &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="built_in">exec</span> <span class="built_in">env</span> -i HOME=<span class="variable">$HOME</span> TERM=<span class="variable">$TERM</span> PS1=<span class="string">&#x27;\u:\w\$ &#x27;</span> /bin/bash
+EOF
+
+<span class="built_in">cat</span> &gt; ~/.bashrc &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="built_in">set</span> +h
+<span class="built_in">umask</span> 022
+LFS=/mnt/LFS
+LC_ALL=POSIX
+LFS_TGT=riscv64-lfs-linux-gnu
+PATH=/usr/bin
+<span class="keyword">if</span> [ ! -L /bin ]; <span class="keyword">then</span> PATH=/bin:<span class="variable">$PATH</span>; <span class="keyword">fi</span>
+PATH=<span class="variable">$LFS</span>/tools/bin:<span class="variable">$PATH</span>
+CONFIG_SITE=<span class="variable">$LFS</span>/usr/share/config.site
+<span class="built_in">export</span> MAKEFLAGS=-j$(<span class="built_in">nproc</span>)
+<span class="built_in">export</span> LFS LC_ALL LFS_TGT PATH CONFIG_SITE
+EOF
+
+<span class="built_in">source</span> ~/.bash_profile</code></pre>
+
+<h1 id="编译交叉工具链"><a href="#编译交叉工具链" class="headerlink" title="编译交叉工具链"></a>编译交叉工具链</h1><h2 id="GCC"><a href="#GCC" class="headerlink" title="GCC"></a>GCC</h2><p>在编译GCC时，注意目录的替换</p>
+<pre><code class="highlight bash">sed -i.orig <span class="string">&#x27;s/lib64/lib/g&#x27;</span> gcc/config/riscv/t-withmultilib gcc/config/riscv/t-linux</code></pre>
+
+<h2 id="Linux-API-Headers"><a href="#Linux-API-Headers" class="headerlink" title="Linux API Headers"></a>Linux API Headers</h2><p>这里需要调整架构至<code>riscv</code>，支持的架构在<code>arch/</code>目录下</p>
+<pre><code class="highlight bash">make headers ARCH=riscv</code></pre>
+
+<h2 id="Glibc"><a href="#Glibc" class="headerlink" title="Glibc"></a>Glibc</h2><p>指定好动态链接器的位置</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; temp.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="keyword">case</span> <span class="variable">$LFS_TGT</span> <span class="keyword">in</span>
+    riscv64*) 
+    <span class="built_in">ln</span> -sfv ../lib/ld-linux-riscv64-lp64d.so.1 <span class="variable">$LFS</span>/lib
+    <span class="built_in">ln</span> -sfv ../lib/ld-linux-riscv64-lp64d.so.1 <span class="variable">$LFS</span>/lib/ld-lsb-riscv64.so.1
+;;
+<span class="keyword">esac</span>
+EOF</code></pre>
+
+<h2 id="GRUB"><a href="#GRUB" class="headerlink" title="GRUB"></a>GRUB</h2><p>因为当前下载的GRUB在编译时会出现问题，所以这里下载一个修好问题的snapshot<br><a target="_blank" rel="noopener" href="https://git.savannah.gnu.org/gitweb/?p=grub.git;a=commit;h=b835601c7639ed1890f2d3db91900a8506011a8e">https://git.savannah.gnu.org/gitweb/?p=grub.git;a=commit;h=b835601c7639ed1890f2d3db91900a8506011a8e</a></p>
+<p>解压GRUB，然后进入目录中</p>
+<pre><code class="highlight bash">./bootstrap
+./autogen.sh</code></pre>
+<p>接下来就可以正常构建了</p>
+<h2 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h2><p>还是注意架构的替换</p>
+<pre><code class="highlight bash">make ARCH=riscv \
+CROSS_COMPILE=<span class="variable">$LFS_TGT</span>- \
+menuconfig</code></pre>
+<p>CONFIG_MODULES&#x3D;n<br>CONFIG_EXTRA_FIRMWARE&#x3D;”a.bin b.bin”<br>CONFIG_EXTRA_FIRMWARE_DIR&#x3D;”$LFS&#x2F;lib&#x2F;firmware”<br>CONFIG_EXT2&#x3D;y<br>CONFIG_EXT4&#x3D;y<br>CONFIG_VFAT_FS&#x3D;y<br>CONFIG_MODULE_SIG&#x3D;n<br>CONFIG_SECURITY&#x3D;n<br>CONFIG_STACK_VALIDATION&#x3D;n<br>CONFIG_SYSTEM_TRUSTED_KEYRING&#x3D;n<br>CONFIG_SYSTEM_REVOCATION_LIST&#x3D;n</p>
+<p>编译内核，注意平台架构</p>
+<pre><code class="highlight bash">make ARCH=riscv CROSS_COMPILE=<span class="variable">$LFS_TGT</span>-</code></pre>
+
+<p>安装内核，注意内核的路径</p>
+<pre><code class="highlight bash">install -vm644 <span class="built_in">arch</span>/riscv/boot/Image <span class="variable">$LFS</span>/boot/vmlinuz</code></pre>
+
+
+<p>因为等下要用QEMU启动，所以做进虚拟硬盘里，等下以回环设备挂载，root路径就发生了改动</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/boot/grub
+<span class="built_in">cat</span> &gt; <span class="variable">$LFS</span>/boot/grub/grub.cfg &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /boot/grub/grub.cfg</span>
+<span class="built_in">set</span> default=0
+<span class="built_in">set</span> <span class="built_in">timeout</span>=5
+search --<span class="built_in">set</span>=root --fs-uuid ED6D-9BB1
+
+menuentry <span class="string">&quot;LFS Temporary System&quot;</span> &#123;
+        linux   /vmlinuz root=PARTUUID=59a73735-b7e7-451c-b351-16f64454b497 rw init=/bin/bash
+        boot
+&#125;
+EOF</code></pre>
+
+<p>接下来的操作都由root完成，记得先设置环境变量LFS</p>
+<pre><code class="highlight bash"><span class="built_in">sudo</span> su -
+<span class="built_in">export</span> LFS=/mnt/LFS</code></pre>
+
+<p>制作一个30G的虚拟硬盘，然后制作三个分区，UEFI分区（100MB），Boot分区（500MB）和根分区</p>
+<pre><code class="highlight bash"><span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=lfs_riscv64.img bs=1M count=30000
+losetup -fP lfs_riscv64.img
+fdisk /dev/loop0</code></pre>
+
+<p>在制作UEFI分区时，注意需要改变分区类型</p>
+<pre><code class="highlight bash">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): t
+Partition number (1-3, default 3): 1
+Partition <span class="built_in">type</span> or <span class="built_in">alias</span> (<span class="built_in">type</span> L to list all): 1
+
+Changed <span class="built_in">type</span> of partition <span class="string">&#x27;BIOS boot&#x27;</span> to <span class="string">&#x27;EFI System&#x27;</span>.
+
+Command (m <span class="keyword">for</span> <span class="built_in">help</span>): p
+Disk /dev/loop0: 29.3 GiB, 31457280000 bytes, 61440000 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel <span class="built_in">type</span>: gpt
+Disk identifier: 1EF6AB2D-E1AA-4DE6-843C-F5C64261A675
+
+Device         Start      End  Sectors  Size Type
+/dev/loop0p1    2048   206847   204800  100M EFI System
+/dev/loop0p2  206848  1230847  1024000  500M Linux filesystem
+/dev/loop0p3 1230848 61437951 60207104 28.7G Linux filesystem</code></pre>
+
+<p>格式化分区</p>
+<pre><code class="highlight bash">mkfs.vfat -F 32 /dev/loop0p1
+mkfs.ext4 /dev/loop0p2
+mkfs.ext4 /dev/loop0p3</code></pre>
+
+<p>挂载分区，注意挂载路径和挂载顺序</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -v /mnt/temp/
+mount /dev/loop0p3 /mnt/temp
+<span class="built_in">mkdir</span> -v /mnt/temp/boot
+mount /dev/loop0p2 /mnt/temp/boot
+<span class="built_in">mkdir</span> -v /mnt/temp/boot/efi
+mount /dev/loop0p1 /mnt/temp/boot/efi</code></pre>
+
+<p>cp -av $LFS&#x2F;* &#x2F;mnt&#x2F;temp<br>chown -R root:root &#x2F;mnt&#x2F;temp</p>
+<p>备份一下临时交叉编译工具链</p>
+<pre><code class="highlight bash">tar -cJpf /root/lfs-temp-tools-cross-r12.0-499-systemd.tar.xz . \
+    --exclude=<span class="string">&quot;dev/*&quot;</span> --exclude=<span class="string">&quot;proc/*&quot;</span>
+    --exclude=<span class="string">&quot;sys/*&quot;</span> --exclude=<span class="string">&quot;run/*&quot;</span>
+    --exclude=<span class="string">&quot;mnt/*&quot;</span></code></pre>
+
+<p>安装GRUB，注意<code>target</code>和<code>--efi-directory</code></p>
+<pre><code class="highlight bash"><span class="variable">$LFS</span>/tools/sbin/lfs-grub-install          \
+    --target=riscv64-efi                     \
+    --efi-directory=/mnt/temp/boot/efi \
+    --boot-directory=/mnt/temp/boot \
+    --bootloader-id=GRUB \
+    --removable \
+    /dev/loop0</code></pre>
+
+<p>install -v -dm755 &#x2F;mnt&#x2F;temp&#x2F;dev<br>umount -Rv &#x2F;mnt&#x2F;lfs-target</p>
+<h2 id="edk2"><a href="#edk2" class="headerlink" title="edk2"></a>edk2</h2><p>检查qemu-system-riscv64是否正确配置，有没有riscv的uefi固件edk2</p>
+<pre><code class="highlight bash">git <span class="built_in">clone</span> --recurse-submodule https://github.com/tianocore/edk2.git
+<span class="built_in">export</span> WORKSPACE=`<span class="built_in">pwd</span>`
+<span class="built_in">export</span> GCC5_RISCV64_PREFIX=/usr/bin/riscv64-linux-gnu-
+<span class="built_in">export</span> PACKAGES_PATH=<span class="variable">$WORKSPACE</span>/edk2
+<span class="built_in">export</span> EDK_TOOLS_PATH=<span class="variable">$WORKSPACE</span>/edk2/BaseTools
+<span class="built_in">source</span> edk2/edksetup.sh
+make -C edk2/BaseTools clean
+make -C edk2/BaseTools
+make -C edk2/BaseTools/Source/C
+<span class="built_in">source</span> edk2/edksetup.sh BaseTools
+build -a RISCV64 --buildtarget RELEASE -p OvmfPkg/RiscVVirt/RiscVVirtQemu.dsc -t GCC5
+<span class="built_in">truncate</span> -s 32M Build/RiscVVirtQemu/RELEASE_GCC5/FV/RISCV_VIRT.fd</code></pre>
+
+<p>apt install qemu-efi-riscv64</p>
+<h2 id="opensbi"><a href="#opensbi" class="headerlink" title="opensbi"></a>opensbi</h2><pre><code class="highlight bash">git <span class="built_in">clone</span> git@github.com:riscv-software-src/opensbi.git
+<span class="built_in">cd</span> opensbi
+make PLATFORM=generic FW_PAYLOAD_PATH=/mnt/LFS/sources/linux-6.10.5/arch/riscv/boot/Image CC=/mnt/LFS/tools/bin/riscv64-lfs-linux-gnu-gcc LD=/mnt/LFS/tools/bin/riscv64-lfs-linux-gnu-ld OBJCOPY=/mnt/LFS/tools/bin/riscv64-lfs-linux-gnu-objcopy</code></pre>
+
+
+<p>现在可以启动系统了，这里没有使用GRUB，使用的是直接挂载内核和根文件系统的方法</p>
+<pre><code class="highlight bash">qemu-system-riscv64 -nographic -m 16G -smp $(<span class="built_in">nproc</span>) -machine virt -kernel /mnt/temp/boot/vmlinuz -append <span class="string">&quot;root=/dev/vda rw console=ttyS0 init=/bin/bash&quot;</span> -drive file=/dev/loop0p3,format=raw 
+
+<span class="comment">#   qemu-system-riscv64 \</span>
+<span class="comment">#   -nographic \</span>
+<span class="comment">#   -machine virt \</span>
+<span class="comment">#   -m 2G \</span>
+<span class="comment">#   -bios /home/nakanomiku/CODES/opensbi/build/platform/generic/firmware/fw_dynamic.bin \</span>
+<span class="comment">#   -drive if=pflash,unit=0,format=raw,readonly=on,file=/usr/share/qemu-efi-riscv64/RISCV_VIRT_CODE.fd \</span>
+<span class="comment">#   -drive if=pflash,unit=1,format=raw,file=/usr/share/qemu-efi-riscv64/RISCV_VIRT_VARS.fd \</span>
+<span class="comment">#   -drive file=/dev/loop0,format=raw \</span>
+<span class="comment">#   -d cpu_reset,guest_errors</span>
+
+
+<span class="comment"># sudo qemu-system-riscv64 -nographic -machine virt \</span>
+<span class="comment"># -drive if=pflash,unit=0,format=raw,readonly=on,file=/usr/share/qemu-efi-riscv64/RISCV_VIRT_CODE.fd \</span>
+<span class="comment"># -drive if=pflash,unit=1,format=raw,file=/usr/share/qemu-efi-riscv64/RISCV_VIRT_VARS.fd \</span>
+<span class="comment"># -drive file=/home/nakanomiku/iso/lfs_riscv64.img,format=raw</span>
+
+
+<span class="comment"># sudo qemu-system-riscv64 -nographic -machine virt \</span>
+<span class="comment"># -drive if=pflash,unit=0,format=raw,readonly=on,file=/home/lfs/Build2/RiscVVirtQemu/RELEASE_GCC5/FV/RISCV_VIRT_CODE.fd \</span>
+<span class="comment"># -drive if=pflash,unit=1,format=raw,file=/home/lfs/Build2/RiscVVirtQemu/RELEASE_GCC5/FV/RISCV_VIRT_VARS.fd \</span>
+<span class="comment"># -drive file=/dev/loop0,format=raw</span></code></pre>
+
+<hr>
+<h1 id="启动系统并构建临时工具"><a href="#启动系统并构建临时工具" class="headerlink" title="启动系统并构建临时工具"></a>启动系统并构建临时工具</h1><p>先准备虚拟内核文件系统</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -pv /&#123;proc,sys,run&#125;
+<span class="built_in">mkdir</span> -pv /dev/&#123;pts,shm&#125;
+mount -vt devpts devpts -o gid=5,mode=0620 /dev/pts
+mount -vt proc  proc  /proc
+mount -vt sysfs sysfs /sys
+mount -vt tmpfs tmpfs /run
+mount -vt tmpfs tmpfs /dev/shm -o nosuid,nodev</code></pre>
+
+<p>调整devtmpfs</p>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sfv /proc/self/fd/0 /dev/stdin
+<span class="built_in">ln</span> -sfv /proc/self/fd/1 /dev/stdout
+<span class="built_in">ln</span> -sfv /proc/self/fd/2 /dev/stderr
+<span class="built_in">ln</span> -sv  /proc/self/fd   /dev</code></pre>
+
+<p>当前环境的shell是初始进程，如果直接退出会导致panic，所以防止不小心退出shell</p>
+<pre><code class="highlight bash"><span class="built_in">enable</span> -n <span class="built_in">exit</span> <span class="built_in">exec</span>
+<span class="built_in">readonly</span> IGNOREEOF=1000</code></pre>
+
+<p>一些测试需要真实的标准输入输出，所以为串口ttyS0创建一个新的shell进程</p>
+<pre><code class="highlight bash">agetty -n -l /bin/bash ttyS0</code></pre>
+
+<p>创建一个控制终端并定义一些环境变量，需要注意的是现在不再使用交叉编译工具链了</p>
+<pre><code class="highlight bash"><span class="built_in">exec</span> setsid -c /usr/bin/env -i  \
+    HOME=/root                  \
+    TERM=<span class="string">&quot;<span class="variable">$TERM</span>&quot;</span>                \
+    PS1=<span class="string">&#x27;(lfs) \u:\w\$ &#x27;</span>        \
+    PATH=/usr/bin:/usr/sbin     \
+    MAKEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span>      \
+    TESTSUITEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span> \
+    /bin/bash --login</code></pre>
+
+<p>一些测试需要主机名，创建一个临时的主机名</p>
+<pre><code class="highlight bash">hostname lfs</code></pre>
+
+<p>继续创建剩下所需要的目录</p>
+<pre><code class="highlight bash"><span class="built_in">mkdir</span> -pv /&#123;boot,home,mnt,opt,srv&#125;
+
+<span class="built_in">mkdir</span> -pv /etc/&#123;opt,sysconfig&#125;
+<span class="built_in">mkdir</span> -pv /lib/firmware
+<span class="built_in">mkdir</span> -pv /media/&#123;floppy,cdrom&#125;
+<span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;&#123;include,src&#125;
+<span class="built_in">mkdir</span> -pv /usr/lib/locale
+<span class="built_in">mkdir</span> -pv /usr/local/&#123;bin,lib,sbin&#125;
+<span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/&#123;color,dict,doc,info,locale,man&#125;
+<span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/&#123;misc,terminfo,zoneinfo&#125;
+<span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/man/man&#123;1..8&#125;
+<span class="built_in">mkdir</span> -pv /var/&#123;cache,<span class="built_in">local</span>,<span class="built_in">log</span>,mail,opt,spool&#125;
+<span class="built_in">mkdir</span> -pv /var/lib/&#123;color,misc,locate&#125;
+
+<span class="built_in">ln</span> -sfv /run /var/run
+<span class="built_in">ln</span> -sfv /run/lock /var/lock
+
+install -dv -m 0750 /root
+install -dv -m 1777 /tmp /var/tmp</code></pre>
+
+<p>创建一个记录文件系统的文件的软连接</p>
+<pre><code class="highlight bash"><span class="built_in">ln</span> -sv /proc/self/mounts /etc/mtab</code></pre>
+
+<p>创建一个简单的&#x2F;etc&#x2F;hosts</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/hosts &lt;&lt; <span class="string">EOF</span>
+<span class="string">127.0.0.1  localhost $(hostname)</span>
+<span class="string">::1        localhost</span>
+<span class="string">EOF</span></code></pre>
+
+<p>创建&#x2F;etc&#x2F;passwd和&#x2F;etc&#x2F;group</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/passwd &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/dev/null:/usr/bin/false
+daemon:x:6:6:Daemon User:/dev/null:/usr/bin/false
+messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/usr/bin/false
+systemd-journal-gateway:x:73:73:systemd Journal Gateway:/:/usr/bin/false
+systemd-journal-remote:x:74:74:systemd Journal Remote:/:/usr/bin/false
+systemd-journal-upload:x:75:75:systemd Journal Upload:/:/usr/bin/false
+systemd-network:x:76:76:systemd Network Management:/:/usr/bin/false
+systemd-resolve:x:77:77:systemd Resolver:/:/usr/bin/false
+systemd-timesync:x:78:78:systemd Time Synchronization:/:/usr/bin/false
+systemd-coredump:x:79:79:systemd Core Dumper:/:/usr/bin/false
+uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false
+systemd-oom:x:81:81:systemd Out Of Memory Daemon:/:/usr/bin/false
+nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false
+EOF
+
+<span class="built_in">cat</span> &gt; /etc/group &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+root:x:0:
+bin:x:1:daemon
+sys:x:2:
+kmem:x:3:
+tape:x:4:
+<span class="built_in">tty</span>:x:5:
+daemon:x:6:
+floppy:x:7:
+disk:x:8:
+lp:x:9:
+dialout:x:10:
+audio:x:11:
+video:x:12:
+utmp:x:13:
+cdrom:x:15:
+adm:x:16:
+messagebus:x:18:
+systemd-journal:x:23:
+input:x:24:
+mail:x:34:
+kvm:x:61:
+systemd-journal-gateway:x:73:
+systemd-journal-remote:x:74:
+systemd-journal-upload:x:75:
+systemd-network:x:76:
+systemd-resolve:x:77:
+systemd-timesync:x:78:
+systemd-coredump:x:79:
+uuidd:x:80:
+systemd-oom:x:81:
+wheel:x:97:
+<span class="built_in">users</span>:x:999:
+nogroup:x:65534:
+EOF</code></pre>
+
+<p>设置locale</p>
+<pre><code class="highlight bash">localedef -i C -f UTF-8 C.UTF-8</code></pre>
+
+<p>创建一个用于跑测试的用户tester</p>
+<pre><code class="highlight bash"><span class="built_in">echo</span> <span class="string">&quot;tester:x:101:101::/home/tester:/bin/bash&quot;</span> &gt;&gt; /etc/passwd
+<span class="built_in">echo</span> <span class="string">&quot;tester:x:101:&quot;</span> &gt;&gt; /etc/group
+install -o tester -d /home/tester</code></pre>
+
+<p>重新登陆一下</p>
+<pre><code class="highlight bash"><span class="built_in">exec</span> /usr/bin/bash --login</code></pre>
+
+<p>创建一些不会自动创建的日志文件</p>
+<pre><code class="highlight bash"><span class="built_in">touch</span> /var/log/&#123;btmp,lastlog,faillog,wtmp&#125;
+<span class="built_in">chgrp</span> -v utmp /var/log/lastlog
+<span class="built_in">chmod</span> -v 664  /var/log/lastlog
+<span class="built_in">chmod</span> -v 600  /var/log/btmp</code></pre>
+
+<p>现在可以继续构建临时工具了</p>
+<h2 id="Flex"><a href="#Flex" class="headerlink" title="Flex"></a>Flex</h2><p>Flex的config.guess和config.sub太旧了，识别不出riscv，更新一下</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> build-aux
+curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD&#x27;</span> &gt; config.guess
+curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD&#x27;</span> &gt; config.sub</code></pre>
+
+<h2 id="Expect"><a href="#Expect" class="headerlink" title="Expect"></a>Expect</h2><p>Expect的config.guess和config.sub太旧了，识别不出riscv，更新一下（可以复制之前已经下载过的）</p>
+<pre><code class="highlight bash"><span class="built_in">cd</span> tclconfig
+curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD&#x27;</span> &gt; config.guess
+curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD&#x27;</span> &gt; config.sub</code></pre>
+
+<h2 id="GCC-1"><a href="#GCC-1" class="headerlink" title="GCC"></a>GCC</h2><p>在编译GCC时，注意目录的替换</p>
+<pre><code class="highlight bash">sed -i.orig <span class="string">&#x27;s/lib64/lib/g&#x27;</span> gcc/config/riscv/t-withmultilib gcc/config/riscv/t-linux</code></pre>
+
+<p>有几个失败的测试样例不需要移除</p>
+<pre><code class="highlight bash">sed -e <span class="string">&#x27;/cpython/d&#x27;</span>               -i ../gcc/testsuite/gcc.dg/plugin/plugin.exp
+sed -e <span class="string">&#x27;s/300000/(1|300000)/&#x27;</span>     -i ../libgomp/testsuite/libgomp.c-c++-common/pr109062.c</code></pre>
+
+<h2 id="Check"><a href="#Check" class="headerlink" title="Check"></a>Check</h2><p>Expect的config.guess和config.sub太旧了，识别不出riscv，更新一下（可以复制之前已经下载过的）</p>
+<pre><code class="highlight bash">curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD&#x27;</span> &gt; config.guess
+curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD&#x27;</span> &gt; config.sub</code></pre>
+
+<h1 id="GRUB-1"><a href="#GRUB-1" class="headerlink" title="GRUB"></a>GRUB</h1><p>跳过GRUB<br>需要安装的软件包</p>
+<pre><code class="highlight bash">wget https://ftp.gnu.org/gnu/grub/grub-2.12.tar.xz
+wget https://unifoundry.com/pub/unifont/unifont-16.0.01/font-builds/unifont-16.0.01.pcf.gz
+wget https://github.com/rhboot/efibootmgr/archive/18/efibootmgr-18.tar.gz
+wget https://github.com/rhboot/efivar/archive/39/efivar-39.tar.gz
+wget http://ftp.rpm.org/popt/releases/popt-1.x/popt-1.19.tar.gz</code></pre>
+
+<h2 id="Popt"><a href="#Popt" class="headerlink" title="Popt"></a>Popt</h2><h2 id="Efivar"><a href="#Efivar" class="headerlink" title="Efivar"></a>Efivar</h2><h2 id="Efibootmgr"><a href="#Efibootmgr" class="headerlink" title="Efibootmgr"></a>Efibootmgr</h2><h2 id="GRUB-2"><a href="#GRUB-2" class="headerlink" title="GRUB"></a>GRUB</h2><h1 id="系统配置"><a href="#系统配置" class="headerlink" title="系统配置"></a>系统配置</h1><p>网络</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/systemd/network/10-ether0.link &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+[Match]
+<span class="comment"># Change the MAC address as appropriate for your network device</span>
+MACAddress=12:34:45:78:90:AB
+
+[Link]
+Name=ether0
+EOF
+
+<span class="built_in">cat</span> &gt; /etc/systemd/network/10-eth-static.network &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+[Match]
+Name=eth0
+
+[Network]
+Address=192.168.0.2/24
+Gateway=192.168.0.1
+DNS=192.168.0.1
+EOF
+
+<span class="built_in">cat</span> &gt; /etc/systemd/network/10-eth-dhcp.network &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+[Match]
+Name=eth0
+
+[Network]
+DHCP=ipv4
+
+[DHCPv4]
+UseDomains=<span class="literal">true</span>
+EOF
+
+<span class="built_in">echo</span> <span class="string">&quot;lfs&quot;</span> &gt; /etc/hostname
+
+<span class="built_in">cat</span> &gt; /etc/hosts &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+<span class="comment"># Begin /etc/hosts</span>
+
+192.168.0.2
+::1       ip6-localhost ip6-loopback
+ff02::1   ip6-allnodes
+ff02::2   ip6-allrouters
+
+<span class="comment"># End /etc/hosts</span>
+EOF</code></pre>
+
+<p>locale</p>
+<pre><code class="highlight bash"><span class="built_in">cat</span> &gt; /etc/locale.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span>
+LANG=en_US.ISO-8859-1
+EOF</code></pre>
+
+        </article>
+
+        
+            
+  <div class="nexmoe-post-copyright">
+    <strong>本文作者：</strong>NakanoMiku<br>
+    
+    <strong>本文链接：</strong><a href="http://nakanomiku39.github.io/2024/10/08/%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;10&#x2F;08&#x2F;%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;10&#x2F;08&#x2F;%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS&#x2F;</a><br>
+
+    
+      <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+    
+  </div>
+
+
+        
+
+        <div class="nexmoe-post-meta nexmoe-rainbow">
+    
+        <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a>
+    
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/LFS/" rel="tag">LFS</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/RISC-V/" rel="tag">RISC-V</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/x86-64/" rel="tag">x86_64</a>
+    
+</div>
+
+    <!-- <div class="nexmoe-post-footer">
+        <section class="nexmoe-comment">
+    <div class="valine"></div>
+<script src='https://lib.baomitu.com/valine/1.3.9/Valine.min.js'></script>
+<script>
+    // 使用方法 https://valine.js.org/quickstart.html
+    new Valine({
+        el: '.valine',
+        appId: 'r5zxC0st0DDjPA9auXzMV7HY-gzGzoHsz',
+        appKey: '3bqCsovpyfTPHUzTHovd3V3V'
+    })
+</script>
+</section>
+    </div> -->
+</div>
+
+
+        <div class="nexmoe-post-right">
+          
+            <div class="nexmoe-fixed">
+              <div class="nexmoe-tool">
+                <a href="#" aria-label="回到顶部" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+              </div>
+            </div>
+          
+        </div>
+    </div>
+  </div>
+  <!-- <div id="nexmoe-pendant">
+    <div class="nexmoe-drawer mdui-drawer nexmoe-pd" id="drawer">
+        
+            <div class="nexmoe-pd-item">
+                <div class="clock">
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="memory"></div>
+        <div class="needle" id="hours"></div>
+        <div class="needle" id="minutes"></div>
+        <div class="needle" id="seconds"></div>
+        <div class="clock_logo">
+
+        </div>
+
+    </div>
+<style>
+    .clock {
+        background-color: #ffffff;
+        width: 70vw;
+        height: 70vw;
+        max-width: 70vh;
+        max-height: 70vh;
+        border: solid 2.8vw #242424;
+        position: relative;
+        overflow: hidden;
+        border-radius: 50%;
+        box-sizing: border-box;
+        box-shadow: 0 1.4vw 2.8vw rgba(0, 0, 0, 0.8);
+        zoom:0.2
+    }
+
+    .memory {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .memory:nth-child(1) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(0deg) translateY(-520%);
+    }
+
+    .memory:nth-child(2) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(6deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(3) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(12deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(4) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(18deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(5) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(24deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(6) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(30deg) translateY(-520%);
+    }
+
+    .memory:nth-child(7) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(36deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(8) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(42deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(9) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(48deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(10) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(54deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(11) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(60deg) translateY(-520%);
+    }
+
+    .memory:nth-child(12) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(66deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(13) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(72deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(14) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(78deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(15) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(84deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(16) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(90deg) translateY(-520%);
+    }
+
+    .memory:nth-child(17) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(96deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(18) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(102deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(19) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(108deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(20) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(114deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(21) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(120deg) translateY(-520%);
+    }
+
+    .memory:nth-child(22) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(126deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(23) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(132deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(24) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(138deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(25) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(144deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(26) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(150deg) translateY(-520%);
+    }
+
+    .memory:nth-child(27) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(156deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(28) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(162deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(29) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(168deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(30) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(174deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(31) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(180deg) translateY(-520%);
+    }
+
+    .memory:nth-child(32) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(186deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(33) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(192deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(34) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(198deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(35) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(204deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(36) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(210deg) translateY(-520%);
+    }
+
+    .memory:nth-child(37) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(216deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(38) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(222deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(39) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(228deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(40) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(234deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(41) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(240deg) translateY(-520%);
+    }
+
+    .memory:nth-child(42) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(246deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(43) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(252deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(44) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(258deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(45) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(264deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(46) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(270deg) translateY(-520%);
+    }
+
+    .memory:nth-child(47) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(276deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(48) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(282deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(49) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(288deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(50) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(294deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(51) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(300deg) translateY(-520%);
+    }
+
+    .memory:nth-child(52) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(306deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(53) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(312deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(54) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(318deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(55) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(324deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(56) {
+        background-color: #424242;
+        width: 2%;
+        height: 8%;
+        transform: translate(-50%, -50%) rotate(330deg) translateY(-520%);
+    }
+
+    .memory:nth-child(57) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(336deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(58) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(342deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(59) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(348deg) translateY(-1461%);
+    }
+
+    .memory:nth-child(60) {
+        background-color: #949494;
+        width: 1%;
+        height: 3%;
+        transform: translate(-50%, -50%) rotate(354deg) translateY(-1461%);
+    }
+
+    .needle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform-origin: center;
+    }
+
+    .needle#hours {
+        background-color: #1f1f1f;
+        width: 4%;
+        height: 30%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#hours.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#hours:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#minutes {
+        background-color: #1f1f1f;
+        width: 2%;
+        height: 45%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#minutes.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#minutes:after {
+        content: '';
+        background-color: #1f1f1f;
+        width: 4vw;
+        height: 4vw;
+        max-width: 4vh;
+        max-height: 4vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .needle#seconds {
+        background-color: #cb2f2f;
+        width: 1%;
+        height: 50%;
+        transform-origin: center 75%;
+        transform: translate(-50%, -75%);
+    }
+
+    .needle#seconds.moving {
+        transition: transform 150ms ease-out;
+    }
+
+    .needle#seconds:after {
+        content: '';
+        background-color: #cb2f2f;
+        width: 2.5vw;
+        height: 2.5vw;
+        max-width: 2.5vh;
+        max-height: 2.5vh;
+        display: block;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .clock_logo{
+        width: 10vw;
+        height: 10vw;
+        max-width: 10vh;
+        max-height: 10vh;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+    @media (min-width: 100vh) {
+        .clock {
+            border: solid 2.8vh #242424;
+            box-shadow: 0 1.4vh 2.8vh rgba(0, 0, 0, 0.8);
+        }
+    }
+
+</style>
+
+
+
+
+
+            </div>
+        
+            <div class="nexmoe-pd-item">
+                <div class="qweather" >
+    <div id="he-plugin-standard"></div>
+    <div class="qweather-logo">
+
+    </div>
+
+</div>
+<style>
+    .qweather{
+        position: relative;
+    }
+    .qweather-logo{
+        position: absolute;
+        right: 0;
+        top: -15px;
+        width: 40px;
+        height: 40px;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+</style>
+<script>
+  WIDGET = {
+    "CONFIG": {
+      "layout": "2",
+      "width": "260",
+      "height": "220",
+      "background": "5",
+      "dataColor": "e67249",
+      "borderRadius": "15",
+      "key": "f74d1e1690e6432d801e97fa2f05a162"
+    }
+  }
+</script>
+<script src="https://widget.qweather.net/standard/static/js/he-standard-common.js?v=2.0"></script>
+
+            </div>
+        
+</div>
+<style>
+    .nexmoe-pd {
+        left: auto;
+        top: 40px;
+        right: 0;
+    }
+    .nexmoe-pd-item{
+       display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+</style>
+
+  </div> -->
+  <script src="https://lib.baomitu.com/lazysizes/5.1.0/lazysizes.min.js"></script>
+<script src="https://lib.baomitu.com/highlight.js/10.0.0/highlight.min.js"></script>
+<script src="https://lib.baomitu.com/mdui/0.4.3/js/mdui.min.js"></script>
+
+<script>
+	hljs.initHighlightingOnLoad();
+</script>
+
+<script src="https://lib.baomitu.com/jquery/3.5.1/jquery.slim.min.js"></script>
+<script src="/lib/fancybox/js/jquery.fancybox.min.js"></script>
+
+
+<script src="/js/app.js?v=1732971761732"></script>
+
+<script src="https://lib.baomitu.com/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+<script>
+	$(".justified-gallery").justifiedGallery({
+		rowHeight: 160,
+		margins: 10,
+	});
+</script>
+
+  
+
+
+
+
+
+<!-- hexo injector body_end start -->
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+<script src="/js/search.js"></script>
+
+<script src="/js/clock.js"></script>
+
+<script src="/js/webapp.js"></script>
+
+<script src="https://lib.baomitu.com/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script src="/lib/codeBlock/codeBlockFuction.js"></script>
+
+<script src="/lib/codeBlock/codeLang.js"></script>
+
+<script src="/lib/codeBlock/codeCopy.js"></script>
+
+<script src="/lib/codeBlock/codeShrink.js"></script>
+
+<link rel="stylesheet" href="/lib/codeBlock/matery.css">
+<!-- hexo injector body_end end --></body>
+</html>
+

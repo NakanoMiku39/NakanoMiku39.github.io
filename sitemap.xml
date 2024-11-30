@@ -2,18 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://nakanomiku39.github.io/2024/10/05/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%884%EF%BC%89/</loc>
+    <loc>http://nakanomiku39.github.io/2024/11/30/%E9%85%8D%E7%BD%AESamba%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB%E5%B9%B6%E7%94%A8Windows%E8%AE%BF%E9%97%AE/</loc>
     
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://nakanomiku39.github.io/2024/09/28/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89/</loc>
+    <loc>http://nakanomiku39.github.io/2024/11/28/Debian-Locale%E5%92%8C%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93%E5%AE%89%E8%A3%85/</loc>
     
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -22,7 +22,43 @@
   <url>
     <loc>http://nakanomiku39.github.io/2024/10/01/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%883%EF%BC%89/</loc>
     
-    <lastmod>2024-10-05</lastmod>
+    <lastmod>2024-11-30</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/2024/10/08/%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS/</loc>
+    
+    <lastmod>2024-11-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/</loc>
+    
+    <lastmod>2024-10-08</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/2024/09/28/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89/</loc>
+    
+    <lastmod>2024-10-08</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/2024/10/05/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%884%EF%BC%89/</loc>
+    
+    <lastmod>2024-10-08</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -32,15 +68,6 @@
     <loc>http://nakanomiku39.github.io/2024/09/23/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D/</loc>
     
     <lastmod>2024-09-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/</loc>
-    
-    <lastmod>2024-09-28</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -76,7 +103,7 @@
 
   <url>
     <loc>http://nakanomiku39.github.io/</loc>
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -84,28 +111,84 @@
   
   <url>
     <loc>http://nakanomiku39.github.io/tags/GPG/</loc>
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://nakanomiku39.github.io/tags/LFS/</loc>
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/tags/x86-64/</loc>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/tags/RISC-V/</loc>
+    <lastmod>2024-11-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://nakanomiku39.github.io/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/</loc>
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://nakanomiku39.github.io/tags/php/</loc>
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/tags/Locale/</loc>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/tags/%E5%AD%97%E4%BD%93/</loc>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/tags/%E4%B8%AD%E6%96%87/</loc>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/tags/Samba/</loc>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/tags/Windows/</loc>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/tags/ipv6/</loc>
+    <lastmod>2024-11-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -114,14 +197,21 @@
   
   <url>
     <loc>http://nakanomiku39.github.io/categories/Linux/</loc>
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://nakanomiku39.github.io/categories/Linux/%E6%9C%8D%E5%8A%A1%E5%99%A8/</loc>
-    <lastmod>2024-10-07</lastmod>
+    <lastmod>2024-11-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://nakanomiku39.github.io/categories/Linux/Debian/</loc>
+    <lastmod>2024-11-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
