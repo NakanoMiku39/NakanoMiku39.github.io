@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en"><head>
+<title>Niri初尝试 - Hexo</title>
+<meta charset="UTF-8">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+
+<link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
+<meta name="description" content="第一次尝试安装和配置Niri">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Niri初尝试">
+<meta property="og:url" content="http://nakanomiku39.github.io/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="第一次尝试安装和配置Niri">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://nakanomiku39.github.io/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/Niri.jpg">
+<meta property="article:published_time" content="2025-12-03T15:57:06.000Z">
+<meta property="article:modified_time" content="2026-01-26T15:12:59.953Z">
+<meta property="article:author" content="NakanoMiku39">
+<meta property="article:tag" content="Fedora">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Niri">
+<meta property="article:tag" content="客制化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://nakanomiku39.github.io/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/Niri.jpg">
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.css">
+<link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
+
+
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1772502584677">
+
+<link rel="stylesheet" href="/css/style.css?v=1772502584677">
+
+
+
+
+    
+        <link rel="stylesheet" href="/custom.css?v=1772502584677">
+    
+
+
+
+<script src="/lib/mdui_043tiny/mdui.js" async></script>
+<script src="/lib/fancybox/fancybox.umd.js" async></script>
+<script src="/lib/lax.min.js" async></script>
+
+
+<script async src="/js/app.js?v=1772502584677"></script>
+
+ 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4D4ZJ9G024"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-4D4ZJ9G024");
+</script>
+
+
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<meta name="generator" content="Hexo 8.1.1"></head><body class="nexmoe mdui-drawer-body-left"><div id="nexmoe-background"><div class="nexmoe-bg" style="background-image: url(/images/background/ichika1023-1.png)"></div><div class="mdui-appbar mdui-shadow-0"><div class="mdui-toolbar"><a class="mdui-btn mdui-btn-icon mdui-ripple" mdui-drawer="{target: &#039;#drawer&#039;, swipe: true}" title="menu"><i class="mdui-icon nexmoefont icon-menu"></i></a><div class="mdui-toolbar-spacer"></div><a class="mdui-btn mdui-btn-icon" href="/" title="NakanoMiku39"><img src="/images/head/miku.jpg" alt="NakanoMiku39"></a></div></div></div><div id="nexmoe-header"><div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku39">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku39" alt="NakanoMiku39">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>Articles</span>2</div>
+        <div><span>Tags</span>5</div>
+        <div><span>Categories</span>0</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-container"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    
+    
+        
+        
+        <div class="nexmoe-widget-wrap">
+	<div class="nexmoe-widget nexmoe-social">
+		<a
+			class="mdui-ripple"
+			href="https://github.com/NakanoMiku39/"
+			target="_blank"
+			mdui-tooltip="{content: 'GitHub'}"
+			style="
+				color: rgb(170, 51, 204);
+				background-color: rgba(170, 51, 204, .1);
+			"
+		>
+			<i
+				class="nexmoefont icon-github"
+			></i> </a
+		>
+	</div>
+</div>
+
+    
+        
+        
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Fedora/" style="font-size: 10px;">Fedora</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Niri/" style="font-size: 10px;">Niri</a> <a href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" style="font-size: 10px;">客制化</a> <a href="/tags/%E7%81%8C%E6%B0%B4/" style="font-size: 10px;">灌水</a>
+    </div>
+    
+      <script>
+        var maxTagcloud = parseInt(17);
+        var tags_length = parseInt(5);
+        var tags_arr = [];
+        for(var i = 0; i < tags_length; i++){
+          tags_arr.push(i);
+        }
+        tags_arr.sort(function (l, r) {
+          return Math.random() > 0.5 ? -1 : 1;
+        });
+        tags_arr = tags_arr.slice(0, maxTagcloud < tags_length ? tags_length - maxTagcloud : 0);
+        for(var tag_i = 0; tag_i < tags_arr.length; tag_i++){
+          document.getElementById("randomtagcloud").children[tags_arr[tag_i]].style.display = 'none';
+        }
+      </script>
+    
+  </div>
+
+    
+        
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Archive</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/">2025</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Recent Posts</h3>
+    <div class="nexmoe-widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/">Niri初尝试</a>
+          </li>
+        
+          <li>
+            <a href="/2025/11/26/%E7%AC%AC%E4%B8%80%E6%9D%A1%E5%8D%9A%E5%AE%A2%EF%BC%88%EF%BC%9F%EF%BC%89/">第一条博客（？）</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+        
+   
+    <div class="nexmoe-copyright">
+        &copy; 2026 NakanoMiku39
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        
+    </div>
+</div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><div class="nexmoe-post">
+  <article>
+    
+        <div class="nexmoe-post-cover absolute" style="padding-top: 31.25%;"> 
+            <img src="/images/background/ichika279-2.png" alt="Niri初尝试" loading="lazy">
+            <h1>Niri初尝试</h1>
+        </div>
+    
+    
+    <div class="nexmoe-post-meta">
+    <div class="nexmoe-rainbow">
+        <a class="nexmoefont icon-calendar-fill">2025年12月03日</a>
+        
+        
+    </div>
+    
+    
+    
+    
+    
+</div>
+
+    <p>第一次尝试安装和配置Niri</p>
+<span id="more"></span>
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近在研究Fedora Silverblue，机缘巧合下了解到了Niri，本人作为动态平铺窗口的爱好者自然想要尝试一下Niri。虽然之前已经捣鼓过i3了，但是i3基于X11，而Niri基于Wayland，所以正好可以体验一下Wayland。</p>
+<p>之前用i3一直有很多没能完美解决的使用上的问题，导致最后还是放弃使用i3了，这次我打算从虚拟机开始配置Niri，等到配置成熟时再考虑实际应用，这篇文章就是用来记录我的安装过程的。</p>
+<p>我的系统是基于Fedora 42的Silverblue，然后自己定制了一下镜像，在这个基础上安装和配置的，参考（照抄）了两篇博客：<a target="_blank" rel="noopener" href="https://kznleaf.top/2025/09/18/niri%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/">knzLeaf</a>和<a target="_blank" rel="noopener" href="https://www.sakimidare.top/posts/niri-manual">SakiMidare</a>以及两个仓库：<a target="_blank" rel="noopener" href="https://github.com/SHORiN-KiWATA/ShorinArchExperience-ArchlinuxGuide/tree/main/dotfiles/.config">SHORiN-KiWATA</a>和<a target="_blank" rel="noopener" href="https://github.com/newemperor221/hyprland-dotfiles/tree/main/hypr_style1">newemperor221</a></p>
+<p>我自己仓库的链接在<a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/">这里</a>，下面会尽量避免贴大段配置文件，只讲一些配置时可能会需要的额外操作，下面所有的配置文件都可以在这个仓库里找到</p>
+<h1 id="软件包"><a href="#软件包" class="headerlink" title="软件包"></a>软件包</h1><p>用到的软件包如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install niri swaybg waybar mako swaylock alacritty gdm</span><br></pre></td></tr></table></figure>
+<p>后面就进入无脑复制黏贴导入配置缓解了</p>
+<h1 id="Niri"><a href="#Niri" class="headerlink" title="Niri"></a>Niri</h1><p>Niri的配置文件路径是&#96;~&#x2F;.config&#x2F;niri&#x2F;config.kdl</p>
+<h1 id="Swaybg"><a href="#Swaybg" class="headerlink" title="Swaybg"></a>Swaybg</h1><p>好看的桌面离不开好的背景，背景图片路径视情况自行调整，先导入配置文件，然后运行下面的命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl --user add-wants niri.service swaybg.service</span><br></pre></td></tr></table></figure>
+
+<h1 id="Waybar"><a href="#Waybar" class="headerlink" title="Waybar"></a>Waybar</h1><p>状态栏这一块我暂时没有找到非常满意的配置文件，目前用的是<a target="_blank" rel="noopener" href="https://github.com/newemperor221/hyprland-dotfiles/tree/main/hypr_style1/waybar">newemperor221</a>的解决方案，导入配置文件后运行下面的命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl --user add-wants niri.service waybar.service</span><br></pre></td></tr></table></figure>
+
+<h1 id="Mako"><a href="#Mako" class="headerlink" title="Mako"></a>Mako</h1><p>与Waybar一样，目前用的是<a target="_blank" rel="noopener" href="https://github.com/newemperor221/hyprland-dotfiles/tree/main/hypr_style1/mako">newemperor221</a>的解决方案，主要是不太懂这个什么时候会用到，导入配置文件后运行下面的命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl --user add-wants niri.service mako.service</span><br></pre></td></tr></table></figure>
+
+<h1 id="Swaylock"><a href="#Swaylock" class="headerlink" title="Swaylock"></a>Swaylock</h1><p>锁屏非常简陋，可能是设置没弄对，锁屏的时候好像不会显示出壁纸，仍需调试</p>
+<h1 id="Alacritty"><a href="#Alacritty" class="headerlink" title="Alacritty"></a>Alacritty</h1><p>使用了Alacritty，配置文件路径为<code>.config/alacritty/alacritty.toml</code>，需要搭配字体使用，我这里选择的是FiraCode Nerd</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>这篇文档没有什么细致的讲解，只是为了能够进行快速配置一个可复用的桌面环境写的，以防日后要使用的时候又忘记了一些配置细节</p>
+<p>最后附上一张可能算不太上是效果图的效果图</p>
+<img src="/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/Niri.jpg" class="" title="Niri">
+
+    
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>Author：</strong>NakanoMiku39<br>
+        <strong>Link：</strong><a href="http://nakanomiku39.github.io/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2025&#x2F;12&#x2F;03&#x2F;Niri%E5%88%9D%E5%B0%9D%E8%AF%95&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2025&#x2F;12&#x2F;03&#x2F;Niri%E5%88%9D%E5%B0%9D%E8%AF%95&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+   
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Fedora/" rel="tag">Fedora</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Linux/" rel="tag">Linux</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Niri/" rel="tag">Niri</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" rel="tag">客制化</a>
+    
+</div>
+  
+  
+    <script async src="/js/copy-codeblock.js?v=1772502584666"></script>
+  
+
+  
+      <div class="nexmoe-post-footer">
+          
+      </div>
+  
+</div></div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">
+        <div class="nexmoe-tool">
+
+            
+
+            
+            
+            <button class="mdui-fab catalog" style="overflow:unset;">
+                <i class="nexmoefont icon-i-catalog"></i>
+                <div class="nexmoe-toc">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="toc-number">2.</span> <span class="toc-text">软件包</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Niri"><span class="toc-number">3.</span> <span class="toc-text">Niri</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Swaybg"><span class="toc-number">4.</span> <span class="toc-text">Swaybg</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Waybar"><span class="toc-number">5.</span> <span class="toc-text">Waybar</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Mako"><span class="toc-number">6.</span> <span class="toc-text">Mako</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Swaylock"><span class="toc-number">7.</span> <span class="toc-text">Swaylock</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Alacritty"><span class="toc-number">8.</span> <span class="toc-text">Alacritty</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">9.</span> <span class="toc-text">结语</span></a></li></ol>
+                </div>
+            </button>
+            
+
+            
+
+            <a href="#nexmoe-content" class="backtop toc-link" aria-label="Back To Top" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+        </div>
+    </div>
+</div></div><div id="nexmoe-footer"><!--!--></div><div id="nexmoe-search-space"><div class="search-container"><div class="search-header"><div class="search-input-container"><input class="search-input" type="text" placeholder="Search" onInput="sinput();"></div><a class="search-close" onclick="sclose();">×</a></div><div class="search-body"></div></div></div><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2058306854838448" crossorigin="anonymous"></script>
+</div></body></html>
