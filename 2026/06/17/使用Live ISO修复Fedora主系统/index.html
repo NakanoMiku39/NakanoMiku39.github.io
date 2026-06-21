@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en"><head>
+<title>使用Live ISO修复Fedora主系统 - Hexo</title>
+<meta charset="UTF-8">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+
+<link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
+<meta name="description" content="接上篇安装 Fedora 的记录。如果主系统已经进不去，或者进去之后没有网络、登录管理器配置错了，这时 Live ISO 就是最方便的救援环境。核心思路是：用 Live ISO 启动一个可用系统，再把硬盘里的主系统挂载出来，最后用 chroot 进入主系统内部修复。 AIGC：这篇文章由AI生成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Live ISO修复Fedora主系统">
+<meta property="og:url" content="http://nakanomiku39.github.io/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="接上篇安装 Fedora 的记录。如果主系统已经进不去，或者进去之后没有网络、登录管理器配置错了，这时 Live ISO 就是最方便的救援环境。核心思路是：用 Live ISO 启动一个可用系统，再把硬盘里的主系统挂载出来，最后用 chroot 进入主系统内部修复。 AIGC：这篇文章由AI生成">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-17T10:05:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T12:46:15.742Z">
+<meta property="article:author" content="NakanoMiku39">
+<meta property="article:tag" content="Btrfs">
+<meta property="article:tag" content="Fedora">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="chroot">
+<meta property="article:tag" content="救援">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.css">
+<link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
+
+
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1782046220466">
+
+<link rel="stylesheet" href="/css/style.css?v=1782046220466">
+
+
+
+
+    
+        <link rel="stylesheet" href="/custom.css?v=1782046220466">
+    
+
+
+
+<script src="/lib/mdui_043tiny/mdui.js" async></script>
+<script src="/lib/fancybox/fancybox.umd.js" async></script>
+<script src="/lib/lax.min.js" async></script>
+
+
+<script async src="/js/app.js?v=1782046220466"></script>
+
+ 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4D4ZJ9G024"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-4D4ZJ9G024");
+</script>
+
+
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<meta name="generator" content="Hexo 8.1.1"></head><body class="nexmoe mdui-drawer-body-left"><div id="nexmoe-background"><div class="nexmoe-bg" style="background-image: url(/images/background/ichika1023-1.png)"></div><div class="mdui-appbar mdui-shadow-0"><div class="mdui-toolbar"><a class="mdui-btn mdui-btn-icon mdui-ripple" mdui-drawer="{target: &#039;#drawer&#039;, swipe: true}" title="menu"><i class="mdui-icon nexmoefont icon-menu"></i></a><div class="mdui-toolbar-spacer"></div><a class="mdui-btn mdui-btn-icon" href="/" title="NakanoMiku39"><img src="/images/head/miku.jpg" alt="NakanoMiku39"></a></div></div></div><div id="nexmoe-header"><div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku39">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku39" alt="NakanoMiku39">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>Articles</span>5</div>
+        <div><span>Tags</span>12</div>
+        <div><span>Categories</span>0</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-container"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    
+    
+        
+        
+        <div class="nexmoe-widget-wrap">
+	<div class="nexmoe-widget nexmoe-social">
+		<a
+			class="mdui-ripple"
+			href="https://github.com/NakanoMiku39/"
+			target="_blank"
+			mdui-tooltip="{content: 'GitHub'}"
+			style="
+				color: rgb(170, 51, 204);
+				background-color: rgba(170, 51, 204, .1);
+			"
+		>
+			<i
+				class="nexmoefont icon-github"
+			></i> </a
+		>
+	</div>
+</div>
+
+    
+        
+        
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Btrfs/" style="font-size: 10px;">Btrfs</a> <a href="/tags/Emacs/" style="font-size: 10px;">Emacs</a> <a href="/tags/Fedora/" style="font-size: 20px;">Fedora</a> <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Niri/" style="font-size: 15px;">Niri</a> <a href="/tags/chroot/" style="font-size: 10px;">chroot</a> <a href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" style="font-size: 20px;">客制化</a> <a href="/tags/%E6%8F%92%E4%BB%B6/" style="font-size: 10px;">插件</a> <a href="/tags/%E6%95%91%E6%8F%B4/" style="font-size: 10px;">救援</a> <a href="/tags/%E7%81%8C%E6%B0%B4/" style="font-size: 10px;">灌水</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">网络</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+    
+      <script>
+        var maxTagcloud = parseInt(17);
+        var tags_length = parseInt(12);
+        var tags_arr = [];
+        for(var i = 0; i < tags_length; i++){
+          tags_arr.push(i);
+        }
+        tags_arr.sort(function (l, r) {
+          return Math.random() > 0.5 ? -1 : 1;
+        });
+        tags_arr = tags_arr.slice(0, maxTagcloud < tags_length ? tags_length - maxTagcloud : 0);
+        for(var tag_i = 0; tag_i < tags_arr.length; tag_i++){
+          document.getElementById("randomtagcloud").children[tags_arr[tag_i]].style.display = 'none';
+        }
+      </script>
+    
+  </div>
+
+    
+        
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Archive</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/">2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/">2025</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Recent Posts</h3>
+    <div class="nexmoe-widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/">使用Live ISO修复Fedora主系统</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Fedora安装踩坑记录</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/04/Emacs%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6%E5%88%86%E4%BA%AB/">Emacs实用插件分享</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/">Niri初尝试</a>
+          </li>
+        
+          <li>
+            <a href="/2025/11/26/%E7%AC%AC%E4%B8%80%E6%9D%A1%E5%8D%9A%E5%AE%A2%EF%BC%88%EF%BC%9F%EF%BC%89/">第一条博客（？）</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+        
+   
+    <div class="nexmoe-copyright">
+        &copy; 2026 NakanoMiku39
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        
+    </div>
+</div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><div class="nexmoe-post">
+  <article>
+    
+        <div class="nexmoe-post-cover absolute" style="padding-top: 31.25%;"> 
+            <img src="/images/background/ichika1375-1.png" alt="使用Live ISO修复Fedora主系统" loading="lazy">
+            <h1>使用Live ISO修复Fedora主系统</h1>
+        </div>
+    
+    
+    <div class="nexmoe-post-meta">
+    <div class="nexmoe-rainbow">
+        <a class="nexmoefont icon-calendar-fill">2026年06月17日</a>
+        
+        
+    </div>
+    
+    
+    
+    
+    
+</div>
+
+    <p>接上篇安装 Fedora 的记录。如果主系统已经进不去，或者进去之后没有网络、登录管理器配置错了，这时 Live ISO 就是最方便的救援环境。核心思路是：用 Live ISO 启动一个可用系统，再把硬盘里的主系统挂载出来，最后用 <code>chroot</code> 进入主系统内部修复。</p>
+<p>AIGC：这篇文章由AI生成</p>
+<span id="more"></span>
+
+<h1 id="Live-ISO-能解决什么问题"><a href="#Live-ISO-能解决什么问题" class="headerlink" title="Live ISO 能解决什么问题"></a>Live ISO 能解决什么问题</h1><p>Live ISO 启动的是一个临时系统。它使用自己的 kernel、initramfs 和用户空间，不依赖硬盘里的主系统能不能正常启动。因此主系统出现下面这些问题时，Live ISO 仍然可以作为救援入口：</p>
+<ul>
+<li>装完系统后缺少无线网卡 firmware，进系统没有网络</li>
+<li><code>greetd</code>、GDM、SDDM 配置错误，登录界面起不来</li>
+<li><code>/etc/fstab</code>、内核参数、GRUB 配置写错，导致启动失败</li>
+<li>需要离线修改主系统里的配置文件</li>
+<li>需要在主系统里安装软件包、重建 initramfs 或重新生成引导配置</li>
+</ul>
+<p>这套流程的关键命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mount -o subvol=root ...</span><br><span class="line">mount --<span class="built_in">bind</span> ...</span><br><span class="line"><span class="built_in">chroot</span> ...</span><br></pre></td></tr></table></figure>
+
+<p>下面按顺序讲。</p>
+<h1 id="找到主系统分区"><a href="#找到主系统分区" class="headerlink" title="找到主系统分区"></a>找到主系统分区</h1><p>进入 Live ISO 后，先查看磁盘和文件系统：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsblk -f</span><br></pre></td></tr></table></figure>
+
+<p>Fedora 默认安装经常会使用 Btrfs，并且把一个 Btrfs 文件系统拆成多个 subvolume。常见布局大概是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/dev/nvme0n1p1  vfat   EFI System Partition</span><br><span class="line">/dev/nvme0n1p2  ext4   /boot</span><br><span class="line">/dev/nvme0n1p3  btrfs  Fedora 主系统</span><br></pre></td></tr></table></figure>
+
+<p>具体设备名要以自己的机器为准，可能是 <code>/dev/nvme0n1p3</code>，也可能是 <code>/dev/sda3</code>。如果使用了 LUKS 加密，还需要先解锁：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> cryptsetup open /dev/nvme0n1p3 cryptroot</span><br></pre></td></tr></table></figure>
+
+<p>解锁后，真正要挂载的设备就变成了：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/dev/mapper/cryptroot</span><br></pre></td></tr></table></figure>
+
+<h1 id="为什么要-mount-o-subvol-root"><a href="#为什么要-mount-o-subvol-root" class="headerlink" title="为什么要 mount -o subvol&#x3D;root"></a>为什么要 mount -o subvol&#x3D;root</h1><p>Btrfs 的 subvolume 可以理解为同一个 Btrfs 文件系统里的多个独立目录树。Fedora 常见布局里，根目录 <code>/</code> 不是直接放在 Btrfs 顶层，而是放在名为 <code>root</code> 的 subvolume 里；用户目录 <code>/home</code> 则可能放在名为 <code>home</code> 的 subvolume 里。</p>
+<p>所以救援时如果只写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount /dev/nvme0n1p3 /mnt</span><br></pre></td></tr></table></figure>
+
+<p>挂到 <code>/mnt</code> 的不一定是主系统真正的根目录。你可能会看到一些 subvolume 名字，而不是熟悉的 <code>/etc</code>、<code>/usr</code>、<code>/var</code>。</p>
+<p>正确做法是明确挂载根 subvolume：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -o subvol=root /dev/nvme0n1p3 /mnt</span><br></pre></td></tr></table></figure>
+
+<p>如果是 LUKS 解锁后的系统，则是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -o subvol=root /dev/mapper/cryptroot /mnt</span><br></pre></td></tr></table></figure>
+
+<p>挂载之后检查一下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> /mnt</span><br></pre></td></tr></table></figure>
+
+<p>如果能看到 <code>etc</code>、<code>usr</code>、<code>var</code>、<code>home</code>、<code>boot</code> 等目录，说明主系统根目录已经挂载到 <code>/mnt</code>。</p>
+<p>如果还需要修复用户配置，或者 <code>/home</code> 是单独的 subvolume，可以继续挂载：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -o subvol=home /dev/nvme0n1p3 /mnt/home</span><br></pre></td></tr></table></figure>
+
+<p>同样，如果是加密系统，把设备名换成 <code>/dev/mapper/cryptroot</code>。</p>
+<h1 id="挂载-boot-和-EFI-分区"><a href="#挂载-boot-和-EFI-分区" class="headerlink" title="挂载 boot 和 EFI 分区"></a>挂载 boot 和 EFI 分区</h1><p>如果只是改 <code>/etc/greetd/config.toml</code> 这类普通配置，可能不挂载 <code>/boot</code> 和 <code>/boot/efi</code> 也能完成。但如果要重建 initramfs、重新生成 GRUB 配置、安装内核或修复引导，就应该把它们也挂上。</p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount /dev/nvme0n1p2 /mnt/boot</span><br><span class="line"><span class="built_in">sudo</span> mount /dev/nvme0n1p1 /mnt/boot/efi</span><br></pre></td></tr></table></figure>
+
+<p>这里的分区编号仍然要按 <code>lsblk -f</code> 的结果调整。不要照抄设备名。</p>
+<h1 id="为什么要-mount-–bind-虚拟文件系统"><a href="#为什么要-mount-–bind-虚拟文件系统" class="headerlink" title="为什么要 mount –bind 虚拟文件系统"></a>为什么要 mount –bind 虚拟文件系统</h1><p>把主系统根目录挂到 <code>/mnt</code> 之后，还不能直接 <code>chroot</code> 完事。因为 <code>/mnt</code> 里虽然有主系统的文件，但缺少当前正在运行的内核提供的运行时接口。</p>
+<p>典型的几个目录是：</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/dev</code></td>
+<td>设备节点，例如磁盘、终端、随机数设备</td>
+</tr>
+<tr>
+<td><code>/dev/pts</code></td>
+<td>伪终端，很多交互式程序需要它</td>
+</tr>
+<tr>
+<td><code>/proc</code></td>
+<td>进程和内核状态接口，例如 <code>/proc/cpuinfo</code>、<code>/proc/mounts</code></td>
+</tr>
+<tr>
+<td><code>/sys</code></td>
+<td>设备、驱动、内核模块等 sysfs 信息</td>
+</tr>
+<tr>
+<td><code>/run</code></td>
+<td>当前启动后的运行时状态，包含网络、systemd、临时 socket 等</td>
+</tr>
+</tbody></table>
+<p><code>mount --bind</code> 的作用是把 Live ISO 当前系统里的某个目录重新挂载到另一个位置。它不是复制文件，而是让两个路径看到同一棵目录树。</p>
+<p>也就是说：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount --<span class="built_in">bind</span> /dev /mnt/dev</span><br></pre></td></tr></table></figure>
+
+<p>会让 chroot 后的 <code>/dev</code> 实际指向 Live ISO 当前的 <code>/dev</code>。这样主系统里的命令运行时，就能看到真实设备节点。</p>
+<p>完整操作如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount --<span class="built_in">bind</span> /dev /mnt/dev</span><br><span class="line"><span class="built_in">sudo</span> mount --<span class="built_in">bind</span> /dev/pts /mnt/dev/pts</span><br><span class="line"><span class="built_in">sudo</span> mount --<span class="built_in">bind</span> /proc /mnt/proc</span><br><span class="line"><span class="built_in">sudo</span> mount --<span class="built_in">bind</span> /sys /mnt/sys</span><br><span class="line"><span class="built_in">sudo</span> mount --<span class="built_in">bind</span> /run /mnt/run</span><br></pre></td></tr></table></figure>
+
+<p>这样做的原因是：<code>chroot</code> 只改变进程看到的根目录，它不会帮你创建 <code>/dev</code>、<code>/proc</code>、<code>/sys</code> 这些运行时接口。如果不 bind mount，很多命令会出现奇怪问题，比如 <code>dnf</code>、<code>dracut</code>、<code>grub2-mkconfig</code> 找不到设备信息，或者脚本无法读取当前挂载状态。</p>
+<h1 id="chroot-进入主系统"><a href="#chroot-进入主系统" class="headerlink" title="chroot 进入主系统"></a>chroot 进入主系统</h1><p>准备好挂载点之后，就可以进入主系统：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">chroot</span> /mnt /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p><code>chroot</code> 的意思是 change root。执行之后，当前 shell 看到的 <code>/</code> 就不再是 Live ISO 的根目录，而是刚才挂载到 <code>/mnt</code> 的主系统根目录。</p>
+<p>因此在 chroot 里面执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /etc/fedora-release</span><br></pre></td></tr></table></figure>
+
+<p>读到的是主系统的 <code>/etc/fedora-release</code>，不是 Live ISO 的。执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dnf install iwlwifi-mvm-firmware</span><br></pre></td></tr></table></figure>
+
+<p>安装目标也是主系统，而不是 Live ISO。</p>
+<p>这就是 Live ISO 修复主系统的核心：运行环境来自 Live ISO，但文件系统目标切换到了硬盘里的主系统。</p>
+<h1 id="示例一：修复缺失的-iwlwifi-firmware"><a href="#示例一：修复缺失的-iwlwifi-firmware" class="headerlink" title="示例一：修复缺失的 iwlwifi firmware"></a>示例一：修复缺失的 iwlwifi firmware</h1><p>如果上篇提到的无线网卡问题是因为缺少 <code>iwlwifi-mvm-firmware</code>，可以在 chroot 里安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dnf install iwlwifi-mvm-firmware</span><br></pre></td></tr></table></figure>
+
+<p>如果 DNS 解析失败，可以先退出 chroot，把 Live ISO 的 DNS 配置复制进去：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exit</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /etc/resolv.conf /mnt/etc/resolv.conf</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chroot</span> /mnt /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后，普通无线网卡 firmware 通常重启即可生效。为了稳妥，也可以重建 initramfs：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dracut -f</span><br></pre></td></tr></table></figure>
+
+<p>然后退出并重启。</p>
+<h1 id="示例二：修复-greetd-配置"><a href="#示例二：修复-greetd-配置" class="headerlink" title="示例二：修复 greetd 配置"></a>示例二：修复 greetd 配置</h1><p>如果 <code>greetd</code> 配错导致登录界面进不去，可以在 chroot 中直接编辑：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nano /etc/greetd/config.toml</span><br></pre></td></tr></table></figure>
+
+<p>例如把默认会话修成：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">command</span> = <span class="string">&quot;tuigreet --cmd \&quot;dbus-run-session niri\&quot;&quot;</span></span><br><span class="line"><span class="attr">user</span> = <span class="string">&quot;greetd&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果需要启用 <code>greetd</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> greetd.service</span><br></pre></td></tr></table></figure>
+
+<p>注意，在 chroot 里一般只适合 <code>enable</code>、<code>disable</code> 这类修改开机状态的操作，不适合 <code>start</code>、<code>restart</code> 服务。因为当前真正运行的是 Live ISO 的 systemd，不是主系统的 systemd。</p>
+<h1 id="退出和卸载"><a href="#退出和卸载" class="headerlink" title="退出和卸载"></a>退出和卸载</h1><p>修复完成后先退出 chroot：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<p>然后卸载挂载点。最简单的方式是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> umount -R /mnt</span><br></pre></td></tr></table></figure>
+
+<p>如果提示 busy，通常是还有 shell 或程序停留在 <code>/mnt</code> 下面。确认所有终端都已经离开 <code>/mnt</code> 后再卸载。</p>
+<p>最后重启：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reboot</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这一整套流程可以概括成四步：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">用 Live ISO 启动一个可工作的临时系统</span><br><span class="line">用 mount -o subvol=root 挂载主系统根目录</span><br><span class="line">用 mount --bind 提供 /dev、/proc、/sys、/run 等运行时接口</span><br><span class="line">用 chroot 把命令执行环境切换到主系统里</span><br></pre></td></tr></table></figure>
+
+<p>理解这几个命令之后，Live ISO 就不只是“重装系统用的 U 盘”，而是一个很实用的救援环境。很多看起来很严重的问题，其实只是需要从外部把主系统挂起来，改掉错误配置或者补齐缺失软件包。</p>
+
+    
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>Author：</strong>NakanoMiku39<br>
+        <strong>Link：</strong><a href="http://nakanomiku39.github.io/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2026&#x2F;06&#x2F;17&#x2F;%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2026&#x2F;06&#x2F;17&#x2F;%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+   
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Btrfs/" rel="tag">Btrfs</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Fedora/" rel="tag">Fedora</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Linux/" rel="tag">Linux</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/chroot/" rel="tag">chroot</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/%E6%95%91%E6%8F%B4/" rel="tag">救援</a>
+    
+</div>
+  
+  
+    <script async src="/js/copy-codeblock.js?v=1782046220450"></script>
+  
+
+  
+      <div class="nexmoe-post-footer">
+          
+      </div>
+  
+</div></div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">
+        <div class="nexmoe-tool">
+
+            
+
+            
+            
+            <button class="mdui-fab catalog" style="overflow:unset;">
+                <i class="nexmoefont icon-i-catalog"></i>
+                <div class="nexmoe-toc">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Live-ISO-%E8%83%BD%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">Live ISO 能解决什么问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%89%BE%E5%88%B0%E4%B8%BB%E7%B3%BB%E7%BB%9F%E5%88%86%E5%8C%BA"><span class="toc-number">2.</span> <span class="toc-text">找到主系统分区</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81-mount-o-subvol-root"><span class="toc-number">3.</span> <span class="toc-text">为什么要 mount -o subvol&#x3D;root</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8C%82%E8%BD%BD-boot-%E5%92%8C-EFI-%E5%88%86%E5%8C%BA"><span class="toc-number">4.</span> <span class="toc-text">挂载 boot 和 EFI 分区</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81-mount-%E2%80%93bind-%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">5.</span> <span class="toc-text">为什么要 mount –bind 虚拟文件系统</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#chroot-%E8%BF%9B%E5%85%A5%E4%B8%BB%E7%B3%BB%E7%BB%9F"><span class="toc-number">6.</span> <span class="toc-text">chroot 进入主系统</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%B8%80%EF%BC%9A%E4%BF%AE%E5%A4%8D%E7%BC%BA%E5%A4%B1%E7%9A%84-iwlwifi-firmware"><span class="toc-number">7.</span> <span class="toc-text">示例一：修复缺失的 iwlwifi firmware</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E4%BA%8C%EF%BC%9A%E4%BF%AE%E5%A4%8D-greetd-%E9%85%8D%E7%BD%AE"><span class="toc-number">8.</span> <span class="toc-text">示例二：修复 greetd 配置</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%80%E5%87%BA%E5%92%8C%E5%8D%B8%E8%BD%BD"><span class="toc-number">9.</span> <span class="toc-text">退出和卸载</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">10.</span> <span class="toc-text">总结</span></a></li></ol>
+                </div>
+            </button>
+            
+
+            
+
+            <a href="#nexmoe-content" class="backtop toc-link" aria-label="Back To Top" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+        </div>
+    </div>
+</div></div><div id="nexmoe-footer"><!--!--></div><div id="nexmoe-search-space"><div class="search-container"><div class="search-header"><div class="search-input-container"><input class="search-input" type="text" placeholder="Search" onInput="sinput();"></div><a class="search-close" onclick="sclose();">×</a></div><div class="search-body"></div></div></div><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2058306854838448" crossorigin="anonymous"></script>
+</div></body></html>

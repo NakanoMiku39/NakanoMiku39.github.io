@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en"><head>
+<title>Fedora安装踩坑记录 - Hexo</title>
+<meta charset="UTF-8">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+
+<link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
+<meta name="description" content="这篇记录一下最近安装 Fedora 时遇到的几个问题：安装器里连接校园网、装完后无线网卡因为缺少固件而消失，以及使用 greetd、tuigreet 启动 niri 时需要注意的登录链路。 AIGC：这篇文章由AI生成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fedora安装踩坑记录">
+<meta property="og:url" content="http://nakanomiku39.github.io/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这篇记录一下最近安装 Fedora 时遇到的几个问题：安装器里连接校园网、装完后无线网卡因为缺少固件而消失，以及使用 greetd、tuigreet 启动 niri 时需要注意的登录链路。 AIGC：这篇文章由AI生成">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-17T09:45:00.000Z">
+<meta property="article:modified_time" content="2026-06-21T12:47:46.027Z">
+<meta property="article:author" content="NakanoMiku39">
+<meta property="article:tag" content="Fedora">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Niri">
+<meta property="article:tag" content="客制化">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.css">
+<link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
+
+
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1782046220474">
+
+<link rel="stylesheet" href="/css/style.css?v=1782046220474">
+
+
+
+
+    
+        <link rel="stylesheet" href="/custom.css?v=1782046220474">
+    
+
+
+
+<script src="/lib/mdui_043tiny/mdui.js" async></script>
+<script src="/lib/fancybox/fancybox.umd.js" async></script>
+<script src="/lib/lax.min.js" async></script>
+
+
+<script async src="/js/app.js?v=1782046220474"></script>
+
+ 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4D4ZJ9G024"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-4D4ZJ9G024");
+</script>
+
+
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<meta name="generator" content="Hexo 8.1.1"></head><body class="nexmoe mdui-drawer-body-left"><div id="nexmoe-background"><div class="nexmoe-bg" style="background-image: url(/images/background/ichika1023-1.png)"></div><div class="mdui-appbar mdui-shadow-0"><div class="mdui-toolbar"><a class="mdui-btn mdui-btn-icon mdui-ripple" mdui-drawer="{target: &#039;#drawer&#039;, swipe: true}" title="menu"><i class="mdui-icon nexmoefont icon-menu"></i></a><div class="mdui-toolbar-spacer"></div><a class="mdui-btn mdui-btn-icon" href="/" title="NakanoMiku39"><img src="/images/head/miku.jpg" alt="NakanoMiku39"></a></div></div></div><div id="nexmoe-header"><div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku39">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku39" alt="NakanoMiku39">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>Articles</span>5</div>
+        <div><span>Tags</span>12</div>
+        <div><span>Categories</span>0</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-container"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    
+    
+        
+        
+        <div class="nexmoe-widget-wrap">
+	<div class="nexmoe-widget nexmoe-social">
+		<a
+			class="mdui-ripple"
+			href="https://github.com/NakanoMiku39/"
+			target="_blank"
+			mdui-tooltip="{content: 'GitHub'}"
+			style="
+				color: rgb(170, 51, 204);
+				background-color: rgba(170, 51, 204, .1);
+			"
+		>
+			<i
+				class="nexmoefont icon-github"
+			></i> </a
+		>
+	</div>
+</div>
+
+    
+        
+        
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Btrfs/" style="font-size: 10px;">Btrfs</a> <a href="/tags/Emacs/" style="font-size: 10px;">Emacs</a> <a href="/tags/Fedora/" style="font-size: 20px;">Fedora</a> <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Niri/" style="font-size: 15px;">Niri</a> <a href="/tags/chroot/" style="font-size: 10px;">chroot</a> <a href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" style="font-size: 20px;">客制化</a> <a href="/tags/%E6%8F%92%E4%BB%B6/" style="font-size: 10px;">插件</a> <a href="/tags/%E6%95%91%E6%8F%B4/" style="font-size: 10px;">救援</a> <a href="/tags/%E7%81%8C%E6%B0%B4/" style="font-size: 10px;">灌水</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">网络</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+    
+      <script>
+        var maxTagcloud = parseInt(17);
+        var tags_length = parseInt(12);
+        var tags_arr = [];
+        for(var i = 0; i < tags_length; i++){
+          tags_arr.push(i);
+        }
+        tags_arr.sort(function (l, r) {
+          return Math.random() > 0.5 ? -1 : 1;
+        });
+        tags_arr = tags_arr.slice(0, maxTagcloud < tags_length ? tags_length - maxTagcloud : 0);
+        for(var tag_i = 0; tag_i < tags_arr.length; tag_i++){
+          document.getElementById("randomtagcloud").children[tags_arr[tag_i]].style.display = 'none';
+        }
+      </script>
+    
+  </div>
+
+    
+        
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Archive</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/">2026</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/">2025</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Recent Posts</h3>
+    <div class="nexmoe-widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/">使用Live ISO修复Fedora主系统</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Fedora安装踩坑记录</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/04/Emacs%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6%E5%88%86%E4%BA%AB/">Emacs实用插件分享</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/">Niri初尝试</a>
+          </li>
+        
+          <li>
+            <a href="/2025/11/26/%E7%AC%AC%E4%B8%80%E6%9D%A1%E5%8D%9A%E5%AE%A2%EF%BC%88%EF%BC%9F%EF%BC%89/">第一条博客（？）</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+        
+   
+    <div class="nexmoe-copyright">
+        &copy; 2026 NakanoMiku39
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        
+    </div>
+</div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><div class="nexmoe-post">
+  <article>
+    
+        <div class="nexmoe-post-cover absolute" style="padding-top: 31.25%;"> 
+            <img src="/images/background/ichika1202-2.png" alt="Fedora安装踩坑记录" loading="lazy">
+            <h1>Fedora安装踩坑记录</h1>
+        </div>
+    
+    
+    <div class="nexmoe-post-meta">
+    <div class="nexmoe-rainbow">
+        <a class="nexmoefont icon-calendar-fill">2026年06月17日</a>
+        
+        
+    </div>
+    
+    
+    
+    
+    
+</div>
+
+    <p>这篇记录一下最近安装 Fedora 时遇到的几个问题：安装器里连接校园网、装完后无线网卡因为缺少固件而消失，以及使用 <code>greetd</code>、<code>tuigreet</code> 启动 <code>niri</code> 时需要注意的登录链路。</p>
+<p>AIGC：这篇文章由AI生成</p>
+<span id="more"></span>
+
+<h1 id="安装时连接校园网"><a href="#安装时连接校园网" class="headerlink" title="安装时连接校园网"></a>安装时连接校园网</h1><p>安装 Fedora 时最先遇到的问题是联网。普通家庭 Wi-Fi 通常只需要输入一个共享密码，但校园网往往不是这种模式，而是需要使用学号、工号或者统一身份认证账号登录。因此在安装器里选择 Wi-Fi 时，不能只看 SSID 名字，还要看这个网络使用的安全协议和认证方式。</p>
+<p>我这里需要选择 WPA 系列里的 WPA2 Enterprise，并且认证方式选择 PEAP。只填 Wi-Fi 密码的 WPA&#x2F;WPA2 Personal 是连不上的，因为它的认证模型和校园网完全不同。</p>
+<h2 id="常见-Wi-Fi-安全协议"><a href="#常见-Wi-Fi-安全协议" class="headerlink" title="常见 Wi-Fi 安全协议"></a>常见 Wi-Fi 安全协议</h2><p>大致可以把常见 Wi-Fi 分成下面几类：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>常见场景</th>
+<th>认证方式</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Open</td>
+<td>公共开放热点</td>
+<td>不需要密码</td>
+<td>接入简单，但链路本身不加密，安全性依赖 HTTPS、VPN 等上层保护</td>
+</tr>
+<tr>
+<td>WEP</td>
+<td>很老的设备</td>
+<td>静态密钥</td>
+<td>已经过时，不建议继续使用</td>
+</tr>
+<tr>
+<td>WPA Personal</td>
+<td>早期家用网络</td>
+<td>预共享密钥 PSK</td>
+<td>比 WEP 强，但早期实现多使用 TKIP，现在也不推荐作为首选</td>
+</tr>
+<tr>
+<td>WPA2 Personal</td>
+<td>家用路由器、手机热点</td>
+<td>预共享密钥 PSK</td>
+<td>最常见的家用 Wi-Fi 模式，大家共用同一个 Wi-Fi 密码</td>
+</tr>
+<tr>
+<td>WPA3 Personal</td>
+<td>较新的家用路由器</td>
+<td>SAE</td>
+<td>替代 PSK，能更好地抵抗离线字典攻击</td>
+</tr>
+<tr>
+<td>WPA&#x2F;WPA2 Enterprise</td>
+<td>校园网、企业网</td>
+<td>802.1X + EAP</td>
+<td>每个用户使用自己的账号、密码或证书认证</td>
+</tr>
+</tbody></table>
+<p>这里最容易混淆的是 Personal 和 Enterprise。</p>
+<p>Personal 的核心是“这张网有一个共享密码”。路由器和客户端都知道这个密码，客户端证明自己知道密码之后就能接入。家里的 Wi-Fi 和手机热点基本都是这种。</p>
+<p>Enterprise 的核心是“这张网背后有认证服务器”。客户端不是只输入一个共享密码，而是通过 802.1X&#x2F;EAP 把用户身份交给学校或公司的认证系统验证。换句话说，Enterprise 模式下 Wi-Fi 密码本身不是重点，真正的凭证是用户名、密码、证书等身份材料。</p>
+<p>校园网通常会使用 WPA2 Enterprise，因为它可以做到每个人一个账号，方便统一认证、撤销权限和记录网络行为。如果在安装器里把它当成 WPA2 Personal，只会得到一个“请输入密码”的界面，自然没地方填写用户名，也就无法完成认证。</p>
+<h2 id="常见-EAP-认证方式"><a href="#常见-EAP-认证方式" class="headerlink" title="常见 EAP 认证方式"></a>常见 EAP 认证方式</h2><p>选择 WPA2 Enterprise 之后，还需要选择 EAP 方法。EAP 可以理解为“在 802.1X 这套框架里，具体怎么证明你是你”。</p>
+<table>
+<thead>
+<tr>
+<th>EAP 方法</th>
+<th>凭证</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PEAP</td>
+<td>用户名 + 密码</td>
+<td>最常见的校园网方案之一，先建立 TLS 隧道，再在隧道内提交账号密码</td>
+</tr>
+<tr>
+<td>TTLS</td>
+<td>用户名 + 密码</td>
+<td>也是先建立 TLS 隧道，内部认证方式更灵活，可以是 PAP、MSCHAP、MSCHAPv2 等</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td>客户端证书 + 私钥</td>
+<td>安全性强，但需要给每台设备签发和管理证书</td>
+</tr>
+<tr>
+<td>FAST</td>
+<td>PAC 或其他受保护凭证</td>
+<td>部署相对少见，常见于特定企业网络</td>
+</tr>
+<tr>
+<td>PWD</td>
+<td>密码</td>
+<td>基于密码的 EAP 方法，实际校园网中不如 PEAP 常见</td>
+</tr>
+<tr>
+<td>LEAP</td>
+<td>用户名 + 密码</td>
+<td>旧方案，安全性已经不适合新环境</td>
+</tr>
+</tbody></table>
+<p>我这里选择的是 PEAP。如果安装器继续要求选择内部认证方式，一般可以选择 MSCHAPv2。完整填写项通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Security: WPA &amp; WPA2 Enterprise</span><br><span class="line">Authentication: Protected EAP (PEAP)</span><br><span class="line">Inner authentication: MSCHAPv2</span><br><span class="line">Username: 校园网账号</span><br><span class="line">Password: 校园网密码</span><br><span class="line">Anonymous identity: 可留空，除非学校文档要求填写</span><br><span class="line">CA certificate: 优先使用学校提供的 CA 证书</span><br></pre></td></tr></table></figure>
+
+<p>CA 证书这一项容易被忽略。严格来说，客户端应该验证认证服务器证书，避免把账号密码交给伪造的同名热点。如果学校提供了 CA 证书，最好导入并选择它。如果只是为了安装系统临时联网，又没有学校提供的证书，安装器里可能可以选择“不需要 CA 证书”之类的选项，但这属于安全性妥协，不应该作为长期配置。</p>
+<h1 id="安装后无线网卡缺少固件"><a href="#安装后无线网卡缺少固件" class="headerlink" title="安装后无线网卡缺少固件"></a>安装后无线网卡缺少固件</h1><p>第二个问题出现在系统安装完成之后：重启进入新系统，无线网卡不见了。</p>
+<p>表现大概是这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ip a</span><br><span class="line">ip <span class="built_in">link</span></span><br></pre></td></tr></table></figure>
+
+<p>这两个命令里只看到 <code>lo</code> 和有线网卡，没有 <code>wlp...</code> 之类的无线网卡接口。但是内核模块又不是完全不存在：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lsmod | grep iwlwifi</span><br><span class="line"><span class="built_in">sudo</span> modprobe iwlwifi</span><br></pre></td></tr></table></figure>
+
+<p><code>iwlwifi</code> 模块确实存在，也可以尝试加载。这里的关键点是：驱动模块存在，不代表无线网卡就能工作。Intel 无线网卡除了内核驱动以外，还需要对应的 firmware。驱动负责和内核网络栈对接，firmware 则是加载到无线芯片上的二进制固件。两者缺一不可。</p>
+<p>最后通过 <code>dmesg</code> 查到了真正的问题：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dmesg | grep -i iwlwifi</span><br></pre></td></tr></table></figure>
+
+<p>报错里有类似内容：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">iwlwifi no suitable firmware found</span><br><span class="line">iwlwifi-QuZ-a0-hr-b0-77 is required</span><br></pre></td></tr></table></figure>
+
+<p>这说明内核已经识别到需要 <code>iwlwifi</code>，但是在系统里找不到对应固件，所以无线网卡没有完成初始化。由于设备没有成功初始化，内核也就不会注册出 <code>wlp...</code> 这样的网络接口，因此 <code>ip a</code> 和 <code>ip link</code> 看不到它。</p>
+<p>解决方式是安装缺失的 firmware 包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install iwlwifi-mvm-firmware</span><br></pre></td></tr></table></figure>
+
+<p>如果正在使用 Fedora Atomic &#x2F; Silverblue 这类系统，则使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpm-ostree install iwlwifi-mvm-firmware</span><br><span class="line">systemctl reboot</span><br></pre></td></tr></table></figure>
+
+<p>普通 Fedora Workstation 安装完成后，可以重启，也可以尝试重新加载模块：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> modprobe -r iwlmvm iwlwifi</span><br><span class="line"><span class="built_in">sudo</span> modprobe iwlwifi</span><br></pre></td></tr></table></figure>
+
+<p>如果当时已经没有 Wi-Fi，可以临时用有线网络、手机 USB 共享网络，或者用 Live ISO 进入系统修复。后一种方法我会单独开一篇继续写。</p>
+<h1 id="使用-greetd-和-tuigreet-启动-niri"><a href="#使用-greetd-和-tuigreet-启动-niri" class="headerlink" title="使用 greetd 和 tuigreet 启动 niri"></a>使用 greetd 和 tuigreet 启动 niri</h1><p>第三个问题是安装后配置 <code>greetd</code> 和 <code>tuigreet</code>，让登录后直接进入 <code>niri</code>。</p>
+<p>我的 <code>/etc/greetd/config.toml</code> 最后需要写成下面这样：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[terminal]</span></span><br><span class="line"><span class="comment"># The VT to run the greeter on. Can be &quot;next&quot;, &quot;current&quot; or a number</span></span><br><span class="line"><span class="comment"># designating the VT.</span></span><br><span class="line"><span class="attr">vt</span> = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The default session, also known as the greeter.</span></span><br><span class="line"><span class="section">[default_session]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># `agreety` is the bundled agetty/login-lookalike. You can replace `/bin/sh`</span></span><br><span class="line"><span class="comment"># with whatever you want started, such as `sway`.</span></span><br><span class="line"><span class="comment"># command = &quot;tuigreet --cmd bash&quot;</span></span><br><span class="line"><span class="attr">command</span> = <span class="string">&quot;tuigreet --cmd \&quot;dbus-run-session niri\&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The user to run the command as. The privileges this user must have depends</span></span><br><span class="line"><span class="comment"># on the greeter. A graphical greeter may for example require the user to be</span></span><br><span class="line"><span class="comment"># in the `video` group.</span></span><br><span class="line"><span class="attr">user</span> = <span class="string">&quot;greetd&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里真正重要的是这一行：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">command</span> = <span class="string">&quot;tuigreet --cmd \&quot;dbus-run-session niri\&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>表面上看只是启动了 <code>niri</code>，但从开机到进入桌面，中间其实有一条完整链路：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRUB -&gt; Linux kernel -&gt; systemd -&gt; greetd -&gt; tuigreet -&gt; PAM认证 -&gt; dbus-run-session -&gt; niri</span><br></pre></td></tr></table></figure>
+
+<h2 id="从-GRUB-到-systemd"><a href="#从-GRUB-到-systemd" class="headerlink" title="从 GRUB 到 systemd"></a>从 GRUB 到 systemd</h2><p>开机后，固件会把控制权交给 GRUB。GRUB 根据启动项加载 Linux kernel 和 initramfs，并把内核参数一起传过去。</p>
+<p>内核启动后会初始化 CPU、内存、磁盘、显卡、网卡等硬件，随后挂载根文件系统，并启动用户空间的第一个进程，也就是 PID 1。Fedora 默认的 PID 1 是 <code>systemd</code>。</p>
+<p><code>systemd</code> 继续拉起各种 system service。启用 <code>greetd</code> 后，<code>greetd.service</code> 会在合适的 target 下启动，负责接管一个虚拟终端。</p>
+<h2 id="greetd-做什么"><a href="#greetd-做什么" class="headerlink" title="greetd 做什么"></a>greetd 做什么</h2><p><code>greetd</code> 本身是 display manager。传统桌面环境里常见的是 GDM、SDDM、LightDM，而 <code>greetd</code> 更轻量，也更适合配合 Wayland compositor 和文本 greeter 使用。</p>
+<p>配置中的：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[terminal]</span></span><br><span class="line"><span class="attr">vt</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>表示让 greeter 运行在第 1 个虚拟终端上。也就是说，系统启动后看到的登录界面不是 GDM 那种图形界面，而是 <code>tuigreet</code> 提供的 TUI 登录界面。</p>
+<p><code>default_session</code> 里的：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">user</span> = <span class="string">&quot;greetd&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>表示 <code>greetd</code> 先用 <code>greetd</code> 这个低权限用户运行 greeter。这样登录界面本身不需要以 root 身份运行，权限边界更清晰。</p>
+<h2 id="tuigreet-做什么"><a href="#tuigreet-做什么" class="headerlink" title="tuigreet 做什么"></a>tuigreet 做什么</h2><p><code>tuigreet</code> 是一个文本界面的 greeter。它负责显示登录提示、读取用户名和密码，并通过 PAM 完成认证。</p>
+<p>PAM 可以理解为 Linux 上统一的认证框架。你输入用户名和密码之后，<code>tuigreet</code> 不会自己判断密码对不对，而是把认证交给 PAM。PAM 再根据系统配置去检查本地密码、指纹、密钥环或者其他认证模块。</p>
+<p>认证通过之后，<code>tuigreet</code> 会根据 <code>--cmd</code> 指定的命令请求 <code>greetd</code> 启动用户会话。这里指定的是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dbus-run-session niri</span><br></pre></td></tr></table></figure>
+
+<h2 id="为什么需要-dbus-run-session"><a href="#为什么需要-dbus-run-session" class="headerlink" title="为什么需要 dbus-run-session"></a>为什么需要 dbus-run-session</h2><p><code>niri</code> 是 Wayland compositor。它启动之后会创建 Wayland 显示服务器，普通图形程序再通过 <code>WAYLAND_DISPLAY</code> 连接到它。</p>
+<p>但是现代 Linux 桌面不只有 Wayland socket。通知、portal、密钥环、文件选择器、截图、屏幕共享、权限弹窗等组件经常还需要一个用户会话级别的 D-Bus。</p>
+<p><code>dbus-run-session niri</code> 的作用就是先创建一个新的 session bus，再在这个 D-Bus 会话里启动 <code>niri</code>。它会设置好类似 <code>DBUS_SESSION_BUS_ADDRESS</code> 的环境变量。这样从 <code>niri</code> 里启动的程序都能找到同一个会话总线。</p>
+<p>如果只写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tuigreet --cmd niri</span><br></pre></td></tr></table></figure>
+
+<p><code>niri</code> 本身可能能起来，但后续很多桌面组件可能会因为没有正常的 D-Bus session 而表现异常。把 <code>dbus-run-session</code> 放进登录命令里，相当于把“启动桌面”和“创建桌面会话总线”绑在一起，链路更完整。</p>
+<p>所以最终链路可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">greetd 在 VT1 启动 tuigreet</span><br><span class="line">tuigreet 读取账号密码</span><br><span class="line">PAM 验证用户身份</span><br><span class="line">认证通过后启动 dbus-run-session</span><br><span class="line">dbus-run-session 创建用户会话 D-Bus</span><br><span class="line">niri 在这个 D-Bus 会话里启动并接管 Wayland 桌面</span><br></pre></td></tr></table></figure>
+
+<p>配置完成后启用服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> greetd.service</span><br></pre></td></tr></table></figure>
+
+<p>如果之前启用了 GDM、SDDM 之类的 display manager，需要避免它们和 <code>greetd</code> 抢登录界面。调试阶段最好保留一个可用 TTY，万一登录命令写错，可以用 <code>Ctrl+Alt+F2</code> 切到其他虚拟终端修配置。</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>这三个问题本质上都不是“系统坏了”，而是安装阶段经常被省略掉的底层细节：校园网不是普通 Wi-Fi，驱动模块不等于 firmware 已经齐全，display manager 也不只是启动一个窗口管理器那么简单。</p>
+<p>记录下来之后，下次再装 Fedora 至少不用从零开始查了。</p>
+
+    
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>Author：</strong>NakanoMiku39<br>
+        <strong>Link：</strong><a href="http://nakanomiku39.github.io/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2026&#x2F;06&#x2F;17&#x2F;Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2026&#x2F;06&#x2F;17&#x2F;Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+   
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Fedora/" rel="tag">Fedora</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Linux/" rel="tag">Linux</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Niri/" rel="tag">Niri</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" rel="tag">客制化</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a>
+    
+</div>
+  
+  
+    <script async src="/js/copy-codeblock.js?v=1782046220451"></script>
+  
+
+  
+      <div class="nexmoe-post-footer">
+          
+      </div>
+  
+</div></div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">
+        <div class="nexmoe-tool">
+
+            
+
+            
+            
+            <button class="mdui-fab catalog" style="overflow:unset;">
+                <i class="nexmoefont icon-i-catalog"></i>
+                <div class="nexmoe-toc">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E6%97%B6%E8%BF%9E%E6%8E%A5%E6%A0%A1%E5%9B%AD%E7%BD%91"><span class="toc-number">1.</span> <span class="toc-text">安装时连接校园网</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81-Wi-Fi-%E5%AE%89%E5%85%A8%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.1.</span> <span class="toc-text">常见 Wi-Fi 安全协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81-EAP-%E8%AE%A4%E8%AF%81%E6%96%B9%E5%BC%8F"><span class="toc-number">1.2.</span> <span class="toc-text">常见 EAP 认证方式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%90%8E%E6%97%A0%E7%BA%BF%E7%BD%91%E5%8D%A1%E7%BC%BA%E5%B0%91%E5%9B%BA%E4%BB%B6"><span class="toc-number">2.</span> <span class="toc-text">安装后无线网卡缺少固件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-greetd-%E5%92%8C-tuigreet-%E5%90%AF%E5%8A%A8-niri"><span class="toc-number">3.</span> <span class="toc-text">使用 greetd 和 tuigreet 启动 niri</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8E-GRUB-%E5%88%B0-systemd"><span class="toc-number">3.1.</span> <span class="toc-text">从 GRUB 到 systemd</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#greetd-%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">3.2.</span> <span class="toc-text">greetd 做什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tuigreet-%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">3.3.</span> <span class="toc-text">tuigreet 做什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-dbus-run-session"><span class="toc-number">3.4.</span> <span class="toc-text">为什么需要 dbus-run-session</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">4.</span> <span class="toc-text">结语</span></a></li></ol>
+                </div>
+            </button>
+            
+
+            
+
+            <a href="#nexmoe-content" class="backtop toc-link" aria-label="Back To Top" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+        </div>
+    </div>
+</div></div><div id="nexmoe-footer"><!--!--></div><div id="nexmoe-search-space"><div class="search-container"><div class="search-header"><div class="search-input-container"><input class="search-input" type="text" placeholder="Search" onInput="sinput();"></div><a class="search-close" onclick="sclose();">×</a></div><div class="search-body"></div></div></div><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2058306854838448" crossorigin="anonymous"></script>
+</div></body></html>
