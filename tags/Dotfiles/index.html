@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head>
-<title>Tags：Fedora - Hexo</title>
+<title>Tags：Dotfiles - Hexo</title>
 <meta charset="UTF-8">
 <meta name="keywords" content="">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
@@ -8,7 +8,7 @@
 <link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
 <meta property="og:type" content="website">
 <meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://nakanomiku39.github.io/tags/Fedora/index.html">
+<meta property="og:url" content="http://nakanomiku39.github.io/tags/Dotfiles/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="NakanoMiku39">
@@ -18,15 +18,15 @@
 <link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
 
 
-<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1783590250021">
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1783590250029">
 
-<link rel="stylesheet" href="/css/style.css?v=1783590250021">
+<link rel="stylesheet" href="/css/style.css?v=1783590250029">
 
 
 
 
     
-        <link rel="stylesheet" href="/custom.css?v=1783590250021">
+        <link rel="stylesheet" href="/custom.css?v=1783590250029">
     
 
 
@@ -36,7 +36,7 @@
 <script src="/lib/lax.min.js" async></script>
 
 
-<script async src="/js/app.js?v=1783590250021"></script>
+<script async src="/js/app.js?v=1783590250029"></script>
 
  
 
@@ -189,18 +189,18 @@
     </div>
 </div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><section class="nexmoe-posts">
     <div class="nexmoe-post">
-        <a href="/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/">
+        <a href="/2026/07/08/some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86/">
             
                 <div class="nexmoe-post-cover mdui-ripple absolute" style="padding-top: 31.25%;"> 
-                    <img src="/images/background/ichika1375-1.png" alt="使用Live ISO修复Fedora主系统" loading="lazy">
-                    <h1>使用Live ISO修复Fedora主系统</h1>
+                    <img src="/images/background/kanade1357-1.png" alt="some_configs配置仓库整理" loading="lazy">
+                    <h1>some_configs配置仓库整理</h1>
                 </div>
             
         </a>
 
         <div class="nexmoe-post-meta">
     <div class="nexmoe-rainbow">
-        <a class="nexmoefont icon-calendar-fill">2026年06月17日</a>
+        <a class="nexmoefont icon-calendar-fill">2026年07月08日</a>
         
         
     </div>
@@ -212,65 +212,8 @@
 </div>
 
         <article>
-            <p>接上篇安装 Fedora 的记录。如果主系统已经进不去，或者进去之后没有网络、登录管理器配置错了，这时 Live ISO 就是最方便的救援环境。核心思路是：用 Live ISO 启动一个可用系统，再把硬盘里的主系统挂载出来，最后用 <code>chroot</code> 进入主系统内部修复。</p>
+            <p>这篇文章整理一下我的 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs">some_configs</a> 配置仓库。仓库里的配置按 GNU Stow 的方式组织，每个顶层目录基本就是一个可以链接到 <code>$HOME</code> 的配置包。本文只说明仓库里各组件的职责、配置路径和基本安装方式，实际启用哪些组件取决于使用的系统、桌面会话和个人工作流；下面的分类不是安装顺序，也不是偏好排序。</p>
 <p>AIGC：这篇文章由AI生成</p>
-        </article>
-    </div>
-
-    <div class="nexmoe-post">
-        <a href="/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">
-            
-                <div class="nexmoe-post-cover mdui-ripple absolute" style="padding-top: 31.25%;"> 
-                    <img src="/images/background/ichika1202-2.png" alt="Fedora安装踩坑记录" loading="lazy">
-                    <h1>Fedora安装踩坑记录</h1>
-                </div>
-            
-        </a>
-
-        <div class="nexmoe-post-meta">
-    <div class="nexmoe-rainbow">
-        <a class="nexmoefont icon-calendar-fill">2026年06月17日</a>
-        
-        
-    </div>
-    
-    
-    
-    
-    
-</div>
-
-        <article>
-            <p>这篇记录一下最近安装 Fedora 时遇到的几个问题：安装器里连接校园网、装完后无线网卡因为缺少固件而消失，以及使用 <code>greetd</code>、<code>tuigreet</code> 启动 <code>niri</code> 时需要注意的登录链路。</p>
-<p>AIGC：这篇文章由AI生成</p>
-        </article>
-    </div>
-
-    <div class="nexmoe-post">
-        <a href="/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/">
-            
-                <div class="nexmoe-post-cover mdui-ripple absolute" style="padding-top: 31.25%;"> 
-                    <img src="/images/background/ichika279-2.png" alt="Niri初尝试" loading="lazy">
-                    <h1>Niri初尝试</h1>
-                </div>
-            
-        </a>
-
-        <div class="nexmoe-post-meta">
-    <div class="nexmoe-rainbow">
-        <a class="nexmoefont icon-calendar-fill">2025年12月03日</a>
-        
-        
-    </div>
-    
-    
-    
-    
-    
-</div>
-
-        <article>
-            <p>第一次尝试安装和配置Niri</p>
         </article>
     </div>
 </section> </div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">

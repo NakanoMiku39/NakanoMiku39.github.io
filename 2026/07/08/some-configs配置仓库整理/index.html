@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en"><head>
+<title>some_configs配置仓库整理 - Hexo</title>
+<meta charset="UTF-8">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+
+<link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
+<meta name="description" content="这篇文章整理一下我的 some_configs 配置仓库。仓库里的配置按 GNU Stow 的方式组织，每个顶层目录基本就是一个可以链接到 $HOME 的配置包。本文只说明仓库里各组件的职责、配置路径和基本安装方式，实际启用哪些组件取决于使用的系统、桌面会话和个人工作流；下面的分类不是安装顺序，也不是偏好排序。 AIGC：这篇文章由AI生成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="some_configs配置仓库整理">
+<meta property="og:url" content="http://nakanomiku39.github.io/2026/07/08/some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这篇文章整理一下我的 some_configs 配置仓库。仓库里的配置按 GNU Stow 的方式组织，每个顶层目录基本就是一个可以链接到 $HOME 的配置包。本文只说明仓库里各组件的职责、配置路径和基本安装方式，实际启用哪些组件取决于使用的系统、桌面会话和个人工作流；下面的分类不是安装顺序，也不是偏好排序。 AIGC：这篇文章由AI生成">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-07-08T08:49:51.000Z">
+<meta property="article:modified_time" content="2026-07-09T09:42:24.870Z">
+<meta property="article:author" content="NakanoMiku39">
+<meta property="article:tag" content="Dotfiles">
+<meta property="article:tag" content="GNU Stow">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Niri">
+<meta property="article:tag" content="客制化">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.css">
+<link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
+
+
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1783590249976">
+
+<link rel="stylesheet" href="/css/style.css?v=1783590249976">
+
+
+
+
+    
+        <link rel="stylesheet" href="/custom.css?v=1783590249976">
+    
+
+
+
+<script src="/lib/mdui_043tiny/mdui.js" async></script>
+<script src="/lib/fancybox/fancybox.umd.js" async></script>
+<script src="/lib/lax.min.js" async></script>
+
+
+<script async src="/js/app.js?v=1783590249976"></script>
+
+ 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4D4ZJ9G024"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-4D4ZJ9G024");
+</script>
+
+
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<meta name="generator" content="Hexo 8.1.1"></head><body class="nexmoe mdui-drawer-body-left"><div id="nexmoe-background"><div class="nexmoe-bg" style="background-image: url(/images/background/ichika1023-1.png)"></div><div class="mdui-appbar mdui-shadow-0"><div class="mdui-toolbar"><a class="mdui-btn mdui-btn-icon mdui-ripple" mdui-drawer="{target: &#039;#drawer&#039;, swipe: true}" title="menu"><i class="mdui-icon nexmoefont icon-menu"></i></a><div class="mdui-toolbar-spacer"></div><a class="mdui-btn mdui-btn-icon" href="/" title="NakanoMiku39"><img src="/images/head/miku.jpg" alt="NakanoMiku39"></a></div></div></div><div id="nexmoe-header"><div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku39">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku39" alt="NakanoMiku39">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>Articles</span>6</div>
+        <div><span>Tags</span>14</div>
+        <div><span>Categories</span>0</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-container"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    
+    
+        
+        
+        <div class="nexmoe-widget-wrap">
+	<div class="nexmoe-widget nexmoe-social">
+		<a
+			class="mdui-ripple"
+			href="https://github.com/NakanoMiku39/"
+			target="_blank"
+			mdui-tooltip="{content: 'GitHub'}"
+			style="
+				color: rgb(170, 51, 204);
+				background-color: rgba(170, 51, 204, .1);
+			"
+		>
+			<i
+				class="nexmoefont icon-github"
+			></i> </a
+		>
+	</div>
+</div>
+
+    
+        
+        
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Btrfs/" style="font-size: 10px;">Btrfs</a> <a href="/tags/Dotfiles/" style="font-size: 10px;">Dotfiles</a> <a href="/tags/Emacs/" style="font-size: 10px;">Emacs</a> <a href="/tags/Fedora/" style="font-size: 15px;">Fedora</a> <a href="/tags/GNU-Stow/" style="font-size: 10px;">GNU Stow</a> <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Niri/" style="font-size: 15px;">Niri</a> <a href="/tags/chroot/" style="font-size: 10px;">chroot</a> <a href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" style="font-size: 20px;">客制化</a> <a href="/tags/%E6%8F%92%E4%BB%B6/" style="font-size: 10px;">插件</a> <a href="/tags/%E6%95%91%E6%8F%B4/" style="font-size: 10px;">救援</a> <a href="/tags/%E7%81%8C%E6%B0%B4/" style="font-size: 10px;">灌水</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">网络</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+    
+      <script>
+        var maxTagcloud = parseInt(17);
+        var tags_length = parseInt(14);
+        var tags_arr = [];
+        for(var i = 0; i < tags_length; i++){
+          tags_arr.push(i);
+        }
+        tags_arr.sort(function (l, r) {
+          return Math.random() > 0.5 ? -1 : 1;
+        });
+        tags_arr = tags_arr.slice(0, maxTagcloud < tags_length ? tags_length - maxTagcloud : 0);
+        for(var tag_i = 0; tag_i < tags_arr.length; tag_i++){
+          document.getElementById("randomtagcloud").children[tags_arr[tag_i]].style.display = 'none';
+        }
+      </script>
+    
+  </div>
+
+    
+        
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Archive</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/">2026</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/">2025</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Recent Posts</h3>
+    <div class="nexmoe-widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/07/08/some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86/">some_configs配置仓库整理</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/">使用Live ISO修复Fedora主系统</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Fedora安装踩坑记录</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/04/Emacs%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6%E5%88%86%E4%BA%AB/">Emacs实用插件分享</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/03/Niri%E5%88%9D%E5%B0%9D%E8%AF%95/">Niri初尝试</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+        
+   
+    <div class="nexmoe-copyright">
+        &copy; 2026 NakanoMiku39
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        
+    </div>
+</div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><div class="nexmoe-post">
+  <article>
+    
+        <div class="nexmoe-post-cover absolute" style="padding-top: 31.25%;"> 
+            <img src="/images/background/kanade1357-1.png" alt="some_configs配置仓库整理" loading="lazy">
+            <h1>some_configs配置仓库整理</h1>
+        </div>
+    
+    
+    <div class="nexmoe-post-meta">
+    <div class="nexmoe-rainbow">
+        <a class="nexmoefont icon-calendar-fill">2026年07月08日</a>
+        
+        
+    </div>
+    
+    
+    
+    
+    
+</div>
+
+    <p>这篇文章整理一下我的 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs">some_configs</a> 配置仓库。仓库里的配置按 GNU Stow 的方式组织，每个顶层目录基本就是一个可以链接到 <code>$HOME</code> 的配置包。本文只说明仓库里各组件的职责、配置路径和基本安装方式，实际启用哪些组件取决于使用的系统、桌面会话和个人工作流；下面的分类不是安装顺序，也不是偏好排序。</p>
+<p>AIGC：这篇文章由AI生成</p>
+<span id="more"></span>
+
+<h1 id="同类组件不要重复启用"><a href="#同类组件不要重复启用" class="headerlink" title="同类组件不要重复启用"></a>同类组件不要重复启用</h1><p>这个仓库不是一套“全部装上就完事”的配置，而是把不同桌面环境、不同启动器、不同通知组件和不同 shell 提示符都放在一起保存。同一功能的多个组件通常不在同一个会话里同时启用，否则可能出现重复进程、快捷键冲突或多个界面同时接管同一类功能。</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>仓库中对应的软件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Wayland 窗口管理</td>
+<td><code>niri</code></td>
+</tr>
+<tr>
+<td>X11 窗口管理</td>
+<td><code>i3wm</code></td>
+</tr>
+<tr>
+<td>macOS 窗口管理</td>
+<td><code>aerospace</code></td>
+</tr>
+<tr>
+<td>状态栏</td>
+<td><code>waybar</code>、<code>i3blocks</code>、<code>i3status</code>、<code>polybar</code></td>
+</tr>
+<tr>
+<td>启动器</td>
+<td><code>walker</code>、<code>fuzzel</code>、<code>rofi</code></td>
+</tr>
+<tr>
+<td>通知</td>
+<td><code>swaync</code>、<code>mako</code></td>
+</tr>
+<tr>
+<td>锁屏</td>
+<td><code>swaylock</code>、<code>i3lock</code> 脚本</td>
+</tr>
+<tr>
+<td>shell 提示符</td>
+<td><code>powerlevel10k</code>、<code>starship</code></td>
+</tr>
+<tr>
+<td>壁纸</td>
+<td><code>swaybg</code> 启动项、<code>swaybg.service</code></td>
+</tr>
+</tbody></table>
+<h1 id="仓库安装和-Stow-管理"><a href="#仓库安装和-Stow-管理" class="headerlink" title="仓库安装和 Stow 管理"></a>仓库安装和 Stow 管理</h1><p>仓库地址：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs">https://github.com/NakanoMiku39/some_configs</a></p>
+<p>以下安装命令以 Fedora&#x2F;dnf 为例。其他发行版或系统需要替换为对应的软件包管理器和包名。</p>
+<p>先安装 Git 和 GNU Stow：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install git stow</span><br></pre></td></tr></table></figure>
+
+<p>克隆仓库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/codes</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/NakanoMiku39/some_configs.git ~/codes/some_configs</span><br><span class="line"><span class="built_in">cd</span> ~/codes/some_configs</span><br></pre></td></tr></table></figure>
+
+<p>这个仓库的组织方式是：顶层目录是 Stow package，目录内部路径相对 <code>$HOME</code>。例如：</p>
+<table>
+<thead>
+<tr>
+<th>Stow 包</th>
+<th>链接后的目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>niri/.config/niri/config.kdl</code></td>
+<td><code>~/.config/niri/config.kdl</code></td>
+</tr>
+<tr>
+<td><code>waybar/.config/waybar/config.jsonc</code></td>
+<td><code>~/.config/waybar/config.jsonc</code></td>
+</tr>
+<tr>
+<td><code>zsh/.zshrc</code></td>
+<td><code>~/.zshrc</code></td>
+</tr>
+<tr>
+<td><code>tmux/.config/tmux/tmux.conf</code></td>
+<td><code>~/.config/tmux/tmux.conf</code></td>
+</tr>
+</tbody></table>
+<p>正式写入前可以先预览。下面的包名只是示例，实际使用时按需要替换为对应的顶层目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stow -nv -t <span class="string">&quot;<span class="variable">$HOME</span>&quot;</span> niri waybar walker swaync swaylock alacritty zsh tmux git gtk</span><br></pre></td></tr></table></figure>
+
+<p>确认没有冲突后再应用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stow -v -t <span class="string">&quot;<span class="variable">$HOME</span>&quot;</span> niri waybar walker swaync swaylock alacritty zsh tmux git gtk</span><br></pre></td></tr></table></figure>
+
+<p>如果 <code>$HOME</code> 里已经有同名文件，需要先备份或移动，再重新运行预览命令。撤销链接可以用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stow -Dv -t <span class="string">&quot;<span class="variable">$HOME</span>&quot;</span> niri waybar walker swaync swaylock alacritty zsh tmux git gtk</span><br></pre></td></tr></table></figure>
+
+<h1 id="Wayland-桌面"><a href="#Wayland-桌面" class="headerlink" title="Wayland 桌面"></a>Wayland 桌面</h1><h2 id="Niri"><a href="#Niri" class="headerlink" title="Niri"></a>Niri</h2><p>Niri 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/niri/.config/niri/config.kdl">niri&#x2F;.config&#x2F;niri&#x2F;config.kdl</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install niri waybar alacritty swaylock swayidle swaybg fcitx5 brightnessctl wl-clipboard grim slurp pavucontrol</span><br></pre></td></tr></table></figure>
+
+<p>这份 Niri 配置的截图标注快捷键会调用 <code>$HOME/.cargo/bin/satty</code>。如果需要这项功能，可以通过 Cargo 安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo install satty</span><br></pre></td></tr></table></figure>
+
+<p>这份 Niri 配置包含：</p>
+<ul>
+<li>输入：键盘布局使用 <code>us</code>，触摸板启用 tap 和 natural scroll。</li>
+<li>布局：窗口间距为 <code>6</code>，初始列宽是屏幕宽度的一半，焦点环使用蓝色。</li>
+<li>自启动：启动 <code>waybar</code>、<code>swaync</code>、<code>elephant</code>、<code>walker --gapplication-service</code>、<code>fcitx5</code>、<code>swayidle</code>，并用 <code>swaybg</code> 设置壁纸。</li>
+<li>快捷键：<code>Mod+T</code> 打开 Alacritty，<code>Mod+D</code> 打开 Walker，<code>Super+Alt+L</code> 锁屏，<code>Mod+N</code> 打开通知中心，<code>Mod+Shift+S</code> 区域截图并进入 Satty 标注。</li>
+<li>窗口规则：Alacritty 透明度为 <code>0.9</code>，窗口圆角为 <code>8</code>，并启用 <code>prefer-no-csd</code>。</li>
+</ul>
+<p>使用这份配置时有两个依赖关系需要检查：</p>
+<p>第一，配置里会启动 <code>elephant</code>。如果系统里没有这个组件，或者不使用它，可以把这一行注释掉：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spawn-at-startup &quot;elephant&quot;</span><br></pre></td></tr></table></figure>
+
+<p>第二，Niri 里已经有：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spawn-sh-at-startup &quot;swaybg -i ~/Pictures/wallpaper.png -m fill&quot;</span><br></pre></td></tr></table></figure>
+
+<p>这和 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/systemd/.config/systemd/user/swaybg.service">systemd&#x2F;.config&#x2F;systemd&#x2F;user&#x2F;swaybg.service</a> 都会启动 <code>swaybg</code>。同一个会话里保留其中一种启动方式即可，否则会重复启动壁纸进程。</p>
+<h1 id="状态栏"><a href="#状态栏" class="headerlink" title="状态栏"></a>状态栏</h1><h2 id="Waybar"><a href="#Waybar" class="headerlink" title="Waybar"></a>Waybar</h2><p>Waybar 配置文件在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/waybar/.config/waybar/config.jsonc">waybar&#x2F;.config&#x2F;waybar&#x2F;config.jsonc</a>，样式在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/waybar/.config/waybar/style.css">waybar&#x2F;.config&#x2F;waybar&#x2F;style.css</a>，电源菜单在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/waybar/.config/waybar/power-menu.xml">waybar&#x2F;.config&#x2F;waybar&#x2F;power-menu.xml</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install waybar pavucontrol</span><br></pre></td></tr></table></figure>
+
+<p>这份 Waybar 配置是顶部栏，模块包括：</p>
+<ul>
+<li>左侧：电源菜单和托盘。</li>
+<li>中间：时钟，时区是 <code>Asia/Shanghai</code>。</li>
+<li>右侧：通知数量、网络、蓝牙、音量、电池。</li>
+<li>电源菜单：调用 <code>swaylock</code>、<code>niri msg action quit</code>、<code>systemctl suspend/reboot/poweroff</code>。</li>
+<li>通知模块：通过 <code>swaync-client</code> 获取通知数量，左键打开通知中心，右键切换勿扰。</li>
+</ul>
+<p>Waybar 依赖 Nerd Font 图标显示，字体配置是 <code>FiraCode Nerd Font</code>。如果图标显示成方块，需要检查字体是否安装。</p>
+<h1 id="启动器"><a href="#启动器" class="headerlink" title="启动器"></a>启动器</h1><h2 id="Walker"><a href="#Walker" class="headerlink" title="Walker"></a>Walker</h2><p>Walker 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/walker/.config/walker/config.toml">walker&#x2F;.config&#x2F;walker&#x2F;config.toml</a>，主题样式在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/walker/.config/walker/themes/niri/style.css">walker&#x2F;.config&#x2F;walker&#x2F;themes&#x2F;niri&#x2F;style.css</a>。这份 Niri 配置把 <code>Mod+D</code> 绑定为启动 Walker。</p>
+<p>Walker 配置里启用了应用启动、计算器、网页搜索等 provider，并设置了一些前缀：</p>
+<table>
+<thead>
+<tr>
+<th>前缀</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&gt;</code></td>
+<td>运行命令</td>
+</tr>
+<tr>
+<td><code>=</code></td>
+<td>计算器</td>
+</tr>
+<tr>
+<td><code>@</code></td>
+<td>网页搜索</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>窗口切换</td>
+</tr>
+<tr>
+<td><code>bt:</code></td>
+<td>蓝牙设备</td>
+</tr>
+</tbody></table>
+<p>安装 Walker 的方式随发行版而定。软件源里没有对应包时，可以使用项目提供的发行版包或自行构建。装好后用 Stow 链接：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stow -v -t <span class="string">&quot;<span class="variable">$HOME</span>&quot;</span> walker</span><br></pre></td></tr></table></figure>
+
+<h2 id="Fuzzel"><a href="#Fuzzel" class="headerlink" title="Fuzzel"></a>Fuzzel</h2><p>仓库里也保留了 Fuzzel 配置：<a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/fuzzel/.config/fuzzel/fuzzel.ini">fuzzel&#x2F;.config&#x2F;fuzzel&#x2F;fuzzel.ini</a>。</p>
+<p>这份 Fuzzel 配置包括：</p>
+<ul>
+<li>使用 <code>FiraCode Nerd Font:size=13</code>。</li>
+<li>默认终端为 <code>alacritty -e</code>。</li>
+<li><code>match-mode=fzf</code>。</li>
+<li>居中显示，12 行结果，启用图标。</li>
+</ul>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install fuzzel</span><br></pre></td></tr></table></figure>
+
+<p>如果把 Niri 启动器切换为 Fuzzel，需要把相关快捷键改成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Mod+D hotkey-overlay-title=&quot;Run an Application: fuzzel&quot; &#123; spawn &quot;fuzzel&quot;; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Walker、Fuzzel 和 Rofi 都能承担应用启动器功能。同一个会话里通常只绑定一个启动器入口，否则会出现多个快捷键或菜单入口指向同类功能。</p>
+<h1 id="通知"><a href="#通知" class="headerlink" title="通知"></a>通知</h1><h2 id="SwayNC"><a href="#SwayNC" class="headerlink" title="SwayNC"></a>SwayNC</h2><p>SwayNC 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/swaync/.config/swaync/config.json">swaync&#x2F;.config&#x2F;swaync&#x2F;config.json</a>，样式在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/swaync/.config/swaync/style.css">swaync&#x2F;.config&#x2F;swaync&#x2F;style.css</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install swaynotificationcenter</span><br></pre></td></tr></table></figure>
+
+<p>这份 SwayNC 配置包含：</p>
+<ul>
+<li>右上角通知弹窗。</li>
+<li>右上角控制中心，宽度 <code>420</code>，高度 <code>720</code>。</li>
+<li>勿扰开关。</li>
+<li>MPRIS 媒体控制。</li>
+<li>音量控制，支持显示每个应用的音频流。</li>
+<li>按钮网格：隐藏通知、锁屏、睡眠。</li>
+</ul>
+<p>这份 Waybar 的通知模块会调用 <code>swaync-client</code>。如果通知组件换成其他实现，需要同步调整 Waybar 的通知模块命令。</p>
+<h2 id="Mako"><a href="#Mako" class="headerlink" title="Mako"></a>Mako</h2><p>仓库里还保留了 Mako 配置：<a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/mako/.config/mako/config">mako&#x2F;.config&#x2F;mako&#x2F;config</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install mako</span><br></pre></td></tr></table></figure>
+
+<p>Mako 配置里设置了右上角位置、圆角、边框、图标、历史数量、低优先级和严重通知的不同颜色。</p>
+<p><code>swaync</code> 和 <code>mako</code> 都是通知守护进程。同一个会话里同时启动二者会让通知行为变得不明确。如果从 SwayNC 切换到 Mako，需要把 Niri 自启动里的 <code>swaync</code> 改为 <code>mako</code>，并同步调整 Waybar 里调用 <code>swaync-client</code> 的通知模块。</p>
+<h1 id="锁屏和空闲管理"><a href="#锁屏和空闲管理" class="headerlink" title="锁屏和空闲管理"></a>锁屏和空闲管理</h1><h2 id="Swaylock"><a href="#Swaylock" class="headerlink" title="Swaylock"></a>Swaylock</h2><p>Wayland 锁屏使用 Swaylock，配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/swaylock/.config/swaylock/config">swaylock&#x2F;.config&#x2F;swaylock&#x2F;config</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install swaylock swayidle</span><br></pre></td></tr></table></figure>
+
+<p>Swaylock 配置里使用 <code>~/Pictures/wallpaper.png</code> 作为锁屏背景，启用圆形输入指示器、Caps Lock 提示、失败次数显示，并使用和 Waybar&#x2F;Alacritty 接近的一组颜色。</p>
+<h2 id="Swayidle"><a href="#Swayidle" class="headerlink" title="Swayidle"></a>Swayidle</h2><p>Niri 里通过 <code>swayidle</code> 做自动锁屏和关屏：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">spawn-at-startup &quot;swayidle&quot; &quot;-w&quot; \</span><br><span class="line">    &quot;timeout&quot; &quot;300&quot; &quot;swaylock -f&quot; \</span><br><span class="line">    &quot;timeout&quot; &quot;600&quot; &quot;niri msg action power-off-monitors&quot; \</span><br><span class="line">    &quot;resume&quot; &quot;niri msg action power-on-monitors&quot;</span><br></pre></td></tr></table></figure>
+
+<p>这表示 300 秒锁屏，600 秒关闭显示器，恢复输入时重新点亮显示器。</p>
+<h2 id="i3lock-脚本"><a href="#i3lock-脚本" class="headerlink" title="i3lock 脚本"></a>i3lock 脚本</h2><p>X11&#x2F;i3 锁屏脚本保存在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/scripts/.config/scripts/lock">scripts&#x2F;.config&#x2F;scripts&#x2F;lock</a>。它调用的是 <code>i3lock</code>，对应 X11 锁屏链路；Wayland 会话通常使用 <code>swaylock</code> 这类 Wayland 锁屏工具。</p>
+<h1 id="终端、Shell-和复用工作区"><a href="#终端、Shell-和复用工作区" class="headerlink" title="终端、Shell 和复用工作区"></a>终端、Shell 和复用工作区</h1><h2 id="Alacritty"><a href="#Alacritty" class="headerlink" title="Alacritty"></a>Alacritty</h2><p>Alacritty 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/alacritty/.config/alacritty/alacritty.toml">alacritty&#x2F;.config&#x2F;alacritty&#x2F;alacritty.toml</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install alacritty</span><br></pre></td></tr></table></figure>
+
+<p>这份配置设置了：</p>
+<ul>
+<li><code>TERM=xterm-256color</code>。</li>
+<li>窗口透明度 <code>0.92</code>。</li>
+<li>padding 为 <code>14</code>。</li>
+<li>选择文本自动保存到剪贴板。</li>
+<li>光标为闪烁方块。</li>
+<li>字体为 <code>FiraCode Nerd Font</code>。</li>
+<li>颜色和 Waybar&#x2F;Swaylock 保持一致。</li>
+</ul>
+<h2 id="Zsh-Oh-My-Zsh-Powerlevel10k"><a href="#Zsh-Oh-My-Zsh-Powerlevel10k" class="headerlink" title="Zsh + Oh My Zsh + Powerlevel10k"></a>Zsh + Oh My Zsh + Powerlevel10k</h2><p>Zsh 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/zsh/.zshrc">zsh&#x2F;.zshrc</a>，Powerlevel10k 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/zsh/.p10k.zsh">zsh&#x2F;.p10k.zsh</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install zsh zoxide eza</span><br></pre></td></tr></table></figure>
+
+<p>安装 Oh My Zsh、Powerlevel10k 和两个插件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sh -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span></span><br><span class="line">git <span class="built_in">clone</span> --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting</span><br></pre></td></tr></table></figure>
+
+<p>仓库里的 <code>.zshrc</code> 启用了：</p>
+<ul>
+<li>Powerlevel10k instant prompt。</li>
+<li><code>git</code>、<code>zsh-autosuggestions</code>、<code>zsh-syntax-highlighting</code> 插件。</li>
+<li><code>zoxide</code> 智能跳转。</li>
+<li><code>eza</code> 替代 <code>ls</code>、<code>ll</code>、<code>la</code>、<code>lt</code>。</li>
+<li><code>$HOME/.cargo/bin</code> 和 <code>$HOME/.local/bin</code> PATH。</li>
+</ul>
+<p>切换默认 shell 的命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chsh -s <span class="string">&quot;<span class="subst">$(which zsh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Starship"><a href="#Starship" class="headerlink" title="Starship"></a>Starship</h2><p>Starship 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/starship/.config/starship.toml">starship&#x2F;.config&#x2F;starship.toml</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install starship</span><br></pre></td></tr></table></figure>
+
+<p>这份 Starship 配置使用 Catppuccin Mocha 调色板，会显示 OS、用户名、目录、Git 状态、语言版本、命令耗时和右侧时间。</p>
+<p>仓库里的 <code>.zshrc</code> 加载的是 Powerlevel10k，没有启用 Starship。如果改用 Starship，需要在 <code>.zshrc</code> 里加入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">eval</span> <span class="string">&quot;<span class="subst">$(starship init zsh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Powerlevel10k 和 Starship 都会接管 prompt，同一个 shell 配置里只应保留一套 prompt 初始化逻辑。</p>
+<h2 id="Tmux"><a href="#Tmux" class="headerlink" title="Tmux"></a>Tmux</h2><p>Tmux 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/tmux/.config/tmux/tmux.conf">tmux&#x2F;.config&#x2F;tmux&#x2F;tmux.conf</a>，仓库里还保留了兼容老路径的 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/tmux/.tmux.conf">tmux&#x2F;.tmux.conf</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install tmux</span><br></pre></td></tr></table></figure>
+
+<p>这份配置把 prefix 改成 <code>C-g</code>，启用鼠标、vi 模式、从当前路径打开新 pane&#x2F;window，并给状态栏设置了和终端一致的深色主题。</p>
+<h1 id="编辑器和开发工具"><a href="#编辑器和开发工具" class="headerlink" title="编辑器和开发工具"></a>编辑器和开发工具</h1><h2 id="Emacs"><a href="#Emacs" class="headerlink" title="Emacs"></a>Emacs</h2><p>Emacs 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/emacs/.emacs.d/init.el">emacs&#x2F;.emacs.d&#x2F;init.el</a>，拆分配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/tree/main/emacs/.emacs.d/lisp">emacs&#x2F;.emacs.d&#x2F;lisp</a>。之前已经单独写过一篇 <a href="/2026/03/04/Emacs%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6%E5%88%86%E4%BA%AB/">Emacs实用插件分享</a>，这篇只做简单归档。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install emacs ripgrep fd-find</span><br></pre></td></tr></table></figure>
+
+<p>仓库里的 Emacs 配置包括：</p>
+<ul>
+<li><code>straight.el</code> + <code>use-package</code> 管理插件。</li>
+<li>启动阶段调高 GC 阈值，并启用 <code>gcmh</code>。</li>
+<li><code>yaml-mode</code>、<code>json-mode</code>、<code>markdown-mode</code>、<code>org-mode</code>。</li>
+<li><code>vertico</code>、<code>orderless</code>、<code>marginalia</code> 做补全。</li>
+<li><code>consult</code>、<code>embark</code>、<code>deadgrep</code> 做搜索和动作菜单。</li>
+<li><code>dirvish</code> 增强 Dired。</li>
+<li><code>avy</code>、<code>ace-window</code> 做快速跳转和窗口切换。</li>
+<li><code>magit</code>、<code>git-gutter</code>、<code>diff-hl</code> 做 Git 集成。</li>
+<li><code>rainbow-delimiters</code>、<code>highlight-indent-guides</code>、<code>hl-todo</code> 等视觉增强。</li>
+</ul>
+<p>需要注意的是，<code>emacs</code> 包会链接常规 <code>~/.emacs.d</code>。仓库里也保留了旧的 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/emacs/.spacemacs">emacs&#x2F;.spacemacs</a>，但它和 <code>~/.emacs.d</code> 是两套不同的 Emacs 配置入口，同一个用户目录里通常只保留一套生效配置。</p>
+<h2 id="Vim"><a href="#Vim" class="headerlink" title="Vim"></a>Vim</h2><p>Vim 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/vim/.vimrc">vim&#x2F;.vimrc</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install vim</span><br></pre></td></tr></table></figure>
+
+<p>这份 Vim 配置比较基础，包括 UTF-8 编码、行号、相对行号、括号匹配、自动缩进、搜索高亮、当前行高亮、简单括号补全等。</p>
+<p>最后设置了：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">colorscheme</span> molokai</span><br><span class="line"><span class="keyword">let</span> <span class="variable">g:airline_theme</span>=<span class="string">&#x27;molokai&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果没有安装 Molokai 或 vim-airline，启动 Vim 时可能会报主题不存在。处理方式是安装对应插件，或者注释掉这两行。</p>
+<h2 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h2><p>Git 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/git/.gitconfig">git&#x2F;.gitconfig</a>。</p>
+<p>这个文件目前只设置了用户名和邮箱。如果别人复用这套配置，应该先改成自己的身份信息，再用 Stow 链接：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;你的名字&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;你的邮箱&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>仓库本身还带了 secret 检查脚本：<a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/.githooks/check-secrets">.githooks&#x2F;check-secrets</a> 和 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/.github/workflows/secret-check.yml">GitHub Actions 配置</a>。本地启用 Git hooks：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config core.hooksPath .githooks</span><br></pre></td></tr></table></figure>
+
+<h1 id="X11-i3"><a href="#X11-i3" class="headerlink" title="X11&#x2F;i3"></a>X11&#x2F;i3</h1><h2 id="i3wm"><a href="#i3wm" class="headerlink" title="i3wm"></a>i3wm</h2><p>i3 相关配置主要用于 X11 环境。完整 i3 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/i3wm/.config/i3wm/config">i3wm&#x2F;.config&#x2F;i3wm&#x2F;config</a>。</p>
+<p>Fedora&#x2F;dnf 示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install i3 i3status i3blocks rofi picom feh playerctl dex xss-lock nm-connection-editor</span><br></pre></td></tr></table></figure>
+
+<p>如果使用 <code>i3lock-color</code>，包名可能随发行版不同而不同，需要按自己的软件源安装。</p>
+<p>i3 配置里包含：</p>
+<ul>
+<li><code>$mod</code> 为 <code>Mod4</code>。</li>
+<li><code>rofi -show run</code> 作为启动器。</li>
+<li><code>xss-lock</code> 调用 <code>~/.config/scripts/lock</code>。</li>
+<li><code>nm-applet</code> 网络托盘。</li>
+<li>多媒体键通过 <code>pactl</code> 和 <code>playerctl</code> 控制。</li>
+<li><code>feh</code> 设置壁纸。</li>
+<li><code>picom -f</code> 做 X11 合成。</li>
+<li><code>polybar -q</code> 作为状态栏。</li>
+</ul>
+<h2 id="i3blocks"><a href="#i3blocks" class="headerlink" title="i3blocks"></a>i3blocks</h2><p>i3blocks 状态栏配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/i3blocks/.config/i3blocks/i3blocks.conf">i3blocks&#x2F;.config&#x2F;i3blocks&#x2F;i3blocks.conf</a>。</p>
+<p>这份配置包含电池、磁盘和时间模块。如果要使用它，需要把 i3 配置里的 bar status command 指向：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i3blocks -c ~/.config/i3blocks/i3blocks.conf</span><br></pre></td></tr></table></figure>
+
+<h2 id="i3status"><a href="#i3status" class="headerlink" title="i3status"></a>i3status</h2><p>i3status 状态栏配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/i3status/.config/i3status/i3status.conf">i3status&#x2F;.config&#x2F;i3status&#x2F;i3status.conf</a>。</p>
+<p>它会显示无线网络、有线网络、电池、磁盘、内存和本地时间。i3blocks 和 i3status 都是 i3 状态栏方案，实际使用时选一个即可。</p>
+<h2 id="Rofi"><a href="#Rofi" class="headerlink" title="Rofi"></a>Rofi</h2><p>i3 配置里使用 <code>rofi -show run</code> 作为启动器。仓库没有单独保存 Rofi 配置，只是在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/i3wm/.config/i3wm/config">i3wm&#x2F;.config&#x2F;i3wm&#x2F;config</a> 里绑定了启动命令。</p>
+<p>Rofi 和 Walker、Fuzzel 都是启动器。在哪个会话里使用哪个启动器，取决于对应窗口管理器配置和快捷键绑定。</p>
+<h2 id="Picom"><a href="#Picom" class="headerlink" title="Picom"></a>Picom</h2><p>Picom 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/picom/.config/picom/picom.conf">picom&#x2F;.config&#x2F;picom&#x2F;picom.conf</a>。</p>
+<p><code>picom</code> 是 X11 合成器。Wayland&#x2F;Niri 会话不使用 X11 合成器。</p>
+<h2 id="Polybar"><a href="#Polybar" class="headerlink" title="Polybar"></a>Polybar</h2><p>i3 配置里有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec_always polybar -q</span><br></pre></td></tr></table></figure>
+
+<p>仓库里没有单独的 Polybar 配置文件。如果系统没有安装或不使用 Polybar，需要把这一行注释掉。i3blocks、i3status 和 Polybar 都会提供状态栏或状态信息入口，同一会话里同时启动多个状态栏会产生多个栏。</p>
+<h2 id="i3lock-脚本-1"><a href="#i3lock-脚本-1" class="headerlink" title="i3lock 脚本"></a>i3lock 脚本</h2><p>i3lock 锁屏脚本在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/scripts/.config/scripts/lock">scripts&#x2F;.config&#x2F;scripts&#x2F;lock</a>。</p>
+<p>它用于 X11&#x2F;i3 环境，功能上和 Wayland 下的 Swaylock 重叠。不同会话需要使用对应协议和锁屏工具。</p>
+<h1 id="macOS"><a href="#macOS" class="headerlink" title="macOS"></a>macOS</h1><h2 id="AeroSpace"><a href="#AeroSpace" class="headerlink" title="AeroSpace"></a>AeroSpace</h2><p>AeroSpace 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/aerospace/.config/aerospace/aerospace.toml">aerospace&#x2F;.config&#x2F;aerospace&#x2F;aerospace.toml</a>。</p>
+<p>这是 macOS 上的平铺窗口管理配置，和 Linux 下的 Niri&#x2F;i3 属于不同系统环境。安装 AeroSpace 后，可以把配置链接到用户目录。</p>
+<p>如果使用 Homebrew，可以按 AeroSpace 官方文档安装对应 cask，然后运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stow -v -t <span class="string">&quot;<span class="variable">$HOME</span>&quot;</span> aerospace</span><br></pre></td></tr></table></figure>
+
+<p>这份配置里：</p>
+<ul>
+<li><code>start-at-login = true</code>。</li>
+<li>默认布局是 <code>tiles</code>。</li>
+<li>gap 为 <code>10</code>。</li>
+<li><code>alt-enter</code> 打开 Alacritty。</li>
+<li><code>alt-c</code> 打开 Clash Verge。</li>
+<li><code>alt-s</code> 打开 Safari。</li>
+<li><code>alt-1</code> 到 <code>alt-9</code> 切换 workspace。</li>
+<li><code>alt-shift-1</code> 到 <code>alt-shift-9</code> 移动窗口到 workspace。</li>
+<li><code>alt-f</code> 全屏，<code>alt-q</code> 关闭窗口。</li>
+</ul>
+<h1 id="GTK-小配置"><a href="#GTK-小配置" class="headerlink" title="GTK 小配置"></a>GTK 小配置</h1><h2 id="GTK-3-0"><a href="#GTK-3-0" class="headerlink" title="GTK 3.0"></a>GTK 3.0</h2><p>GTK 配置在 <a target="_blank" rel="noopener" href="https://github.com/NakanoMiku39/some_configs/blob/main/gtk/.config/gtk-3.0/settings.ini">gtk&#x2F;.config&#x2F;gtk-3.0&#x2F;settings.ini</a>。</p>
+<p>内容很简单，就是把 GTK tooltip 延迟设为 <code>0</code>：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">gtk-tooltip-timeout</span>=<span class="number">0</span></span><br><span class="line"><span class="attr">gtk-tooltip-browse-timeout</span>=<span class="number">0</span></span><br><span class="line"><span class="attr">gtk-tooltip-browse-mode-timeout</span>=<span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>这个配置主要是为了让 Waybar 和其他 GTK3 界面的提示响应更快，不是必须项。</p>
+<h1 id="安装组合示例"><a href="#安装组合示例" class="headerlink" title="安装组合示例"></a>安装组合示例</h1><p>下面是按功能组合列出的 Fedora&#x2F;dnf 示例，不表示优先级。实际安装时需要按系统、桌面会话和需要启用的组件增删包名。</p>
+<p>Niri&#x2F;Wayland 相关组件示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install git stow niri waybar alacritty swaylock swayidle swaybg fcitx5 brightnessctl wl-clipboard grim slurp pavucontrol zsh zoxide eza tmux emacs vim</span><br></pre></td></tr></table></figure>
+
+<p>然后链接：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/codes/some_configs</span><br><span class="line">stow -nv -t <span class="string">&quot;<span class="variable">$HOME</span>&quot;</span> niri waybar walker swaync swaylock alacritty zsh tmux emacs vim git gtk</span><br><span class="line">stow -v -t <span class="string">&quot;<span class="variable">$HOME</span>&quot;</span> niri waybar walker swaync swaylock alacritty zsh tmux emacs vim git gtk</span><br></pre></td></tr></table></figure>
+
+<p>如果不链接 Emacs&#x2F;Vim，可以从 Stow 命令里去掉 <code>emacs vim</code>。如果不链接 Git 全局身份配置，也可以去掉 <code>git</code>，避免把固定用户名邮箱链接到当前用户。</p>
+<p>i3&#x2F;X11 相关组件示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install git stow i3 i3status i3blocks rofi picom feh playerctl dex xss-lock alacritty zsh tmux</span><br><span class="line">stow -v -t <span class="string">&quot;<span class="variable">$HOME</span>&quot;</span> i3wm i3blocks i3status picom scripts alacritty zsh tmux</span><br></pre></td></tr></table></figure>
+
+<p>最后再强调一次：这个仓库是配置集合，不是每个目录都要安装。实际使用时应按系统、桌面会话和组件职责选择 Stow 包，尤其是启动器、通知守护进程、状态栏、锁屏和 shell prompt 这些功能重复的部分。</p>
+
+    
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>Author：</strong>NakanoMiku39<br>
+        <strong>Link：</strong><a href="http://nakanomiku39.github.io/2026/07/08/some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2026&#x2F;07&#x2F;08&#x2F;some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2026&#x2F;07&#x2F;08&#x2F;some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+   
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Dotfiles/" rel="tag">Dotfiles</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/GNU-Stow/" rel="tag">GNU Stow</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Linux/" rel="tag">Linux</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Niri/" rel="tag">Niri</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" rel="tag">客制化</a>
+    
+</div>
+  
+  
+    <script async src="/js/copy-codeblock.js?v=1783590249959"></script>
+  
+
+  
+      <div class="nexmoe-post-footer">
+          
+      </div>
+  
+</div></div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">
+        <div class="nexmoe-tool">
+
+            
+
+            
+            
+            <button class="mdui-fab catalog" style="overflow:unset;">
+                <i class="nexmoefont icon-i-catalog"></i>
+                <div class="nexmoe-toc">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%8C%E7%B1%BB%E7%BB%84%E4%BB%B6%E4%B8%8D%E8%A6%81%E9%87%8D%E5%A4%8D%E5%90%AF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">同类组件不要重复启用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%93%E5%BA%93%E5%AE%89%E8%A3%85%E5%92%8C-Stow-%E7%AE%A1%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">仓库安装和 Stow 管理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Wayland-%E6%A1%8C%E9%9D%A2"><span class="toc-number">3.</span> <span class="toc-text">Wayland 桌面</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Niri"><span class="toc-number">3.1.</span> <span class="toc-text">Niri</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E6%A0%8F"><span class="toc-number">4.</span> <span class="toc-text">状态栏</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Waybar"><span class="toc-number">4.1.</span> <span class="toc-text">Waybar</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E5%99%A8"><span class="toc-number">5.</span> <span class="toc-text">启动器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Walker"><span class="toc-number">5.1.</span> <span class="toc-text">Walker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fuzzel"><span class="toc-number">5.2.</span> <span class="toc-text">Fuzzel</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%9A%E7%9F%A5"><span class="toc-number">6.</span> <span class="toc-text">通知</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SwayNC"><span class="toc-number">6.1.</span> <span class="toc-text">SwayNC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mako"><span class="toc-number">6.2.</span> <span class="toc-text">Mako</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%94%81%E5%B1%8F%E5%92%8C%E7%A9%BA%E9%97%B2%E7%AE%A1%E7%90%86"><span class="toc-number">7.</span> <span class="toc-text">锁屏和空闲管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Swaylock"><span class="toc-number">7.1.</span> <span class="toc-text">Swaylock</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Swayidle"><span class="toc-number">7.2.</span> <span class="toc-text">Swayidle</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#i3lock-%E8%84%9A%E6%9C%AC"><span class="toc-number">7.3.</span> <span class="toc-text">i3lock 脚本</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%88%E7%AB%AF%E3%80%81Shell-%E5%92%8C%E5%A4%8D%E7%94%A8%E5%B7%A5%E4%BD%9C%E5%8C%BA"><span class="toc-number">8.</span> <span class="toc-text">终端、Shell 和复用工作区</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Alacritty"><span class="toc-number">8.1.</span> <span class="toc-text">Alacritty</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zsh-Oh-My-Zsh-Powerlevel10k"><span class="toc-number">8.2.</span> <span class="toc-text">Zsh + Oh My Zsh + Powerlevel10k</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Starship"><span class="toc-number">8.3.</span> <span class="toc-text">Starship</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tmux"><span class="toc-number">8.4.</span> <span class="toc-text">Tmux</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BC%96%E8%BE%91%E5%99%A8%E5%92%8C%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7"><span class="toc-number">9.</span> <span class="toc-text">编辑器和开发工具</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Emacs"><span class="toc-number">9.1.</span> <span class="toc-text">Emacs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vim"><span class="toc-number">9.2.</span> <span class="toc-text">Vim</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Git"><span class="toc-number">9.3.</span> <span class="toc-text">Git</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#X11-i3"><span class="toc-number">10.</span> <span class="toc-text">X11&#x2F;i3</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#i3wm"><span class="toc-number">10.1.</span> <span class="toc-text">i3wm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#i3blocks"><span class="toc-number">10.2.</span> <span class="toc-text">i3blocks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#i3status"><span class="toc-number">10.3.</span> <span class="toc-text">i3status</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rofi"><span class="toc-number">10.4.</span> <span class="toc-text">Rofi</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Picom"><span class="toc-number">10.5.</span> <span class="toc-text">Picom</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Polybar"><span class="toc-number">10.6.</span> <span class="toc-text">Polybar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#i3lock-%E8%84%9A%E6%9C%AC-1"><span class="toc-number">10.7.</span> <span class="toc-text">i3lock 脚本</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#macOS"><span class="toc-number">11.</span> <span class="toc-text">macOS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#AeroSpace"><span class="toc-number">11.1.</span> <span class="toc-text">AeroSpace</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#GTK-%E5%B0%8F%E9%85%8D%E7%BD%AE"><span class="toc-number">12.</span> <span class="toc-text">GTK 小配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#GTK-3-0"><span class="toc-number">12.1.</span> <span class="toc-text">GTK 3.0</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E7%BB%84%E5%90%88%E7%A4%BA%E4%BE%8B"><span class="toc-number">13.</span> <span class="toc-text">安装组合示例</span></a></li></ol>
+                </div>
+            </button>
+            
+
+            
+
+            <a href="#nexmoe-content" class="backtop toc-link" aria-label="Back To Top" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+        </div>
+    </div>
+</div></div><div id="nexmoe-footer"><!--!--></div><div id="nexmoe-search-space"><div class="search-container"><div class="search-header"><div class="search-input-container"><input class="search-input" type="text" placeholder="Search" onInput="sinput();"></div><a class="search-close" onclick="sclose();">×</a></div><div class="search-body"></div></div></div><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2058306854838448" crossorigin="anonymous"></script>
+</div></body></html>
