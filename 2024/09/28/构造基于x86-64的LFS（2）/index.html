@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en"><head>
+<title>构造基于x86_64的LFS（2） - Hexo</title>
+<meta charset="UTF-8">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+
+<link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
+<meta name="description" content="继续构造LFS，从构建交叉工具链和临时工具开始">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构造基于x86_64的LFS（2）">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/09/28/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="继续构造LFS，从构建交叉工具链和临时工具开始">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-09-27T16:52:25.000Z">
+<meta property="article:modified_time" content="2024-10-08T02:56:34.000Z">
+<meta property="article:author" content="NakanoMiku39">
+<meta property="article:tag" content="LFS">
+<meta property="article:tag" content="x86_64">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.css">
+<link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
+
+
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1789978134669">
+
+<link rel="stylesheet" href="/css/style.css?v=1789978134669">
+
+
+
+
+    
+        <link rel="stylesheet" href="/custom.css?v=1789978134669">
+    
+
+
+
+<script src="/lib/mdui_043tiny/mdui.js" async></script>
+<script src="/lib/fancybox/fancybox.umd.js" async></script>
+<script src="/lib/lax.min.js" async></script>
+
+
+<script async src="/js/app.js?v=1789978134669"></script>
+
+ 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4D4ZJ9G024"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-4D4ZJ9G024");
+</script>
+
+
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<meta name="generator" content="Hexo 8.1.1"></head><body class="nexmoe mdui-drawer-body-left"><div id="nexmoe-background"><div class="nexmoe-bg" style="background-image: url(/images/background/ichika1023-1.png)"></div><div class="mdui-appbar mdui-shadow-0"><div class="mdui-toolbar"><a class="mdui-btn mdui-btn-icon mdui-ripple" mdui-drawer="{target: &#039;#drawer&#039;, swipe: true}" title="menu"><i class="mdui-icon nexmoefont icon-menu"></i></a><div class="mdui-toolbar-spacer"></div><a class="mdui-btn mdui-btn-icon" href="/" title="NakanoMiku39"><img src="/images/head/miku.jpg" alt="NakanoMiku39"></a></div></div></div><div id="nexmoe-header"><div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku39">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku39" alt="NakanoMiku39">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>Articles</span>17</div>
+        <div><span>Tags</span>31</div>
+        <div><span>Categories</span>3</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-container"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    
+    
+        
+        
+        <div class="nexmoe-widget-wrap">
+	<div class="nexmoe-widget nexmoe-social">
+		<a
+			class="mdui-ripple"
+			href="https://github.com/NakanoMiku39/"
+			target="_blank"
+			mdui-tooltip="{content: 'GitHub'}"
+			style="
+				color: rgb(170, 51, 204);
+				background-color: rgba(170, 51, 204, .1);
+			"
+		>
+			<i
+				class="nexmoefont icon-github"
+			></i> </a
+		>
+	</div>
+</div>
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Categories</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/Debian/">Debian</a>
+          <span class="category-list-count">1</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">10</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Btrfs/" style="font-size: 10px;">Btrfs</a> <a href="/tags/DMS/" style="font-size: 10px;">DMS</a> <a href="/tags/Dotfiles/" style="font-size: 10px;">Dotfiles</a> <a href="/tags/Emacs/" style="font-size: 10px;">Emacs</a> <a href="/tags/Fedora/" style="font-size: 15px;">Fedora</a> <a href="/tags/GNU-Stow/" style="font-size: 10px;">GNU Stow</a> <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Locale/" style="font-size: 10px;">Locale</a> <a href="/tags/Niri/" style="font-size: 15px;">Niri</a> <a href="/tags/Noctalia/" style="font-size: 10px;">Noctalia</a> <a href="/tags/RISC-V/" style="font-size: 10px;">RISC-V</a> <a href="/tags/Samba/" style="font-size: 10px;">Samba</a> <a href="/tags/Waybar/" style="font-size: 10px;">Waybar</a> <a href="/tags/Wayland/" style="font-size: 10px;">Wayland</a> <a href="/tags/Windows/" style="font-size: 10px;">Windows</a> <a href="/tags/chroot/" style="font-size: 10px;">chroot</a> <a href="/tags/ipv6/" style="font-size: 10px;">ipv6</a> <a href="/tags/php/" style="font-size: 12.5px;">php</a> <a href="/tags/x86-64/" style="font-size: 20px;">x86_64</a> <a href="/tags/%E4%B8%AD%E6%96%87/" style="font-size: 10px;">中文</a> <a href="/tags/%E5%AD%97%E4%BD%93/" style="font-size: 10px;">字体</a> <a href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" style="font-size: 17.5px;">客制化</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 12.5px;">我的世界</a> <a href="/tags/%E6%8F%92%E4%BB%B6/" style="font-size: 10px;">插件</a> <a href="/tags/%E6%95%91%E6%8F%B4/" style="font-size: 10px;">救援</a> <a href="/tags/%E6%A1%8C%E9%9D%A2%E7%8E%AF%E5%A2%83/" style="font-size: 10px;">桌面环境</a> <a href="/tags/%E7%81%8C%E6%B0%B4/" style="font-size: 10px;">灌水</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">网络</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+    
+      <script>
+        var maxTagcloud = parseInt(17);
+        var tags_length = parseInt(31);
+        var tags_arr = [];
+        for(var i = 0; i < tags_length; i++){
+          tags_arr.push(i);
+        }
+        tags_arr.sort(function (l, r) {
+          return Math.random() > 0.5 ? -1 : 1;
+        });
+        tags_arr = tags_arr.slice(0, maxTagcloud < tags_length ? tags_length - maxTagcloud : 0);
+        for(var tag_i = 0; tag_i < tags_arr.length; tag_i++){
+          document.getElementById("randomtagcloud").children[tags_arr[tag_i]].style.display = 'none';
+        }
+      </script>
+    
+  </div>
+
+    
+        
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Archive</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/">2026</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/">2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">10</span></li></ul>
+    </div>
+  </div>
+
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Recent Posts</h3>
+    <div class="nexmoe-widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/09/21/%E5%85%B3%E4%BA%8EWaybar%EF%BC%8CDank-Material-Shell%E5%92%8CNoctalia%E7%9A%84%E6%AF%94%E8%BE%83/">关于Waybar，Dank Material Shell和Noctalia的比较</a>
+          </li>
+        
+          <li>
+            <a href="/2026/07/08/some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86/">some_configs配置仓库整理</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/">使用Live ISO修复Fedora主系统</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Fedora安装踩坑记录</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/04/Emacs%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6%E5%88%86%E4%BA%AB/">Emacs实用插件分享</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+        
+   
+    <div class="nexmoe-copyright">
+        &copy; 2026 NakanoMiku39
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        
+    </div>
+</div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><div class="nexmoe-post">
+  <article>
+    
+        <div class="nexmoe-post-cover absolute" style="padding-top: 31.25%;"> 
+            <img src="/images/background/kanade541-2.png" alt="构造基于x86_64的LFS（2）" loading="lazy">
+            <h1>构造基于x86_64的LFS（2）</h1>
+        </div>
+    
+    
+    <div class="nexmoe-post-meta">
+    <div class="nexmoe-rainbow">
+        <a class="nexmoefont icon-calendar-fill">2024年09月28日</a>
+        
+            <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a>
+        
+        
+    </div>
+    
+    
+    
+    
+    
+</div>
+
+    <p>继续构造LFS，从构建交叉工具链和临时工具开始</p>
+<span id="more"></span>
+<h1 id="编译交叉工具链"><a href="#编译交叉工具链" class="headerlink" title="编译交叉工具链"></a>编译交叉工具链</h1><p><strong>确认环境变量<code>$LFS</code>无误</strong>，随后切换到<code>$LFS/sources</code>目录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$LFS</span></span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources</span><br></pre></td></tr></table></figure>
+
+<h2 id="Binutils"><a href="#Binutils" class="headerlink" title="Binutils"></a>Binutils</h2><p>第一个要构建的软件包是Binutils，因为在编译GCC前，GCC需要根据Binutils来决定启用哪些功能<br>先解压Binutils</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tar -xf binutils-2.43.1.tar.xz</span><br><span class="line"><span class="built_in">cd</span> binutils-2.43.1</span><br></pre></td></tr></table></figure>
+
+<p>创建一个新目录来构建Binutils，这个目录在<code>binutils-2.43.1</code>下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -v build</span><br><span class="line"><span class="built_in">cd</span> build</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Binutils</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">../configure --prefix=<span class="variable">$LFS</span>/tools \</span><br><span class="line">             --with-sysroot=<span class="variable">$LFS</span> \</span><br><span class="line">             --target=<span class="variable">$LFS_TGT</span>   \</span><br><span class="line">             --disable-nls       \</span><br><span class="line">             --enable-gprofng=no \</span><br><span class="line">             --disable-werror    \</span><br><span class="line">             --enable-new-dtags  \</span><br><span class="line">             --enable-default-hash-style=gnu</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，在编译完成后安装该软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="GCC"><a href="#GCC" class="headerlink" title="GCC"></a>GCC</h2><p>现在可以构建GCC了，但是是Freestanding GCC，因为我们没有Glibc，更多内容可以看FAQ<br>这个GCC是一个交叉编译器<br>解压GCC</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf gcc-14.2.0.tar.xz</span><br><span class="line"><span class="built_in">cd</span> gcc-14.2.0</span><br></pre></td></tr></table></figure>
+
+<p>GCC依赖GMP、MPFR 和 MPC 这三个包，需要解压它们并重命名解压出的目录，这里<strong>依然在gcc-14.2.0目录下继续操作</strong> ，完成后，gcc-14.2.0目录下应该多出了mpfr，gmp，mpc目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tar -xf ../mpfr-4.2.1.tar.xz</span><br><span class="line"><span class="built_in">mv</span> -v mpfr-4.2.1 mpfr</span><br><span class="line">tar -xf ../gmp-6.3.0.tar.xz</span><br><span class="line"><span class="built_in">mv</span> -v gmp-6.3.0 gmp</span><br><span class="line">tar -xf ../mpc-1.3.1.tar.gz</span><br><span class="line"><span class="built_in">mv</span> -v mpc-1.3.1 mpc</span><br></pre></td></tr></table></figure>
+
+<p>对于 x86_64 平台，还要设置存放 64 位库的默认目录为 “lib”</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span></span><br><span class="line">  x86_64)</span><br><span class="line">    sed -e <span class="string">&#x27;/m64=/s/lib64/lib/&#x27;</span> \</span><br><span class="line">        -i.orig gcc/config/i386/t-linux64</span><br><span class="line"> ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+
+<p>创建一个用于构建GCC的新目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -v build</span><br><span class="line"><span class="built_in">cd</span>       build</span><br></pre></td></tr></table></figure>
+
+<p>准备编译GCC</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">../configure                  \</span><br><span class="line">    --target=<span class="variable">$LFS_TGT</span>         \</span><br><span class="line">    --prefix=<span class="variable">$LFS</span>/tools       \</span><br><span class="line">    --with-glibc-version=2.40 \</span><br><span class="line">    --with-sysroot=<span class="variable">$LFS</span>       \</span><br><span class="line">    --with-newlib             \</span><br><span class="line">    --without-headers         \</span><br><span class="line">    --enable-default-pie      \</span><br><span class="line">    --enable-default-ssp      \</span><br><span class="line">    --disable-nls             \</span><br><span class="line">    --disable-shared          \</span><br><span class="line">    --disable-multilib        \</span><br><span class="line">    --disable-threads         \</span><br><span class="line">    --disable-libatomic       \</span><br><span class="line">    --disable-libgomp         \</span><br><span class="line">    --disable-libquadmath     \</span><br><span class="line">    --disable-libssp          \</span><br><span class="line">    --disable-libvtv          \</span><br><span class="line">    --disable-libstdcxx       \</span><br><span class="line">    --enable-languages=c,c++</span><br></pre></td></tr></table></figure>
+
+<p>开始编译GCC，编译完成后安装GCC</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>刚刚构建的 GCC 安装了若干内部系统头文件。其中的 limits.h 一般来说，应该包含对应的系统头文件 limits.h，在我们的 LFS 环境中，就是 $LFS&#x2F;usr&#x2F;include&#x2F;limits.h。然而，在构建 GCC 的时候，$LFS&#x2F;usr&#x2F;include&#x2F;limits.h 还不存在，因此 GCC 安装的内部头文件是一个不完整的、自给自足的文件，不包含系统头文件提供的扩展特性。这对于构建临时的 Glibc 已经足够了，但后续工作将需要完整的内部头文件。使用以下命令创建一个完整版本的内部头文件，该命令与 GCC 构建系统在一般情况下生成该头文件的命令是一致的</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"><span class="built_in">cat</span> gcc/limitx.h gcc/glimits.h gcc/limity.h &gt; \</span><br><span class="line">  `<span class="built_in">dirname</span> $(<span class="variable">$LFS_TGT</span>-gcc -print-libgcc-file-name)`/include/limits.h</span><br></pre></td></tr></table></figure>
+
+<h2 id="Linux-API"><a href="#Linux-API" class="headerlink" title="Linux API"></a>Linux API</h2><p>安装Linux API头文件，解压源码后进入目录，这边虽然解压了整个内核，但目前只需要其中的API头文件供GLibc使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf linux-6.10.5.tar.xz</span><br><span class="line"><span class="built_in">cd</span> linux-6.10.5</span><br></pre></td></tr></table></figure>
+
+<p>确保软件包中没有遗留陈旧的文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make mrproper</span><br></pre></td></tr></table></figure>
+
+<p>从源代码中提取用户可见的头文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make headers</span><br><span class="line">find usr/include -<span class="built_in">type</span> f ! -name <span class="string">&#x27;*.h&#x27;</span> -delete</span><br><span class="line"><span class="built_in">cp</span> -rv usr/include <span class="variable">$LFS</span>/usr</span><br></pre></td></tr></table></figure>
+
+<h2 id="Glibc"><a href="#Glibc" class="headerlink" title="Glibc"></a>Glibc</h2><p>接下来安装Glibc，先创建一个 LSB 兼容性符号链接</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line"><span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span></span><br><span class="line">    i?86)   <span class="built_in">ln</span> -sfv ld-linux.so.2 <span class="variable">$LFS</span>/lib/ld-lsb.so.3</span><br><span class="line">    ;;</span><br><span class="line">    x86_64) <span class="built_in">ln</span> -sfv ../lib/ld-linux-x86-64.so.2 <span class="variable">$LFS</span>/lib64</span><br><span class="line">            <span class="built_in">ln</span> -sfv ../lib/ld-linux-x86-64.so.2 <span class="variable">$LFS</span>/lib64/ld-lsb-x86-64.so.3</span><br><span class="line">    ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+
+<p>解压Glibc，并打patch</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tar -xvf glibc-2.40.tar.xz</span><br><span class="line"><span class="built_in">cd</span> glibc-2.40</span><br><span class="line">patch -Np1 -i ../glibc-2.40-fhs-1.patch</span><br></pre></td></tr></table></figure>
+
+<p>创建一个用于构建Glibc的文件夹</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -v build</span><br><span class="line"><span class="built_in">cd</span> build</span><br></pre></td></tr></table></figure>
+
+<p>确保将 ldconfig 和 sln 工具安装到 &#x2F;usr&#x2F;sbin 目录中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;rootsbindir=/usr/sbin&quot;</span> &gt; configparms</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Glibc</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">../configure                             \</span><br><span class="line">      --prefix=/usr                      \</span><br><span class="line">      --host=<span class="variable">$LFS_TGT</span>                    \</span><br><span class="line">      --build=$(../scripts/config.guess) \</span><br><span class="line">      --enable-kernel=4.19               \</span><br><span class="line">      --with-headers=<span class="variable">$LFS</span>/usr/include    \</span><br><span class="line">      --disable-nscd                     \</span><br><span class="line">      libc_cv_slibdir=/usr/lib</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，然后安装。这里需要指定安装路径，否则默认会安装到宿主机的根目录，这里需要指定安装到<code>$LFS</code>，因为之后<code>$LFS</code>将成为根目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<p>改正 ldd 脚本中硬编码的可执行文件加载器路径</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/RTLDLIST=/s@/usr@@g&#x27;</span> -i <span class="variable">$LFS</span>/usr/bin/ldd</span><br></pre></td></tr></table></figure>
+
+<p>现在需要检查新工具链是否能够正确编译和链接，也就是进行完整性检查</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;int main()&#123;&#125;&#x27;</span> | <span class="variable">$LFS_TGT</span>-gcc -xc -</span><br><span class="line">readelf -l a.out | grep ld-linux</span><br></pre></td></tr></table></figure>
+
+<p>如果没有问题应该会出现下面的log，否则应当检查之前是否有步骤出现了问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]</span><br></pre></td></tr></table></figure>
+
+<p>完成检查后删除测试文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -v a.out</span><br></pre></td></tr></table></figure>
+
+<h2 id="Libstdc"><a href="#Libstdc" class="headerlink" title="Libstdc++"></a>Libstdc++</h2><p>现在要构建Libstdc++，Libstdc++是GCC的一部分，所以需要解压GCC的源码包，但之前已经解压过一次了，可以再用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/gcc-14.2.0</span><br></pre></td></tr></table></figure>
+
+<p>删除之前用过的构建目录并重新创建</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf build</span><br><span class="line"><span class="built_in">mkdir</span> -v build</span><br><span class="line"><span class="built_in">cd</span> build</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Libstdc++</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">../libstdc++-v3/configure           \</span><br><span class="line">    --host=<span class="variable">$LFS_TGT</span>                 \</span><br><span class="line">    --build=$(../config.guess)      \</span><br><span class="line">    --prefix=/usr                   \</span><br><span class="line">    --disable-multilib              \</span><br><span class="line">    --disable-nls                   \</span><br><span class="line">    --disable-libstdcxx-pch         \</span><br><span class="line">    --with-gxx-include-dir=/tools/<span class="variable">$LFS_TGT</span>/include/c++/14.2.0</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，编译完成后安装这个库，然后移除对交叉编译有害的 libtool 档案文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br><span class="line"><span class="built_in">rm</span> -v <span class="variable">$LFS</span>/usr/lib/lib&#123;stdc++&#123;,exp,fs&#125;,supc++&#125;.la</span><br></pre></td></tr></table></figure>
+
+<h1 id="交叉编译临时工具"><a href="#交叉编译临时工具" class="headerlink" title="交叉编译临时工具"></a>交叉编译临时工具</h1><p>临时交叉工具链的编译暂时告一段落，现在要开始用刚刚构建的临时交叉工具链来交叉编译临时工具，这些临时工具将会使用刚刚编译安装的库 </p>
+<h2 id="M4"><a href="#M4" class="headerlink" title="M4"></a>M4</h2><p>第一个软件包是M4</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf m4-1.4.19.tar.xz</span><br><span class="line"><span class="built_in">cd</span> m4-1.4.19</span><br></pre></td></tr></table></figure>
+
+<h2 id="M4-1"><a href="#M4-1" class="headerlink" title="M4"></a>M4</h2><p>准备编译m4</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr   \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span> \</span><br><span class="line">            --build=$(build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Ncurses"><a href="#Ncurses" class="headerlink" title="Ncurses"></a>Ncurses</h2><p>解压Ncurses</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xvf ncurses-6.5.tar.gz</span><br><span class="line"><span class="built_in">cd</span> ncurses-6.5</span><br></pre></td></tr></table></figure>
+
+<p>首先，保证在配置时优先查找 gawk 命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i s/mawk// configure</span><br></pre></td></tr></table></figure>
+
+<p>在宿主系统构建“tic”程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> build</span><br><span class="line"><span class="built_in">pushd</span> build</span><br><span class="line">  ../configure</span><br><span class="line">  make -C include</span><br><span class="line">  make -C progs tic</span><br><span class="line"><span class="built_in">popd</span></span><br></pre></td></tr></table></figure>
+
+<p>准备编译 Ncurses</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr                \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span>              \</span><br><span class="line">            --build=$(./config.guess)    \</span><br><span class="line">            --mandir=/usr/share/man      \</span><br><span class="line">            --with-manpage-format=normal \</span><br><span class="line">            --with-shared                \</span><br><span class="line">            --without-normal             \</span><br><span class="line">            --with-cxx-shared            \</span><br><span class="line">            --without-debug              \</span><br><span class="line">            --without-ada                \</span><br><span class="line">            --disable-stripping</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line">make DESTDIR=<span class="variable">$LFS</span> TIC_PATH=$(<span class="built_in">pwd</span>)/build/progs/tic install</span><br><span class="line"><span class="built_in">ln</span> -sv libncursesw.so <span class="variable">$LFS</span>/usr/lib/libncurses.so</span><br><span class="line">sed -e <span class="string">&#x27;s/^#if.*XOPEN.*$/#if 1/&#x27;</span> \</span><br><span class="line">    -i <span class="variable">$LFS</span>/usr/include/curses.h</span><br></pre></td></tr></table></figure>
+
+<h2 id="Bash"><a href="#Bash" class="headerlink" title="Bash"></a>Bash</h2><p>解压Bash</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf bash-5.2.32.tar.gz</span><br><span class="line"><span class="built_in">cd</span> bash-5.2.32</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Bash</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr                      \</span><br><span class="line">            --build=$(sh support/config.guess) \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span>                    \</span><br><span class="line">            --without-bash-malloc              \</span><br><span class="line">            bash_cv_strtold_broken=no</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包，然后创建一个指向Bash的sh软连接，这样调用sh就会调用Bash</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br><span class="line"><span class="built_in">ln</span> -sv bash <span class="variable">$LFS</span>/bin/sh</span><br></pre></td></tr></table></figure>
+
+<h2 id="Coreutils"><a href="#Coreutils" class="headerlink" title="Coreutils"></a>Coreutils</h2><p>解压Coreutils</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf coreutils-9.5.tar.xz </span><br><span class="line"><span class="built_in">cd</span> coreutils-9.5</span><br></pre></td></tr></table></figure>
+
+<p>准备编译 Coreutils</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr                     \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span>                   \</span><br><span class="line">            --build=$(build-aux/config.guess) \</span><br><span class="line">            --enable-install-program=hostname \</span><br><span class="line">            --enable-no-install-program=<span class="built_in">kill</span>,<span class="built_in">uptime</span></span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包，最后将程序移动到它们最终安装时的正确位置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line">make DESTDIR=<span class="variable">$LFS</span> install</span><br><span class="line"><span class="built_in">mv</span> -v <span class="variable">$LFS</span>/usr/bin/chroot              <span class="variable">$LFS</span>/usr/sbin</span><br><span class="line"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/usr/share/man/man8</span><br><span class="line"><span class="built_in">mv</span> -v <span class="variable">$LFS</span>/usr/share/man/man1/chroot.1 <span class="variable">$LFS</span>/usr/share/man/man8/chroot.8</span><br><span class="line">sed -i <span class="string">&#x27;s/&quot;1&quot;/&quot;8&quot;/&#x27;</span>                    <span class="variable">$LFS</span>/usr/share/man/man8/chroot.8</span><br></pre></td></tr></table></figure>
+
+<h2 id="Diffutils"><a href="#Diffutils" class="headerlink" title="Diffutils"></a>Diffutils</h2><p>解压Diffutils</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf diffutils-3.10.tar.xz</span><br><span class="line"><span class="built_in">cd</span> diffutils-3.10</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Diffutils</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr   \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span> \</span><br><span class="line">            --build=$(./build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="File"><a href="#File" class="headerlink" title="File"></a>File</h2><p>解压File</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf file-5.45.tar.gz </span><br><span class="line"><span class="built_in">cd</span> file-5.45</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>宿主系统 file 命令的版本必须和正在构建的软件包相同，才能在构建过程中创建必要的特征数据文件。运行以下命令，构建 file 命令的一个临时副本：</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> build</span><br><span class="line"><span class="built_in">pushd</span> build</span><br><span class="line">  ../configure --disable-bzlib      \</span><br><span class="line">               --disable-libseccomp \</span><br><span class="line">               --disable-xzlib      \</span><br><span class="line">               --disable-zlib</span><br><span class="line">  make</span><br><span class="line"><span class="built_in">popd</span></span><br></pre></td></tr></table></figure>
+
+<p>准备编译File</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr --host=<span class="variable">$LFS_TGT</span> --build=$(./config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包，然后移除对交叉编译有害的 libtool 档案文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make FILE_COMPILE=$(<span class="built_in">pwd</span>)/build/src/file</span><br><span class="line">make DESTDIR=<span class="variable">$LFS</span> install</span><br><span class="line"><span class="built_in">rm</span> -v <span class="variable">$LFS</span>/usr/lib/libmagic.la</span><br></pre></td></tr></table></figure>
+
+<h2 id="Findutils"><a href="#Findutils" class="headerlink" title="Findutils"></a>Findutils</h2><p>解压Findutils</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf findutils-4.10.0.tar.xz </span><br><span class="line"><span class="built_in">cd</span> findutils-4.10.0</span><br></pre></td></tr></table></figure>
+
+<p>准备编译 Findutils</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr                   \</span><br><span class="line">            --localstatedir=/var/lib/locate \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span>                 \</span><br><span class="line">            --build=$(build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Gawk"><a href="#Gawk" class="headerlink" title="Gawk"></a>Gawk</h2><p>解压Gawk</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf gawk-5.3.0.tar.xz</span><br><span class="line"><span class="built_in">cd</span> gawk-5.3.0</span><br></pre></td></tr></table></figure>
+
+<p>首先，确保不安装某些不需要的文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/extras//&#x27;</span> Makefile.<span class="keyword">in</span></span><br></pre></td></tr></table></figure>
+
+<p>准备编译 Gawk</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr   \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span> \</span><br><span class="line">            --build=$(build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Grep"><a href="#Grep" class="headerlink" title="Grep"></a>Grep</h2><p>解压Grep</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf grep-3.11.tar.xz</span><br><span class="line"><span class="built_in">cd</span> grep-3.11</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Grep</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr   \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span> \</span><br><span class="line">            --build=$(./build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Gzip"><a href="#Gzip" class="headerlink" title="Gzip"></a>Gzip</h2><p>解压Gzip</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf gzip-1.13.tar.xz </span><br><span class="line"><span class="built_in">cd</span> gzip-1.13</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Gzip</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr --host=<span class="variable">$LFS_TGT</span></span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Make"><a href="#Make" class="headerlink" title="Make"></a>Make</h2><p>解压Make</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf make-4.4.1.tar.gz </span><br><span class="line"><span class="built_in">cd</span> make-4.4.1</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Make</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr   \</span><br><span class="line">            --without-guile \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span> \</span><br><span class="line">            --build=$(build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><p>解压Patch</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf patch-2.7.6.tar.xz</span><br><span class="line"><span class="built_in">cd</span> patch-2.7.6</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Patch</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr   \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span> \</span><br><span class="line">            --build=$(build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Sed"><a href="#Sed" class="headerlink" title="Sed"></a>Sed</h2><p>解压Patch</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf sed-4.9.tar.xz </span><br><span class="line"><span class="built_in">cd</span> sed-4.9</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Sed</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr   \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span> \</span><br><span class="line">            --build=$(./build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Tar"><a href="#Tar" class="headerlink" title="Tar"></a>Tar</h2><p>解压Tar</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf tar-1.35.tar.xz</span><br><span class="line"><span class="built_in">cd</span> tar-1.35</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Tar</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr                     \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span>                   \</span><br><span class="line">            --build=$(build-aux/config.guess)</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Xz"><a href="#Xz" class="headerlink" title="Xz"></a>Xz</h2><p>解压Xz</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/</span><br><span class="line">tar -xf xz-5.6.2.tar.xz</span><br><span class="line"><span class="built_in">cd</span> xz-5.6.2</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Xz</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr                     \</span><br><span class="line">            --host=<span class="variable">$LFS_TGT</span>                   \</span><br><span class="line">            --build=$(build-aux/config.guess) \</span><br><span class="line">            --disable-static                  \</span><br><span class="line">            --docdir=/usr/share/doc/xz-5.6.2</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包，然后移除对交叉编译有害的 libtool 档案文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br><span class="line"><span class="built_in">rm</span> -v <span class="variable">$LFS</span>/usr/lib/liblzma.la</span><br></pre></td></tr></table></figure>
+
+<h2 id="Binutils-第二遍"><a href="#Binutils-第二遍" class="headerlink" title="Binutils 第二遍"></a>Binutils 第二遍</h2><p>之前已经解压过一遍源码了，所以只需删除构建目录</p>
+<blockquote>
+<p>Binutils 构建系统依赖附带的 libtool 拷贝链接内部静态库，但源码包内附带的 libiberty 和 zlib 不使用 libtool。这个区别可能导致构建得到的二进制程序和库错误地链接到宿主发行版的库。绕过这个问题：</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/binutils-2.43.1</span><br><span class="line"><span class="built_in">rm</span> -rf build</span><br><span class="line">sed <span class="string">&#x27;6009s/$add_dir//&#x27;</span> -i ltmain.sh</span><br></pre></td></tr></table></figure>
+
+<p>再次创建构建目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -v build</span><br><span class="line"><span class="built_in">cd</span>       build</span><br></pre></td></tr></table></figure>
+
+<p>准备编译 Binutils </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">../configure                   \</span><br><span class="line">    --prefix=/usr              \</span><br><span class="line">    --build=$(../config.guess) \</span><br><span class="line">    --host=<span class="variable">$LFS_TGT</span>            \</span><br><span class="line">    --disable-nls              \</span><br><span class="line">    --enable-shared            \</span><br><span class="line">    --enable-gprofng=no        \</span><br><span class="line">    --disable-werror           \</span><br><span class="line">    --enable-64-bit-bfd        \</span><br><span class="line">    --enable-new-dtags         \</span><br><span class="line">    --enable-default-hash-style=gnu</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包，然后移除对交叉编译有害的 libtool 档案文件，同时移除不必要的静态库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br><span class="line"><span class="built_in">rm</span> -v <span class="variable">$LFS</span>/usr/lib/lib&#123;bfd,ctf,ctf-nobfd,opcodes,sframe&#125;.&#123;a,la&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="GCC-第二遍"><a href="#GCC-第二遍" class="headerlink" title="GCC 第二遍"></a>GCC 第二遍</h2><p>因为前面已经解压过了，所以直接进入目录开始配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources/gcc-14.2.0</span><br><span class="line"><span class="built_in">rm</span> -rf build</span><br><span class="line"><span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span></span><br><span class="line">  x86_64)</span><br><span class="line">    sed -e <span class="string">&#x27;/m64=/s/lib64/lib/&#x27;</span> \</span><br><span class="line">        -i.orig gcc/config/i386/t-linux64</span><br><span class="line">  ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+
+<p>覆盖 libgcc 和 libstdc++ 头文件的构建规则，以允许在构建它们时启用 POSIX 线程支持：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed <span class="string">&#x27;/thread_header =/s/@.*@/gthr-posix.h/&#x27;</span> \</span><br><span class="line">    -i libgcc/Makefile.<span class="keyword">in</span> libstdc++-v3/include/Makefile.<span class="keyword">in</span></span><br></pre></td></tr></table></figure>
+
+<p>创建一个单独的目录用于构建GCC</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> build</span><br><span class="line"><span class="built_in">cd</span> build</span><br></pre></td></tr></table></figure>
+
+<p>准备编译GCC</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">../configure                                       \</span><br><span class="line">    --build=$(../config.guess)                     \</span><br><span class="line">    --host=<span class="variable">$LFS_TGT</span>                                \</span><br><span class="line">    --target=<span class="variable">$LFS_TGT</span>                              \</span><br><span class="line">    LDFLAGS_FOR_TARGET=-L<span class="variable">$PWD</span>/<span class="variable">$LFS_TGT</span>/libgcc      \</span><br><span class="line">    --prefix=/usr                                  \</span><br><span class="line">    --with-build-sysroot=<span class="variable">$LFS</span>                      \</span><br><span class="line">    --enable-default-pie                           \</span><br><span class="line">    --enable-default-ssp                           \</span><br><span class="line">    --disable-nls                                  \</span><br><span class="line">    --disable-multilib                             \</span><br><span class="line">    --disable-libatomic                            \</span><br><span class="line">    --disable-libgomp                              \</span><br><span class="line">    --disable-libquadmath                          \</span><br><span class="line">    --disable-libsanitizer                         \</span><br><span class="line">    --disable-libssp                               \</span><br><span class="line">    --disable-libvtv                               \</span><br><span class="line">    --enable-languages=c,c++</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包，然后创建一个符号链接</p>
+<blockquote>
+<p>许多程序和脚本运行 cc 而不是 gcc，因为前者能够保证程序的通用性，使它可以在所有 UNIX 系统上使用，无论是否安装了 GNU C 编译器。运行 cc 可以将选择 C 编译器的权力留给系统管理员</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make DESTDIR=<span class="variable">$LFS</span> install</span><br><span class="line"><span class="built_in">ln</span> -sv gcc <span class="variable">$LFS</span>/usr/bin/cc</span><br></pre></td></tr></table></figure>
+
+<h1 id="进入-Chroot-并构建其他临时工具"><a href="#进入-Chroot-并构建其他临时工具" class="headerlink" title="进入 Chroot 并构建其他临时工具"></a>进入 Chroot 并构建其他临时工具</h1><p>现在已经解决了所有循环依赖的问题，可以开始使用<code>chroot</code>环境构建剩下的临时工具了。在这之前仍有一些准备工作需要完成，为了隔离环境的正常工作，必须它与正在运行的内核之间建立一些通信机制。<strong>这些通信机制通过所谓的虚拟内核文件系统实现，需要在进入chroot之前挂载它们，而接下来的命令都必须以root执行，且环境变量$LFS设置正确。在进入chroot之后仍然以root执行所有命令。</strong></p>
+<p>先切换到root，确保先从lfs用户中登出，<strong>重新设置环境变量并检查</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> su -</span><br><span class="line"><span class="built_in">whoami</span></span><br><span class="line"><span class="built_in">export</span> LFS=/mnt/LFS</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$LFS</span></span><br></pre></td></tr></table></figure>
+
+<p>改变$LFS目录的所有者并检查</p>
+<blockquote>
+<p>目前，$LFS 中整个目录树的所有者都是 lfs，这个用户只在宿主系统存在。如果不改变 $LFS 中文件和目录的所有权，它们会被一个没有对应账户的用户 ID 所有。这是危险的，因为后续创建的新用户可能获得这个用户 ID，并成为 $LFS 中全部文件的所有者，从而产生恶意操作这些文件的可能。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chown</span> --from lfs -R root:root <span class="variable">$LFS</span>/&#123;usr,lib,var,etc,bin,sbin,tools&#125;</span><br><span class="line"><span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span></span><br><span class="line">  x86_64) <span class="built_in">chown</span> --from lfs -R root:root <span class="variable">$LFS</span>/lib64 ;;</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"><span class="built_in">ls</span> -l <span class="variable">$LFS</span></span><br></pre></td></tr></table></figure>
+
+<p>创建虚拟文件系统的挂载点，这些挂载点都位于$LFS目录下，虚拟文件系统不会占用空间，然后挂载这些虚拟内核文件系统。<br>接下来需要把宿主机的&#x2F;dev绑定挂载到$LFS&#x2F;dev上，绑定挂载允许通过不同的位置访问一个目录树或一个文件；其他虚拟文件系统可以正常挂载处理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/&#123;dev,proc,sys,run&#125;</span><br><span class="line">mount -v --<span class="built_in">bind</span> /dev <span class="variable">$LFS</span>/dev</span><br><span class="line">mount -vt devpts devpts -o gid=5,mode=0620 <span class="variable">$LFS</span>/dev/pts</span><br><span class="line">mount -vt proc proc <span class="variable">$LFS</span>/proc</span><br><span class="line">mount -vt sysfs sysfs <span class="variable">$LFS</span>/sys</span><br><span class="line">mount -vt tmpfs tmpfs <span class="variable">$LFS</span>/run</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在某些宿主系统上，&#x2F;dev&#x2F;shm 是一个符号链接，通常指向 &#x2F;run&#x2F;shm 目录。我们已经在 &#x2F;run 下挂载了 tmpfs 文件系统，因此在这里只需要创建一个访问权限符合要求的目录。<br>在其他宿主系统上，&#x2F;dev&#x2F;shm 是一个 tmpfs 的挂载点。此时，绑定挂载 &#x2F;dev 只会在 chroot 环境中生成 &#x2F;dev&#x2F;shm 目录。这样，我们必须显式挂载一个 tmpfs</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ -h <span class="variable">$LFS</span>/dev/shm ]; <span class="keyword">then</span></span><br><span class="line">  install -v -d -m 1777 $LFS$(<span class="built_in">realpath</span> /dev/shm)</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  mount -vt tmpfs -o nosuid,nodev tmpfs <span class="variable">$LFS</span>/dev/shm</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p>现在可以进入chroot环境完成其他临时工具的安装了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chroot</span> <span class="string">&quot;<span class="variable">$LFS</span>&quot;</span> /usr/bin/env -i   \</span><br><span class="line">    HOME=/root                  \</span><br><span class="line">    TERM=<span class="string">&quot;<span class="variable">$TERM</span>&quot;</span>                \</span><br><span class="line">    PS1=<span class="string">&#x27;(lfs chroot) \u:\w\$ &#x27;</span> \</span><br><span class="line">    PATH=/usr/bin:/usr/sbin     \</span><br><span class="line">    MAKEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span>      \</span><br><span class="line">    TESTSUITEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span> \</span><br><span class="line">    /bin/bash --login</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>从现在开始，就不再需要使用 LFS 环境变量，因为所有工作都被局限在 LFS 文件系统内。这是由于 chroot 命令启动 Bash 时，已经将根目录 (&#x2F;) 设置为 $LFS。<br>注意 &#x2F;tools&#x2F;bin 不在 PATH 中。这意味着<strong>不再使用交叉工具链</strong> 。<br>另外，注意 bash 的提示符会包含 I have no name!。这是<strong>正常</strong> 的，因为现在还没有创建 &#x2F;etc&#x2F;passwd 文件。</p>
+</blockquote>
+<p>在根目录下创建剩余的目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -pv /&#123;boot,home,mnt,opt,srv&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /etc/&#123;opt,sysconfig&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /lib/firmware</span><br><span class="line"><span class="built_in">mkdir</span> -pv /media/&#123;floppy,cdrom&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;&#123;include,src&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/lib/locale</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/local/&#123;bin,lib,sbin&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/&#123;color,dict,doc,info,locale,man&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/&#123;misc,terminfo,zoneinfo&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/man/man&#123;1..8&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /var/&#123;cache,<span class="built_in">local</span>,<span class="built_in">log</span>,mail,opt,spool&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /var/lib/&#123;color,misc,locate&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">ln</span> -sfv /run /var/run</span><br><span class="line"><span class="built_in">ln</span> -sfv /run/lock /var/lock</span><br><span class="line"></span><br><span class="line">install -dv -m 0750 /root</span><br><span class="line">install -dv -m 1777 /tmp /var/tmp</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>历史上，Linux 曾在 &#x2F;etc&#x2F;mtab 维护已经挂载的文件系统的列表。现代内核在内部维护该列表，并通过 &#x2F;proc 文件系统将它展示给用户。为了满足一些仍然使用 &#x2F;etc&#x2F;mtab 的工具，执行以下命令，创建符号链接</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -sv /proc/self/mounts /etc/mtab</span><br></pre></td></tr></table></figure>
+
+<p>创建一个基本的 &#x2F;etc&#x2F;hosts 文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /etc/hosts &lt;&lt; <span class="string">EOF</span></span><br><span class="line"><span class="string">127.0.0.1  localhost $(hostname)</span></span><br><span class="line"><span class="string">::1        localhost</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p>创建 <code>/etc/passwd</code> 和 <code>/etc/groups</code> 文件，加入root，使得root能被正常识别<br>在<code>/etc/passwd</code>中写入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /etc/passwd &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">bin:x:1:1:bin:/dev/null:/usr/bin/false</span><br><span class="line">daemon:x:6:6:Daemon User:/dev/null:/usr/bin/false</span><br><span class="line">messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/usr/bin/false</span><br><span class="line">uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false</span><br><span class="line">nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>在&#x2F;etc&#x2F;group中写入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /etc/group &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">root:x:0:</span><br><span class="line">bin:x:1:daemon</span><br><span class="line">sys:x:2:</span><br><span class="line">kmem:x:3:</span><br><span class="line">tape:x:4:</span><br><span class="line"><span class="built_in">tty</span>:x:5:</span><br><span class="line">daemon:x:6:</span><br><span class="line">floppy:x:7:</span><br><span class="line">disk:x:8:</span><br><span class="line">lp:x:9:</span><br><span class="line">dialout:x:10:</span><br><span class="line">audio:x:11:</span><br><span class="line">video:x:12:</span><br><span class="line">utmp:x:13:</span><br><span class="line">cdrom:x:15:</span><br><span class="line">adm:x:16:</span><br><span class="line">messagebus:x:18:</span><br><span class="line">input:x:24:</span><br><span class="line">mail:x:34:</span><br><span class="line">kvm:x:61:</span><br><span class="line">uuidd:x:80:</span><br><span class="line">wheel:x:97:</span><br><span class="line"><span class="built_in">users</span>:x:999:</span><br><span class="line">nogroup:x:65534:</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>一些软件包需要一个 locale</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">localedef -i C -f UTF-8 C.UTF-8</span><br></pre></td></tr></table></figure>
+
+<p>创建一个用户，因为一些测试需要使用一个非特权用户，之后会删除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;tester:x:101:101::/home/tester:/bin/bash&quot;</span> &gt;&gt; /etc/passwd</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;tester:x:101:&quot;</span> &gt;&gt; /etc/group</span><br><span class="line">install -o tester -d /home/tester</span><br></pre></td></tr></table></figure>
+
+<p>打开一个新shell，因为已经创建了&#x2F;etc&#x2F;passwd和&#x2F;etc&#x2F;group，用户名和组名可以正常解析了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exec</span> /usr/bin/bash --login</span><br></pre></td></tr></table></figure>
+
+<p>为login、agetty 和 init 等程序创建日志文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">touch</span> /var/log/&#123;btmp,lastlog,faillog,wtmp&#125;</span><br><span class="line"><span class="built_in">chgrp</span> -v utmp /var/log/lastlog</span><br><span class="line"><span class="built_in">chmod</span> -v 664  /var/log/lastlog</span><br><span class="line"><span class="built_in">chmod</span> -v 600  /var/log/btmp</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>login、agetty 和 init 等程序使用一些日志文件，以记录登录系统的用户和登录时间等信息。然而，这些程序不会创建不存在的日志文件<br>文件 &#x2F;var&#x2F;log&#x2F;wtmp 记录所有的登录和登出，文件 &#x2F;var&#x2F;log&#x2F;lastlog 记录每个用户最后登录的时间，文件 &#x2F;var&#x2F;log&#x2F;faillog 记录所有失败的登录尝试，文件 &#x2F;var&#x2F;log&#x2F;btmp 记录所有错误的登录尝试。</p>
+</blockquote>
+<p>现在可以继续安装软件包了</p>
+<h2 id="Gettext"><a href="#Gettext" class="headerlink" title="Gettext"></a>Gettext</h2><p>解压Gettext</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /sources/</span><br><span class="line">tar -xf gettext-0.22.5.tar.xz</span><br><span class="line"><span class="built_in">cd</span> gettext-0.22.5</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Gettext</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --disable-shared</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装其中的msgfmt，msgmerge xgettext 三个程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line"><span class="built_in">cp</span> -v gettext-tools/src/&#123;msgfmt,msgmerge,xgettext&#125; /usr/bin</span><br></pre></td></tr></table></figure>
+
+<h2 id="Bison"><a href="#Bison" class="headerlink" title="Bison"></a>Bison</h2><p>解压Bison</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /sources/</span><br><span class="line">tar -xf bison-3.8.2.tar.xz</span><br><span class="line"><span class="built_in">cd</span> bison-3.8.2</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Bison</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr \</span><br><span class="line">            --docdir=/usr/share/doc/bison-3.8.2</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Perl"><a href="#Perl" class="headerlink" title="Perl"></a>Perl</h2><p>解压Perl</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /sources</span><br><span class="line">tar -xf perl-5.40.0.tar.xz</span><br><span class="line"><span class="built_in">cd</span> perl-5.40.0</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Perl</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sh Configure -des                                         \</span><br><span class="line">             -D prefix=/usr                               \</span><br><span class="line">             -D vendorprefix=/usr                         \</span><br><span class="line">             -D useshrplib                                \</span><br><span class="line">             -D privlib=/usr/lib/perl5/5.40/core_perl     \</span><br><span class="line">             -D archlib=/usr/lib/perl5/5.40/core_perl     \</span><br><span class="line">             -D sitelib=/usr/lib/perl5/5.40/site_perl     \</span><br><span class="line">             -D sitearch=/usr/lib/perl5/5.40/site_perl    \</span><br><span class="line">             -D vendorlib=/usr/lib/perl5/5.40/vendor_perl \</span><br><span class="line">             -D vendorarch=/usr/lib/perl5/5.40/vendor_perl</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p>解压Python</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /sources/</span><br><span class="line">tar -xf Python-3.12.5.tar.xz </span><br><span class="line"><span class="built_in">cd</span> Python-3.12.5</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Python</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr   \</span><br><span class="line">            --enable-shared \</span><br><span class="line">            --without-ensurepip</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Texinfo"><a href="#Texinfo" class="headerlink" title="Texinfo"></a>Texinfo</h2><p>解压Texinfo</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /sources/</span><br><span class="line">tar -xf texinfo-7.1.tar.xz </span><br><span class="line"><span class="built_in">cd</span> texinfo-7.1</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Texinfo</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="Util-linux"><a href="#Util-linux" class="headerlink" title="Util-linux"></a>Util-linux</h2><p>解压Util-linux</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /sources/</span><br><span class="line">tar -xf util-linux-2.40.2.tar.xz </span><br><span class="line"><span class="built_in">cd</span> util-linux-2.40.2</span><br></pre></td></tr></table></figure>
+
+<p>创建<code>/var/lib/hwclock</code>目录作为adjtime文件的位置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -pv /var/lib/hwclock</span><br></pre></td></tr></table></figure>
+
+<p>准备编译Util-linux</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">./configure --libdir=/usr/lib     \</span><br><span class="line">            --runstatedir=/run    \</span><br><span class="line">            --disable-chfn-chsh   \</span><br><span class="line">            --disable-login       \</span><br><span class="line">            --disable-nologin     \</span><br><span class="line">            --disable-su          \</span><br><span class="line">            --disable-setpriv     \</span><br><span class="line">            --disable-runuser     \</span><br><span class="line">            --disable-pylibmount  \</span><br><span class="line">            --disable-static      \</span><br><span class="line">            --disable-liblastlog2 \</span><br><span class="line">            --without-python      \</span><br><span class="line">            ADJTIME_PATH=/var/lib/hwclock/adjtime \</span><br><span class="line">            --docdir=/usr/share/doc/util-linux-2.40.2</span><br></pre></td></tr></table></figure>
+
+<p>开始编译，完成后安装软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p>至此所有临时工具构建完成，现在需要清理和备份临时系统，首先删除已经安装的临时工具文档文件，以防止它们进入最终构建的系统</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf /usr/share/&#123;info,man,doc&#125;/*</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>其次，在现代 Linux 系统中，libtool 的 .la 文件仅用于 libltdl。LFS 中没有库通过 libltdl 加载，而且已知一些 .la 文件会导致 BLFS 软件包出现异常。现在删除这些文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find /usr/&#123;lib,libexec&#125; -name \*.la -delete</span><br></pre></td></tr></table></figure>
+
+<p>删除<code>/tools</code>目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf /tools</span><br></pre></td></tr></table></figure>
+
+<p>退出chroot环境，切换到root用户，设置并检查环境变量<code>$LFS</code>，然后准备备份整个系统</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exit</span></span><br><span class="line"><span class="built_in">sudo</span> su -</span><br><span class="line"><span class="built_in">export</span> LFS=/mnt/LFS</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$LFS</span></span><br></pre></td></tr></table></figure>
+
+<p>先解除虚拟内核文件系统的挂载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mountpoint -q <span class="variable">$LFS</span>/dev/shm &amp;&amp; umount <span class="variable">$LFS</span>/dev/shm</span><br><span class="line">umount <span class="variable">$LFS</span>/dev/pts</span><br><span class="line">umount <span class="variable">$LFS</span>/&#123;sys,proc,run,dev&#125;</span><br></pre></td></tr></table></figure>
+
+<p>开始备份</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span></span><br><span class="line">tar -cJpf <span class="variable">$HOME</span>/lfs-temp-tools-12.2.tar.xz .</span><br></pre></td></tr></table></figure>
+
+<p>现在可以开始构建LFS系统了</p>
+<h1 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h1><h2 id="明明文件夹的权限都设置对了但是make-install就是不成功（Permission-denied）？"><a href="#明明文件夹的权限都设置对了但是make-install就是不成功（Permission-denied）？" class="headerlink" title="明明文件夹的权限都设置对了但是make install就是不成功（Permission denied）？"></a>明明文件夹的权限都设置对了但是<code>make install</code>就是不成功（Permission denied）？</h2><p>可能是前面<code>~/.bashrc</code>中<code>LFS</code>的路径设置错了，如果不是这个问题，可以试着重新挂载LFS分区</p>
+<h2 id="为什么是这个构建流程？"><a href="#为什么是这个构建流程？" class="headerlink" title="为什么是这个构建流程？"></a>为什么是这个构建流程？</h2><p>这边有一篇很好的文章解释了构建流程中涉及到的循环依赖以及构建流程：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/110402378">编译工具链</a><br>个人理解为：当前主机有编译器二进制为体系结构A，可以生成目标代码A，然后需要编译出一个编译器二进制为体系结构A，可以生成目标代码B，最后用这个新编译器编译出一个编译器二进制为体系结构B，可以生成目标代码B</p>
+<h2 id="为什么需要虚拟内核文件系统？"><a href="#为什么需要虚拟内核文件系统？" class="headerlink" title="为什么需要虚拟内核文件系统？"></a>为什么需要虚拟内核文件系统？</h2><p>虚拟内核文件系统是指由内核产生而不存在于硬盘中的文件系统，但是存在于内存中</p>
+<h2 id="如何用备份进行还原"><a href="#如何用备份进行还原" class="headerlink" title="如何用备份进行还原"></a>如何用备份进行还原</h2><p>仔细根据<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter07/cleanup.html">7.13.3. 还原</a>进行还原操作</p>
+
+    
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>Author：</strong>NakanoMiku39<br>
+        <strong>Link：</strong><a href="http://nakanomiku39.github.io/2024/09/28/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;28&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;28&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%882%EF%BC%89&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+   
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/LFS/" rel="tag">LFS</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/x86-64/" rel="tag">x86_64</a>
+    
+</div>
+  
+  
+    <script async src="/js/copy-codeblock.js?v=1789978134599"></script>
+  
+
+  
+      <div class="nexmoe-post-footer">
+          
+      </div>
+  
+</div></div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">
+        <div class="nexmoe-tool">
+
+            
+
+            
+            
+            <button class="mdui-fab catalog" style="overflow:unset;">
+                <i class="nexmoefont icon-i-catalog"></i>
+                <div class="nexmoe-toc">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E4%BA%A4%E5%8F%89%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="toc-number">1.</span> <span class="toc-text">编译交叉工具链</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Binutils"><span class="toc-number">1.1.</span> <span class="toc-text">Binutils</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GCC"><span class="toc-number">1.2.</span> <span class="toc-text">GCC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux-API"><span class="toc-number">1.3.</span> <span class="toc-text">Linux API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Glibc"><span class="toc-number">1.4.</span> <span class="toc-text">Glibc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Libstdc"><span class="toc-number">1.5.</span> <span class="toc-text">Libstdc++</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E4%B8%B4%E6%97%B6%E5%B7%A5%E5%85%B7"><span class="toc-number">2.</span> <span class="toc-text">交叉编译临时工具</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#M4"><span class="toc-number">2.1.</span> <span class="toc-text">M4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M4-1"><span class="toc-number">2.2.</span> <span class="toc-text">M4</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ncurses"><span class="toc-number">2.3.</span> <span class="toc-text">Ncurses</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bash"><span class="toc-number">2.4.</span> <span class="toc-text">Bash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Coreutils"><span class="toc-number">2.5.</span> <span class="toc-text">Coreutils</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Diffutils"><span class="toc-number">2.6.</span> <span class="toc-text">Diffutils</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#File"><span class="toc-number">2.7.</span> <span class="toc-text">File</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Findutils"><span class="toc-number">2.8.</span> <span class="toc-text">Findutils</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gawk"><span class="toc-number">2.9.</span> <span class="toc-text">Gawk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Grep"><span class="toc-number">2.10.</span> <span class="toc-text">Grep</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gzip"><span class="toc-number">2.11.</span> <span class="toc-text">Gzip</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Make"><span class="toc-number">2.12.</span> <span class="toc-text">Make</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patch"><span class="toc-number">2.13.</span> <span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sed"><span class="toc-number">2.14.</span> <span class="toc-text">Sed</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tar"><span class="toc-number">2.15.</span> <span class="toc-text">Tar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Xz"><span class="toc-number">2.16.</span> <span class="toc-text">Xz</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Binutils-%E7%AC%AC%E4%BA%8C%E9%81%8D"><span class="toc-number">2.17.</span> <span class="toc-text">Binutils 第二遍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GCC-%E7%AC%AC%E4%BA%8C%E9%81%8D"><span class="toc-number">2.18.</span> <span class="toc-text">GCC 第二遍</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9B%E5%85%A5-Chroot-%E5%B9%B6%E6%9E%84%E5%BB%BA%E5%85%B6%E4%BB%96%E4%B8%B4%E6%97%B6%E5%B7%A5%E5%85%B7"><span class="toc-number">3.</span> <span class="toc-text">进入 Chroot 并构建其他临时工具</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Gettext"><span class="toc-number">3.1.</span> <span class="toc-text">Gettext</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bison"><span class="toc-number">3.2.</span> <span class="toc-text">Bison</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Perl"><span class="toc-number">3.3.</span> <span class="toc-text">Perl</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Python"><span class="toc-number">3.4.</span> <span class="toc-text">Python</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Texinfo"><span class="toc-number">3.5.</span> <span class="toc-text">Texinfo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Util-linux"><span class="toc-number">3.6.</span> <span class="toc-text">Util-linux</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FAQ"><span class="toc-number">4.</span> <span class="toc-text">FAQ</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%8E%E6%98%8E%E6%96%87%E4%BB%B6%E5%A4%B9%E7%9A%84%E6%9D%83%E9%99%90%E9%83%BD%E8%AE%BE%E7%BD%AE%E5%AF%B9%E4%BA%86%E4%BD%86%E6%98%AFmake-install%E5%B0%B1%E6%98%AF%E4%B8%8D%E6%88%90%E5%8A%9F%EF%BC%88Permission-denied%EF%BC%89%EF%BC%9F"><span class="toc-number">4.1.</span> <span class="toc-text">明明文件夹的权限都设置对了但是make install就是不成功（Permission denied）？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E8%BF%99%E4%B8%AA%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="toc-number">4.2.</span> <span class="toc-text">为什么是这个构建流程？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E8%99%9A%E6%8B%9F%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%9F"><span class="toc-number">4.3.</span> <span class="toc-text">为什么需要虚拟内核文件系统？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%94%A8%E5%A4%87%E4%BB%BD%E8%BF%9B%E8%A1%8C%E8%BF%98%E5%8E%9F"><span class="toc-number">4.4.</span> <span class="toc-text">如何用备份进行还原</span></a></li></ol></li></ol>
+                </div>
+            </button>
+            
+
+            
+
+            <a href="#nexmoe-content" class="backtop toc-link" aria-label="Back To Top" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+        </div>
+    </div>
+</div></div><div id="nexmoe-footer"><!--!--></div><div id="nexmoe-search-space"><div class="search-container"><div class="search-header"><div class="search-input-container"><input class="search-input" type="text" placeholder="Search" onInput="sinput();"></div><a class="search-close" onclick="sclose();">×</a></div><div class="search-body"></div></div></div><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2058306854838448" crossorigin="anonymous"></script>
+</div></body></html>

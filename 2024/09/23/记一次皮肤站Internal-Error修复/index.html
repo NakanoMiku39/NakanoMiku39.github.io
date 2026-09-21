@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en"><head>
+<title>记一次皮肤站Internal Error修复 - Hexo</title>
+<meta charset="UTF-8">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+
+<link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
+<meta name="description" content="今天回到宿舍后正准备做作业，突然收到通知说社团的皮肤站炸了，于是立即上线查看情况">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次皮肤站Internal Error修复">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/09/23/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="今天回到宿舍后正准备做作业，突然收到通知说社团的皮肤站炸了，于是立即上线查看情况">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-09-23T11:32:49.000Z">
+<meta property="article:modified_time" content="2024-09-29T05:20:15.000Z">
+<meta property="article:author" content="NakanoMiku39">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="我的世界">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.css">
+<link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
+
+
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1789978134677">
+
+<link rel="stylesheet" href="/css/style.css?v=1789978134677">
+
+
+
+
+    
+        <link rel="stylesheet" href="/custom.css?v=1789978134677">
+    
+
+
+
+<script src="/lib/mdui_043tiny/mdui.js" async></script>
+<script src="/lib/fancybox/fancybox.umd.js" async></script>
+<script src="/lib/lax.min.js" async></script>
+
+
+<script async src="/js/app.js?v=1789978134677"></script>
+
+ 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4D4ZJ9G024"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-4D4ZJ9G024");
+</script>
+
+
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<meta name="generator" content="Hexo 8.1.1"></head><body class="nexmoe mdui-drawer-body-left"><div id="nexmoe-background"><div class="nexmoe-bg" style="background-image: url(/images/background/ichika1023-1.png)"></div><div class="mdui-appbar mdui-shadow-0"><div class="mdui-toolbar"><a class="mdui-btn mdui-btn-icon mdui-ripple" mdui-drawer="{target: &#039;#drawer&#039;, swipe: true}" title="menu"><i class="mdui-icon nexmoefont icon-menu"></i></a><div class="mdui-toolbar-spacer"></div><a class="mdui-btn mdui-btn-icon" href="/" title="NakanoMiku39"><img src="/images/head/miku.jpg" alt="NakanoMiku39"></a></div></div></div><div id="nexmoe-header"><div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku39">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku39" alt="NakanoMiku39">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>Articles</span>17</div>
+        <div><span>Tags</span>31</div>
+        <div><span>Categories</span>3</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-container"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    
+    
+        
+        
+        <div class="nexmoe-widget-wrap">
+	<div class="nexmoe-widget nexmoe-social">
+		<a
+			class="mdui-ripple"
+			href="https://github.com/NakanoMiku39/"
+			target="_blank"
+			mdui-tooltip="{content: 'GitHub'}"
+			style="
+				color: rgb(170, 51, 204);
+				background-color: rgba(170, 51, 204, .1);
+			"
+		>
+			<i
+				class="nexmoefont icon-github"
+			></i> </a
+		>
+	</div>
+</div>
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Categories</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/Debian/">Debian</a>
+          <span class="category-list-count">1</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">10</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Btrfs/" style="font-size: 10px;">Btrfs</a> <a href="/tags/DMS/" style="font-size: 10px;">DMS</a> <a href="/tags/Dotfiles/" style="font-size: 10px;">Dotfiles</a> <a href="/tags/Emacs/" style="font-size: 10px;">Emacs</a> <a href="/tags/Fedora/" style="font-size: 15px;">Fedora</a> <a href="/tags/GNU-Stow/" style="font-size: 10px;">GNU Stow</a> <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Locale/" style="font-size: 10px;">Locale</a> <a href="/tags/Niri/" style="font-size: 15px;">Niri</a> <a href="/tags/Noctalia/" style="font-size: 10px;">Noctalia</a> <a href="/tags/RISC-V/" style="font-size: 10px;">RISC-V</a> <a href="/tags/Samba/" style="font-size: 10px;">Samba</a> <a href="/tags/Waybar/" style="font-size: 10px;">Waybar</a> <a href="/tags/Wayland/" style="font-size: 10px;">Wayland</a> <a href="/tags/Windows/" style="font-size: 10px;">Windows</a> <a href="/tags/chroot/" style="font-size: 10px;">chroot</a> <a href="/tags/ipv6/" style="font-size: 10px;">ipv6</a> <a href="/tags/php/" style="font-size: 12.5px;">php</a> <a href="/tags/x86-64/" style="font-size: 20px;">x86_64</a> <a href="/tags/%E4%B8%AD%E6%96%87/" style="font-size: 10px;">中文</a> <a href="/tags/%E5%AD%97%E4%BD%93/" style="font-size: 10px;">字体</a> <a href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" style="font-size: 17.5px;">客制化</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 12.5px;">我的世界</a> <a href="/tags/%E6%8F%92%E4%BB%B6/" style="font-size: 10px;">插件</a> <a href="/tags/%E6%95%91%E6%8F%B4/" style="font-size: 10px;">救援</a> <a href="/tags/%E6%A1%8C%E9%9D%A2%E7%8E%AF%E5%A2%83/" style="font-size: 10px;">桌面环境</a> <a href="/tags/%E7%81%8C%E6%B0%B4/" style="font-size: 10px;">灌水</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">网络</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+    
+      <script>
+        var maxTagcloud = parseInt(17);
+        var tags_length = parseInt(31);
+        var tags_arr = [];
+        for(var i = 0; i < tags_length; i++){
+          tags_arr.push(i);
+        }
+        tags_arr.sort(function (l, r) {
+          return Math.random() > 0.5 ? -1 : 1;
+        });
+        tags_arr = tags_arr.slice(0, maxTagcloud < tags_length ? tags_length - maxTagcloud : 0);
+        for(var tag_i = 0; tag_i < tags_arr.length; tag_i++){
+          document.getElementById("randomtagcloud").children[tags_arr[tag_i]].style.display = 'none';
+        }
+      </script>
+    
+  </div>
+
+    
+        
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Archive</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/">2026</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/">2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">10</span></li></ul>
+    </div>
+  </div>
+
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Recent Posts</h3>
+    <div class="nexmoe-widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/09/21/%E5%85%B3%E4%BA%8EWaybar%EF%BC%8CDank-Material-Shell%E5%92%8CNoctalia%E7%9A%84%E6%AF%94%E8%BE%83/">关于Waybar，Dank Material Shell和Noctalia的比较</a>
+          </li>
+        
+          <li>
+            <a href="/2026/07/08/some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86/">some_configs配置仓库整理</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/">使用Live ISO修复Fedora主系统</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Fedora安装踩坑记录</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/04/Emacs%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6%E5%88%86%E4%BA%AB/">Emacs实用插件分享</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+        
+   
+    <div class="nexmoe-copyright">
+        &copy; 2026 NakanoMiku39
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        
+    </div>
+</div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><div class="nexmoe-post">
+  <article>
+    
+        <div class="nexmoe-post-cover absolute" style="padding-top: 31.25%;"> 
+            <img src="/images/background/kanade974-2.png" alt="记一次皮肤站Internal Error修复" loading="lazy">
+            <h1>记一次皮肤站Internal Error修复</h1>
+        </div>
+    
+    
+    <div class="nexmoe-post-meta">
+    <div class="nexmoe-rainbow">
+        <a class="nexmoefont icon-calendar-fill">2024年09月23日</a>
+        
+            <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a><a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a>
+        
+        
+    </div>
+    
+    
+    
+    
+    
+</div>
+
+    <p>今天回到宿舍后正准备做作业，突然收到通知说社团的皮肤站炸了，于是立即上线查看情况</p>
+<span id="more"></span>
+<h1 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h1><p>首先我查看Apache2有没有出问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status apache2</span><br></pre></td></tr></table></figure>
+
+<p>Apache2正常运行，然后查看php8.1-fpm有没有问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status php8.1-fpm</span><br></pre></td></tr></table></figure>
+
+<p>发现都没问题，我决定先查看Apache2的log</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">tail</span> -n 200 /var/log/apache2/error.log</span><br></pre></td></tr></table></figure>
+
+<p>得到以下内容：</p>
+<blockquote>
+<p>[Mon Sep 23 11:21:16.936325 2024] [php:error] [pid 159026] [client 115.27.161.58:55358] PHP Fatal error: Declaration of Illuminate\Http\Response::setContent($content) must be compatible with Symfony\Component\HttpFoundation\Response::setContent(?string $content): static in &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;plugins&#x2F;oauth&#x2F;vendor&#x2F;illuminate&#x2F;http&#x2F;Response.php on line 48, referer: <a target="_blank" rel="noopener" href="https://mc.lcpu.dev/sw.js?v6">https://mc.lcpu.dev/sw.js?v6</a><br>[Mon Sep 23 11:21:16.937105 2024] [php:error] [pid 159026] [client 115.27.161.58:55358] PHP Fatal error: Uncaught Error: Class “Illuminate\Http\Response” not found in &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php:784\nStack trace:\n#0 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php(650): Illuminate\Foundation\Exceptions\Handler-&gt;toIlluminateResponse()\n#1 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php(556): Illuminate\Foundation\Exceptions\Handler-&gt;prepareResponse()\n#2 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php(473): Illuminate\Foundation\Exceptions\Handler-&gt;renderExceptionResponse()\n#3 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;app&#x2F;Exceptions&#x2F;Handler.php(38): Illuminate\Foundation\Exceptions\Handler-&gt;render()\n#4 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Bootstrap&#x2F;HandleExceptions.php(218): App\Exceptions\Handler-&gt;render()\n#5 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Bootstrap&#x2F;HandleExceptions.php(195): Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;renderHttpResponse()\n#6 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Bootstrap&#x2F;HandleExceptions.php(231): Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;handleException()\n#7 &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Bootstrap&#x2F;HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;handleShutdown()\n#8 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions-&gt;Illuminate\Foundation\Bootstrap\{closure}()\n#9 {main}\n thrown in &#x2F;var&#x2F;www&#x2F;blessing-skin&#x2F;vendor&#x2F;laravel&#x2F;framework&#x2F;src&#x2F;Illuminate&#x2F;Foundation&#x2F;Exceptions&#x2F;Handler.php on line 784, referer: <a target="_blank" rel="noopener" href="https://mc.lcpu.dev/sw.js?v6">https://mc.lcpu.dev/sw.js?v6</a></p>
+</blockquote>
+<p>很明显是php的问题，如果再仔细阅读的话，可以发现是<code>/var/www/blessing-skin/plugins/oauth/vendor/illuminate/http/Response.php</code>导致了问题，由于我没有仔细阅读log，所以第一时间没有发现问题所在，好在有群友的帮助下，最后还是定位到了这个问题。可以看出来这个文件位于<code>plugins</code>目录下，而<code>plugins</code>目录是Blessing-skin中安装插件后插件所在的目录，根据目录名可以得知这是一个关于oauth的插件，因为我对php不熟，所以我大胆推测直接删除这个目录可以直接解决问题，于是群友将该插件移出后端，最后皮肤站成功上线。我访问皮肤站后重新安装了oauth插件，成功复现问题。因为这个插件已经安装了一段时间，可能是服务器自动更新了最新版本的插件导致兼容性问题，所以暂时不安装这个插件规避问题。</p>
+<h1 id="总结与反思"><a href="#总结与反思" class="headerlink" title="总结与反思"></a>总结与反思</h1><p>在查看完Apache2的log之后，我还进行了很多操作，比如说尝试更新后端的依赖、查看php的log、甚至是查看php镜像站状态等等，但其实仔细阅读log就能一下发现问题所在，所以仔细阅读log非常重要，可以节省很多时间和精力。</p>
+
+    
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>Author：</strong>NakanoMiku39<br>
+        <strong>Link：</strong><a href="http://nakanomiku39.github.io/2024/09/23/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;23&#x2F;%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;23&#x2F;%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%9A%AE%E8%82%A4%E7%AB%99Internal-Error%E4%BF%AE%E5%A4%8D&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+   
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/php/" rel="tag">php</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" rel="tag">我的世界</a>
+    
+</div>
+  
+  
+    <script async src="/js/copy-codeblock.js?v=1789978134600"></script>
+  
+
+  
+      <div class="nexmoe-post-footer">
+          
+      </div>
+  
+</div></div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">
+        <div class="nexmoe-tool">
+
+            
+
+            
+            
+            <button class="mdui-fab catalog" style="overflow:unset;">
+                <i class="nexmoefont icon-i-catalog"></i>
+                <div class="nexmoe-toc">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8E%92%E6%9F%A5%E8%BF%87%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">排查过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%8F%8D%E6%80%9D"><span class="toc-number">2.</span> <span class="toc-text">总结与反思</span></a></li></ol>
+                </div>
+            </button>
+            
+
+            
+
+            <a href="#nexmoe-content" class="backtop toc-link" aria-label="Back To Top" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+        </div>
+    </div>
+</div></div><div id="nexmoe-footer"><!--!--></div><div id="nexmoe-search-space"><div class="search-container"><div class="search-header"><div class="search-input-container"><input class="search-input" type="text" placeholder="Search" onInput="sinput();"></div><a class="search-close" onclick="sclose();">×</a></div><div class="search-body"></div></div></div><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2058306854838448" crossorigin="anonymous"></script>
+</div></body></html>

@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en"><head>
+<title>构造基于x86_64的LFS（1） - Hexo</title>
+<meta charset="UTF-8">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+
+<link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
+<meta name="description" content="今天老师要求我构造一个基于x86_64架构的LFS，于是在此记录一下构建过程。LFS手册链接：https:&#x2F;&#x2F;lfs.xry111.site&#x2F;zh_CN&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构造基于x86_64的LFS（1）">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="今天老师要求我构造一个基于x86_64架构的LFS，于是在此记录一下构建过程。LFS手册链接：https:&#x2F;&#x2F;lfs.xry111.site&#x2F;zh_CN&#x2F;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/neofetch.png">
+<meta property="article:published_time" content="2024-09-26T09:16:16.000Z">
+<meta property="article:modified_time" content="2024-10-08T03:05:43.000Z">
+<meta property="article:author" content="NakanoMiku39">
+<meta property="article:tag" content="LFS">
+<meta property="article:tag" content="x86_64">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/neofetch.png">
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.css">
+<link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
+
+
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1789978134673">
+
+<link rel="stylesheet" href="/css/style.css?v=1789978134673">
+
+
+
+
+    
+        <link rel="stylesheet" href="/custom.css?v=1789978134673">
+    
+
+
+
+<script src="/lib/mdui_043tiny/mdui.js" async></script>
+<script src="/lib/fancybox/fancybox.umd.js" async></script>
+<script src="/lib/lax.min.js" async></script>
+
+
+<script async src="/js/app.js?v=1789978134673"></script>
+
+ 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4D4ZJ9G024"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-4D4ZJ9G024");
+</script>
+
+
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<meta name="generator" content="Hexo 8.1.1"></head><body class="nexmoe mdui-drawer-body-left"><div id="nexmoe-background"><div class="nexmoe-bg" style="background-image: url(/images/background/ichika1023-1.png)"></div><div class="mdui-appbar mdui-shadow-0"><div class="mdui-toolbar"><a class="mdui-btn mdui-btn-icon mdui-ripple" mdui-drawer="{target: &#039;#drawer&#039;, swipe: true}" title="menu"><i class="mdui-icon nexmoefont icon-menu"></i></a><div class="mdui-toolbar-spacer"></div><a class="mdui-btn mdui-btn-icon" href="/" title="NakanoMiku39"><img src="/images/head/miku.jpg" alt="NakanoMiku39"></a></div></div></div><div id="nexmoe-header"><div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku39">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku39" alt="NakanoMiku39">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>Articles</span>17</div>
+        <div><span>Tags</span>31</div>
+        <div><span>Categories</span>3</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-container"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    
+    
+        
+        
+        <div class="nexmoe-widget-wrap">
+	<div class="nexmoe-widget nexmoe-social">
+		<a
+			class="mdui-ripple"
+			href="https://github.com/NakanoMiku39/"
+			target="_blank"
+			mdui-tooltip="{content: 'GitHub'}"
+			style="
+				color: rgb(170, 51, 204);
+				background-color: rgba(170, 51, 204, .1);
+			"
+		>
+			<i
+				class="nexmoefont icon-github"
+			></i> </a
+		>
+	</div>
+</div>
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Categories</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/Debian/">Debian</a>
+          <span class="category-list-count">1</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">10</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Btrfs/" style="font-size: 10px;">Btrfs</a> <a href="/tags/DMS/" style="font-size: 10px;">DMS</a> <a href="/tags/Dotfiles/" style="font-size: 10px;">Dotfiles</a> <a href="/tags/Emacs/" style="font-size: 10px;">Emacs</a> <a href="/tags/Fedora/" style="font-size: 15px;">Fedora</a> <a href="/tags/GNU-Stow/" style="font-size: 10px;">GNU Stow</a> <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Locale/" style="font-size: 10px;">Locale</a> <a href="/tags/Niri/" style="font-size: 15px;">Niri</a> <a href="/tags/Noctalia/" style="font-size: 10px;">Noctalia</a> <a href="/tags/RISC-V/" style="font-size: 10px;">RISC-V</a> <a href="/tags/Samba/" style="font-size: 10px;">Samba</a> <a href="/tags/Waybar/" style="font-size: 10px;">Waybar</a> <a href="/tags/Wayland/" style="font-size: 10px;">Wayland</a> <a href="/tags/Windows/" style="font-size: 10px;">Windows</a> <a href="/tags/chroot/" style="font-size: 10px;">chroot</a> <a href="/tags/ipv6/" style="font-size: 10px;">ipv6</a> <a href="/tags/php/" style="font-size: 12.5px;">php</a> <a href="/tags/x86-64/" style="font-size: 20px;">x86_64</a> <a href="/tags/%E4%B8%AD%E6%96%87/" style="font-size: 10px;">中文</a> <a href="/tags/%E5%AD%97%E4%BD%93/" style="font-size: 10px;">字体</a> <a href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" style="font-size: 17.5px;">客制化</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 12.5px;">我的世界</a> <a href="/tags/%E6%8F%92%E4%BB%B6/" style="font-size: 10px;">插件</a> <a href="/tags/%E6%95%91%E6%8F%B4/" style="font-size: 10px;">救援</a> <a href="/tags/%E6%A1%8C%E9%9D%A2%E7%8E%AF%E5%A2%83/" style="font-size: 10px;">桌面环境</a> <a href="/tags/%E7%81%8C%E6%B0%B4/" style="font-size: 10px;">灌水</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">网络</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+    
+      <script>
+        var maxTagcloud = parseInt(17);
+        var tags_length = parseInt(31);
+        var tags_arr = [];
+        for(var i = 0; i < tags_length; i++){
+          tags_arr.push(i);
+        }
+        tags_arr.sort(function (l, r) {
+          return Math.random() > 0.5 ? -1 : 1;
+        });
+        tags_arr = tags_arr.slice(0, maxTagcloud < tags_length ? tags_length - maxTagcloud : 0);
+        for(var tag_i = 0; tag_i < tags_arr.length; tag_i++){
+          document.getElementById("randomtagcloud").children[tags_arr[tag_i]].style.display = 'none';
+        }
+      </script>
+    
+  </div>
+
+    
+        
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Archive</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/">2026</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/">2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">10</span></li></ul>
+    </div>
+  </div>
+
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Recent Posts</h3>
+    <div class="nexmoe-widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/09/21/%E5%85%B3%E4%BA%8EWaybar%EF%BC%8CDank-Material-Shell%E5%92%8CNoctalia%E7%9A%84%E6%AF%94%E8%BE%83/">关于Waybar，Dank Material Shell和Noctalia的比较</a>
+          </li>
+        
+          <li>
+            <a href="/2026/07/08/some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86/">some_configs配置仓库整理</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/">使用Live ISO修复Fedora主系统</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Fedora安装踩坑记录</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/04/Emacs%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6%E5%88%86%E4%BA%AB/">Emacs实用插件分享</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+        
+   
+    <div class="nexmoe-copyright">
+        &copy; 2026 NakanoMiku39
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        
+    </div>
+</div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><div class="nexmoe-post">
+  <article>
+    
+        <div class="nexmoe-post-cover absolute" style="padding-top: 31.25%;"> 
+            <img src="/images/background/ichika961-2.png" alt="构造基于x86_64的LFS（1）" loading="lazy">
+            <h1>构造基于x86_64的LFS（1）</h1>
+        </div>
+    
+    
+    <div class="nexmoe-post-meta">
+    <div class="nexmoe-rainbow">
+        <a class="nexmoefont icon-calendar-fill">2024年09月26日</a>
+        
+            <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a>
+        
+        
+    </div>
+    
+    
+    
+    
+    
+</div>
+
+    <p>今天老师要求我构造一个基于x86_64架构的LFS，于是在此记录一下构建过程。<br>LFS手册链接：<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/">https://lfs.xry111.site/zh_CN/</a></p>
+<span id="more"></span>
+<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><p>强烈建议仔细读LFS手册，手册内容还是很简单明了的<br>这里就直入主题了，我的宿主机配置如下：</p>
+<img src="/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/neofetch.png" class="" title="neofetch">
+
+<h1 id="准备宿主系统"><a href="#准备宿主系统" class="headerlink" title="准备宿主系统"></a>准备宿主系统</h1><p>我将从<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter02/hostreqs.html">2.2. 宿主系统需求</a>开始，首先需要检查宿主机的软件包情况，脚本如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># A script to list version numbers of critical development tools</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># If you have tools installed in other directories, adjust PATH here AND</span></span><br><span class="line"><span class="comment"># in ~lfs/.bashrc (section 4.4) as well.</span></span><br><span class="line"></span><br><span class="line">LC_ALL=C </span><br><span class="line">PATH=/usr/bin:/bin</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">bail</span></span>() &#123; <span class="built_in">echo</span> <span class="string">&quot;FATAL: <span class="variable">$1</span>&quot;</span>; <span class="built_in">exit</span> 1; &#125;</span><br><span class="line">grep --version &gt; /dev/null 2&gt; /dev/null || bail <span class="string">&quot;grep does not work&quot;</span></span><br><span class="line">sed <span class="string">&#x27;&#x27;</span> /dev/null || bail <span class="string">&quot;sed does not work&quot;</span></span><br><span class="line"><span class="built_in">sort</span>   /dev/null || bail <span class="string">&quot;sort does not work&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">ver_check</span></span>()</span><br><span class="line">&#123;</span><br><span class="line">   <span class="keyword">if</span> ! <span class="built_in">type</span> -p <span class="variable">$2</span> &amp;&gt;/dev/null</span><br><span class="line">   <span class="keyword">then</span> </span><br><span class="line">     <span class="built_in">echo</span> <span class="string">&quot;ERROR: Cannot find <span class="variable">$2</span> (<span class="variable">$1</span>)&quot;</span>; <span class="built_in">return</span> 1; </span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line">   v=$(<span class="variable">$2</span> --version 2&gt;&amp;1 | grep -E -o <span class="string">&#x27;[0-9]+\.[0-9\.]+[a-z]*&#x27;</span> | <span class="built_in">head</span> -n1)</span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">printf</span> <span class="string">&#x27;%s\n&#x27;</span> <span class="variable">$3</span> <span class="variable">$v</span> | <span class="built_in">sort</span> --version-sort --check &amp;&gt;/dev/null</span><br><span class="line">   <span class="keyword">then</span> </span><br><span class="line">     <span class="built_in">printf</span> <span class="string">&quot;OK:    %-9s %-6s &gt;= <span class="variable">$3</span>\n&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span> <span class="string">&quot;<span class="variable">$v</span>&quot;</span>; <span class="built_in">return</span> 0;</span><br><span class="line">   <span class="keyword">else</span> </span><br><span class="line">     <span class="built_in">printf</span> <span class="string">&quot;ERROR: %-9s is TOO OLD (<span class="variable">$3</span> or later required)\n&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span>; </span><br><span class="line">     <span class="built_in">return</span> 1; </span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">ver_kernel</span></span>()</span><br><span class="line">&#123;</span><br><span class="line">   kver=$(<span class="built_in">uname</span> -r | grep -E -o <span class="string">&#x27;^[0-9\.]+&#x27;</span>)</span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">printf</span> <span class="string">&#x27;%s\n&#x27;</span> <span class="variable">$1</span> <span class="variable">$kver</span> | <span class="built_in">sort</span> --version-sort --check &amp;&gt;/dev/null</span><br><span class="line">   <span class="keyword">then</span> </span><br><span class="line">     <span class="built_in">printf</span> <span class="string">&quot;OK:    Linux Kernel <span class="variable">$kver</span> &gt;= <span class="variable">$1</span>\n&quot;</span>; <span class="built_in">return</span> 0;</span><br><span class="line">   <span class="keyword">else</span> </span><br><span class="line">     <span class="built_in">printf</span> <span class="string">&quot;ERROR: Linux Kernel (<span class="variable">$kver</span>) is TOO OLD (<span class="variable">$1</span> or later required)\n&quot;</span> <span class="string">&quot;<span class="variable">$kver</span>&quot;</span>; </span><br><span class="line">     <span class="built_in">return</span> 1; </span><br><span class="line">   <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Coreutils first because --version-sort needs Coreutils &gt;= 7.0</span></span><br><span class="line">ver_check Coreutils      <span class="built_in">sort</span>     8.1 || bail <span class="string">&quot;Coreutils too old, stop&quot;</span></span><br><span class="line">ver_check Bash           bash     3.2</span><br><span class="line">ver_check Binutils       ld       2.13.1</span><br><span class="line">ver_check Bison          bison    2.7</span><br><span class="line">ver_check Diffutils      diff     2.8.1</span><br><span class="line">ver_check Findutils      find     4.2.31</span><br><span class="line">ver_check Gawk           gawk     4.0.1</span><br><span class="line">ver_check GCC            gcc      5.2</span><br><span class="line">ver_check <span class="string">&quot;GCC (C++)&quot;</span>    g++      5.2</span><br><span class="line">ver_check Grep           grep     2.5.1a</span><br><span class="line">ver_check Gzip           gzip     1.3.12</span><br><span class="line">ver_check M4             m4       1.4.10</span><br><span class="line">ver_check Make           make     4.0</span><br><span class="line">ver_check Patch          patch    2.5.4</span><br><span class="line">ver_check Perl           perl     5.8.8</span><br><span class="line">ver_check Python         python3  3.4</span><br><span class="line">ver_check Sed            sed      4.1.5</span><br><span class="line">ver_check Tar            tar      1.22</span><br><span class="line">ver_check Texinfo        texi2any 5.0</span><br><span class="line">ver_check Xz             xz       5.0.0</span><br><span class="line">ver_kernel 4.19</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> mount | grep -q <span class="string">&#x27;devpts on /dev/pts&#x27;</span> &amp;&amp; [ -e /dev/ptmx ]</span><br><span class="line"><span class="keyword">then</span> <span class="built_in">echo</span> <span class="string">&quot;OK:    Linux Kernel supports UNIX 98 PTY&quot;</span>;</span><br><span class="line"><span class="keyword">else</span> <span class="built_in">echo</span> <span class="string">&quot;ERROR: Linux Kernel does NOT support UNIX 98 PTY&quot;</span>; <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">alias_check</span></span>() &#123;</span><br><span class="line">   <span class="keyword">if</span> <span class="variable">$1</span> --version 2&gt;&amp;1 | grep -qi <span class="variable">$2</span></span><br><span class="line">   <span class="keyword">then</span> <span class="built_in">printf</span> <span class="string">&quot;OK:    %-4s is <span class="variable">$2</span>\n&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span>;</span><br><span class="line">   <span class="keyword">else</span> <span class="built_in">printf</span> <span class="string">&quot;ERROR: %-4s is NOT <span class="variable">$2</span>\n&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span>; <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Aliases:&quot;</span></span><br><span class="line">alias_check awk GNU</span><br><span class="line">alias_check yacc Bison</span><br><span class="line">alias_check sh Bash</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Compiler check:&quot;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">printf</span> <span class="string">&quot;int main()&#123;&#125;&quot;</span> | g++ -x c++ -</span><br><span class="line"><span class="keyword">then</span> <span class="built_in">echo</span> <span class="string">&quot;OK:    g++ works&quot;</span>;</span><br><span class="line"><span class="keyword">else</span> <span class="built_in">echo</span> <span class="string">&quot;ERROR: g++ does NOT work&quot;</span>; <span class="keyword">fi</span></span><br><span class="line"><span class="built_in">rm</span> -f a.out</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="subst">$(nproc)</span>&quot;</span> = <span class="string">&quot;&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">   <span class="built_in">echo</span> <span class="string">&quot;ERROR: nproc is not available or it produces empty output&quot;</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">   <span class="built_in">echo</span> <span class="string">&quot;OK: nproc reports <span class="subst">$(nproc)</span> logical cores are available&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">OK:    Coreutils 9.4    &gt;= 8.1</span><br><span class="line">OK:    Bash      5.2.32 &gt;= 3.2</span><br><span class="line">OK:    Binutils  2.43.1 &gt;= 2.13.1</span><br><span class="line">OK:    Bison     3.8.2  &gt;= 2.7</span><br><span class="line">OK:    Diffutils 3.10   &gt;= 2.8.1</span><br><span class="line">OK:    Findutils 4.10.0 &gt;= 4.2.31</span><br><span class="line">OK:    Gawk      5.2.1  &gt;= 4.0.1</span><br><span class="line">OK:    GCC       14.2.0 &gt;= 5.2</span><br><span class="line">OK:    GCC (C++) 14.2.0 &gt;= 5.2</span><br><span class="line">OK:    Grep      3.11   &gt;= 2.5.1a</span><br><span class="line">OK:    Gzip      1.12   &gt;= 1.3.12</span><br><span class="line">OK:    M4        1.4.19 &gt;= 1.4.10</span><br><span class="line">OK:    Make      4.3    &gt;= 4.0</span><br><span class="line">OK:    Patch     2.7.6  &gt;= 2.5.4</span><br><span class="line">OK:    Perl      5.38.2 &gt;= 5.8.8</span><br><span class="line">OK:    Python    3.12.6 &gt;= 3.4</span><br><span class="line">OK:    Sed       4.9    &gt;= 4.1.5</span><br><span class="line">OK:    Tar       1.35   &gt;= 1.22</span><br><span class="line">OK:    Texinfo   7.1.1  &gt;= 5.0</span><br><span class="line">OK:    Xz        5.6.2  &gt;= 5.0.0</span><br><span class="line">OK:    Linux Kernel 6.10.9 &gt;= 4.19</span><br><span class="line">OK:    Linux Kernel supports UNIX 98 PTY</span><br><span class="line">Aliases:</span><br><span class="line">OK:    awk  is GNU</span><br><span class="line">OK:    yacc is Bison</span><br><span class="line">OK:    sh   is Bash</span><br><span class="line">Compiler check:</span><br><span class="line">OK:    g++ works</span><br><span class="line">OK: nproc reports 24 logical cores are available</span><br></pre></td></tr></table></figure>
+
+<p>如果出现<code>sh is not Bash</code>的问题可以手动更改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> /bin/sh</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ln</span> -s /bin/bash /bin/sh</span><br></pre></td></tr></table></figure>
+
+<p>完成环境检查后，接下来是为LFS准备一个分区，手册建议分区的大小为30GB，我这里将使用一个32G的USB作为LFS分区，分区名为&#x2F;dev&#x2F;sdc1，<strong>因为USB已经存在了一个FAT32分区</strong> ，所以这里可以直接省略掉用fdisk工具进行分区的操作，直接格式化，将其变为ext4。如果不存在一个分区，，或者想要创建多个分区，则需要用如fdisk之类的分区工具首先进行分区处理 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mkfs -v -t ext4 /dev/sdc1</span><br></pre></td></tr></table></figure>
+
+<p>完成格式化后挂载该分区<br> <em>手册中还给出了多个分区的方案，例如一个分区作为&#x2F;，另一个作为&#x2F;home，那么这步需要将这两个分区依次挂载，更详细的内容可以参考<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter02/mounting.html">2.7. 挂载新的分区</a>。</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> /mnt/LFS</span><br><span class="line"><span class="built_in">sudo</span> mount /dev/sdc1 /mnt/LFS</span><br></pre></td></tr></table></figure>
+
+<p>检查文件系统是否为ext4</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df -T</span><br></pre></td></tr></table></figure>
+
+<p>接下来设置环境变量$LFS，这个变量指向了<strong>构建LFS时使用的目录</strong> ，在我的情况中则是<code>/mnt/LFS</code>，<strong>可以用<code>echo $LFS</code>来检查环境变量是否被正确设置了</strong><br> <em>注意：可以通过向<code>.bashrc</code>（或其他类似功能文件）中添加下面的命令来确保环境变量$LFS正确</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LFS=/mnt/LFS</span><br></pre></td></tr></table></figure>
+
+<h1 id="软件包和补丁"><a href="#软件包和补丁" class="headerlink" title="软件包和补丁"></a>软件包和补丁</h1><p>接下来是下载软件包和补丁，首先创建一个目录用于存放软件包和补丁</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -v <span class="variable">$LFS</span>/sources</span><br></pre></td></tr></table></figure>
+
+<p>然后更改<code>sources</code>的权限，为该目录添加写入权限和 sticky 标志。</p>
+<blockquote>
+<p>“Sticky” 标志使得即使有多个用户对该目录有写入权限，也只有文件所有者能够删除其中的文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> -v a+wt <span class="variable">$LFS</span>/sources</span><br></pre></td></tr></table></figure>
+
+<p>手册提供了一个包括了所有所需软件包的下载列表<code>wget-list-sysv</code>，下载这个文件，然后将这个文件作为<code>wget</code>的输入，把所有软件包下载到<code>$LFS/sources</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> wget --input-file=wget-list-sysv --<span class="built_in">continue</span> --directory-prefix=<span class="variable">$LFS</span>/sources</span><br></pre></td></tr></table></figure>
+
+<p>手册还提供了一个用于检查所下载软件包正确性的md5sums，下面是一个检查正确性的脚本，确保<code>md5sums</code>在<code>$LFS/sources</code>目录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">pushd</span> <span class="variable">$LFS</span>/sources</span><br><span class="line">  <span class="built_in">md5sum</span> -c md5sums</span><br><span class="line"><span class="built_in">popd</span></span><br></pre></td></tr></table></figure>
+
+<p>手册强烈建议以root用户执行这些操作，如果已经以非root用户创建了文件夹或下载了软件包和补丁，可以修改它们的所有者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chown</span> root:root <span class="variable">$LFS</span>/sources/*</span><br><span class="line"><span class="built_in">ls</span> -l <span class="comment"># 检查是否更改</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果以非 root 用户身份下载了软件包和补丁，则下载的文件会属于该用户。文件系统使用 UID 记录文件所有者，而宿主系统中普通用户的 UID 在 LFS 中未被分配。因此，这些文件保留到最终的 LFS 系统后，会属于一个没有命名的 UID 。</p>
+</blockquote>
+<h1 id="最后的准备工作"><a href="#最后的准备工作" class="headerlink" title="最后的准备工作"></a>最后的准备工作</h1><p>在LFS分区中创建一个目录树</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span></span><br><span class="line"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/&#123;etc,var&#125; <span class="variable">$LFS</span>/usr/&#123;bin,lib,sbin&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后在$LFS目录下创建一个脚本，加入下列命令并运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> bin lib sbin; <span class="keyword">do</span></span><br><span class="line">  <span class="built_in">sudo</span> <span class="built_in">ln</span> -sv usr/<span class="variable">$i</span> <span class="variable">$LFS</span>/<span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span></span><br><span class="line">  x86_64) <span class="built_in">sudo</span> <span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/lib64 ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+
+<p>为交叉编译器编译程序等工具创建一个专用目录，与其他程序分离</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/tools</span><br></pre></td></tr></table></figure>
+
+<p>最后的目录结构应该如下所示</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line">tree <span class="variable">$LFS</span></span><br><span class="line"></span><br><span class="line">/mnt/LFS</span><br><span class="line">├── bin -&gt; usr/bin</span><br><span class="line">├── etc</span><br><span class="line">├── lib -&gt; usr/lib</span><br><span class="line">├── lib64</span><br><span class="line">├── lost+found  [error opening <span class="built_in">dir</span>]</span><br><span class="line">├── sbin -&gt; usr/sbin</span><br><span class="line">├── sources</span><br><span class="line">│   ├── acl-2.3.2.tar.xz</span><br><span class="line">│   ├── attr-2.5.2.tar.gz</span><br><span class="line">│   ├── autoconf-2.72.tar.xz</span><br><span class="line">│   ├── automake-1.17.tar.xz</span><br><span class="line">│   ├── bash-5.2.32.tar.gz</span><br><span class="line">│   ├── bc-6.7.6.tar.xz</span><br><span class="line">│   ├── binutils-2.43.1.tar.xz</span><br><span class="line">│   ├── bison-3.8.2.tar.xz</span><br><span class="line">│   ├── bzip2-1.0.8-install_docs-1.patch</span><br><span class="line">│   ├── bzip2-1.0.8.tar.gz</span><br><span class="line">│   ├── check-0.15.2.tar.gz</span><br><span class="line">│   ├── coreutils-9.5-i18n-2.patch</span><br><span class="line">│   ├── coreutils-9.5.tar.xz</span><br><span class="line">│   ├── dejagnu-1.6.3.tar.gz</span><br><span class="line">│   ├── diffutils-3.10.tar.xz</span><br><span class="line">│   ├── e2fsprogs-1.47.1.tar.gz</span><br><span class="line">│   ├── elfutils-0.191.tar.bz2</span><br><span class="line">│   ├── expat-2.6.2.tar.xz</span><br><span class="line">│   ├── expect-5.45.4-gcc14-1.patch</span><br><span class="line">│   ├── expect5.45.4.tar.gz</span><br><span class="line">│   ├── file-5.45.tar.gz</span><br><span class="line">│   ├── findutils-4.10.0.tar.xz</span><br><span class="line">│   ├── flex-2.6.4.tar.gz</span><br><span class="line">│   ├── flit_core-3.9.0.tar.gz</span><br><span class="line">│   ├── gawk-5.3.0.tar.xz</span><br><span class="line">│   ├── gcc-14.2.0.tar.xz</span><br><span class="line">│   ├── gdbm-1.24.tar.gz</span><br><span class="line">│   ├── gettext-0.22.5.tar.xz</span><br><span class="line">│   ├── glibc-2.40-fhs-1.patch</span><br><span class="line">│   ├── glibc-2.40.tar.xz</span><br><span class="line">│   ├── gmp-6.3.0.tar.xz</span><br><span class="line">│   ├── gperf-3.1.tar.gz</span><br><span class="line">│   ├── grep-3.11.tar.xz</span><br><span class="line">│   ├── groff-1.23.0.tar.gz</span><br><span class="line">│   ├── grub-2.12.tar.xz</span><br><span class="line">│   ├── gzip-1.13.tar.xz</span><br><span class="line">│   ├── iana-etc-20240806.tar.gz</span><br><span class="line">│   ├── inetutils-2.5.tar.xz</span><br><span class="line">│   ├── intltool-0.51.0.tar.gz</span><br><span class="line">│   ├── iproute2-6.10.0.tar.xz</span><br><span class="line">│   ├── jinja2-3.1.4.tar.gz</span><br><span class="line">│   ├── kbd-2.6.4-backspace-1.patch</span><br><span class="line">│   ├── kbd-2.6.4.tar.xz</span><br><span class="line">│   ├── kmod-33.tar.xz</span><br><span class="line">│   ├── less-661.tar.gz</span><br><span class="line">│   ├── lfs-bootscripts-20240825.tar.xz</span><br><span class="line">│   ├── libcap-2.70.tar.xz</span><br><span class="line">│   ├── libffi-3.4.6.tar.gz</span><br><span class="line">│   ├── libpipeline-1.5.7.tar.gz</span><br><span class="line">│   ├── libtool-2.4.7.tar.xz</span><br><span class="line">│   ├── libxcrypt-4.4.36.tar.xz</span><br><span class="line">│   ├── linux-6.10.5.tar.xz</span><br><span class="line">│   ├── lz4-1.10.0.tar.gz</span><br><span class="line">│   ├── m4-1.4.19.tar.xz</span><br><span class="line">│   ├── make-4.4.1.tar.gz</span><br><span class="line">│   ├── man-db-2.12.1.tar.xz</span><br><span class="line">│   ├── man-pages-6.9.1.tar.xz</span><br><span class="line">│   ├── MarkupSafe-2.1.5.tar.gz</span><br><span class="line">│   ├── meson-1.5.1.tar.gz</span><br><span class="line">│   ├── mpc-1.3.1.tar.gz</span><br><span class="line">│   ├── mpfr-4.2.1.tar.xz</span><br><span class="line">│   ├── ncurses-6.5.tar.gz</span><br><span class="line">│   ├── ninja-1.12.1.tar.gz</span><br><span class="line">│   ├── openssl-3.3.1.tar.gz</span><br><span class="line">│   ├── patch-2.7.6.tar.xz</span><br><span class="line">│   ├── perl-5.40.0.tar.xz</span><br><span class="line">│   ├── pkgconf-2.3.0.tar.xz</span><br><span class="line">│   ├── procps-ng-4.0.4.tar.xz</span><br><span class="line">│   ├── psmisc-23.7.tar.xz</span><br><span class="line">│   ├── python-3.12.5-docs-html.tar.bz2</span><br><span class="line">│   ├── Python-3.12.5.tar.xz</span><br><span class="line">│   ├── readline-8.2.13.tar.gz</span><br><span class="line">│   ├── sed-4.9.tar.xz</span><br><span class="line">│   ├── setuptools-72.2.0.tar.gz</span><br><span class="line">│   ├── shadow-4.16.0.tar.xz</span><br><span class="line">│   ├── sysklogd-2.6.1.tar.gz</span><br><span class="line">│   ├── systemd-256.4.tar.gz</span><br><span class="line">│   ├── systemd-man-pages-256.4.tar.xz</span><br><span class="line">│   ├── sysvinit-3.10-consolidated-1.patch</span><br><span class="line">│   ├── sysvinit-3.10.tar.xz</span><br><span class="line">│   ├── tar-1.35.tar.xz</span><br><span class="line">│   ├── tcl8.6.14-html.tar.gz</span><br><span class="line">│   ├── tcl8.6.14-src.tar.gz</span><br><span class="line">│   ├── texinfo-7.1.tar.xz</span><br><span class="line">│   ├── tzdata2024a.tar.gz</span><br><span class="line">│   ├── udev-lfs-20230818.tar.xz</span><br><span class="line">│   ├── util-linux-2.40.2.tar.xz</span><br><span class="line">│   ├── vim-9.1.0660.tar.gz</span><br><span class="line">│   ├── wheel-0.44.0.tar.gz</span><br><span class="line">│   ├── XML-Parser-2.47.tar.gz</span><br><span class="line">│   ├── xz-5.6.2.tar.xz</span><br><span class="line">│   ├── zlib-1.3.1.tar.gz</span><br><span class="line">│   └── zstd-1.5.6.tar.gz</span><br><span class="line">├── tools</span><br><span class="line">├── usr</span><br><span class="line">│   ├── bin</span><br><span class="line">│   ├── lib</span><br><span class="line">│   └── sbin</span><br><span class="line">└── var</span><br></pre></td></tr></table></figure>
+
+<p>创建一个新的用户<code>lfs</code>用于编译软件包，这可以保证建立一个干净的工作环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> groupadd lfs <span class="comment"># 创建一个组lfs</span></span><br><span class="line"><span class="built_in">sudo</span> useradd -s /bin/bash -g lfs -m -k /dev/null lfs <span class="comment"># 创建一个用户lfs</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>命令行中各选项的含义:<br>-s &#x2F;bin&#x2F;bash<br>设置 bash 为用户 lfs 的默认 shell。<br>-g lfs<br>添加用户 lfs 到组 lfs。<br>-m<br>为用户 lfs 创建一个主目录。<br>-k &#x2F;dev&#x2F;null<br>将模板目录设置为空设备文件，防止从默认模板目录 (&#x2F;etc&#x2F;skel) 复制文件到新的主目录。<br>lfs<br>这是新用户的名称。</p>
+</blockquote>
+<p>将<code>lfs</code>设为<code>$LFS</code>目录的所有者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">chown</span> -v lfs <span class="variable">$LFS</span>/&#123;usr&#123;,/*&#125;,lib,var,etc,bin,sbin,tools&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> $(<span class="built_in">uname</span> -m) <span class="keyword">in</span></span><br><span class="line">  x86_64) <span class="built_in">sudo</span> <span class="built_in">chown</span> -v lfs <span class="variable">$LFS</span>/lib64 ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+
+<p>检查更改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> <span class="variable">$LFS</span> -l</span><br><span class="line"></span><br><span class="line">drwxr-xr-x 9 root root  4096 Sep 27 20:26 .</span><br><span class="line">drwxr-xr-x 3 root root  4096 Sep 26 23:37 ..</span><br><span class="line">lrwxrwxrwx 1 root root     7 Sep 27 20:13 bin -&gt; usr/bin</span><br><span class="line">drwxr-xr-x 2 lfs  root  4096 Sep 27 20:10 etc</span><br><span class="line">lrwxrwxrwx 1 root root     7 Sep 27 20:13 lib -&gt; usr/lib</span><br><span class="line">drwxr-xr-x 2 lfs  root  4096 Sep 27 20:13 lib64</span><br><span class="line">drwx------ 2 root root 16384 Sep 26 23:40 lost+found</span><br><span class="line">lrwxrwxrwx 1 root root     8 Sep 27 20:13 sbin -&gt; usr/sbin</span><br><span class="line">drwxrwxrwt 2 root root  4096 Sep 27 20:08 sources</span><br><span class="line">drwxr-xr-x 2 lfs  root  4096 Sep 27 20:19 tools</span><br><span class="line">drwxr-xr-x 5 lfs  root  4096 Sep 27 20:10 usr</span><br><span class="line">drwxr-xr-x 2 lfs  root  4096 Sep 27 20:10 var</span><br></pre></td></tr></table></figure>
+
+<p>最后以<code>lfs</code>登录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> su - lfs</span><br></pre></td></tr></table></figure>
+
+<p>登录后，先为<code>lfs</code>配置一下环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; ~/.bash_profile &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="built_in">exec</span> <span class="built_in">env</span> -i HOME=<span class="variable">$HOME</span> TERM=<span class="variable">$TERM</span> PS1=<span class="string">&#x27;\u:\w\$ &#x27;</span> /bin/bash</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>命令的详细含义可以阅读<a target="_blank" rel="noopener" href="https://lfs.xry111.site/zh_CN/12.2/chapter04/settingenvironment.html">4.4. 配置环境</a>，<strong>注意<code>LFS</code>变量的路径要设置正确，也就是<code>$LFS</code>的路径</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; ~/.bashrc &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="built_in">set</span> +h</span><br><span class="line"><span class="built_in">umask</span> 022</span><br><span class="line">LFS=/mnt/LFS</span><br><span class="line">LC_ALL=POSIX</span><br><span class="line">LFS_TGT=$(<span class="built_in">uname</span> -m)-lfs-linux-gnu</span><br><span class="line">PATH=/usr/bin</span><br><span class="line"><span class="keyword">if</span> [ ! -L /bin ]; <span class="keyword">then</span> PATH=/bin:<span class="variable">$PATH</span>; <span class="keyword">fi</span></span><br><span class="line">PATH=<span class="variable">$LFS</span>/tools/bin:<span class="variable">$PATH</span></span><br><span class="line">CONFIG_SITE=<span class="variable">$LFS</span>/usr/share/config.site</span><br><span class="line"><span class="built_in">export</span> LFS LC_ALL LFS_TGT PATH CONFIG_SITE</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>一些商业发行版未做文档说明地将 &#x2F;etc&#x2F;bash.bashrc 引入 bash 初始化过程。该文件可能修改 lfs 用户的环境，并影响 LFS 关键软件包的构建。为了保证 lfs 用户环境的纯净，检查 &#x2F;etc&#x2F;bash.bashrc 是否存在，如果它存在就将它移走。以 root 用户身份，运行：</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ ! -e /etc/bash.bashrc ] || <span class="built_in">mv</span> -v /etc/bash.bashrc /etc/bash.bashrc.NOUSE</span><br></pre></td></tr></table></figure>
+
+<p>设置编译时使用的核心数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt;&gt; ~/.bashrc &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="built_in">export</span> MAKEFLAGS=-j$(<span class="built_in">nproc</span>)</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>运行以确保上面的所有更改能现在就被应用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> ~/.bash_profile</span><br></pre></td></tr></table></figure>
+
+    
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>Author：</strong>NakanoMiku39<br>
+        <strong>Link：</strong><a href="http://nakanomiku39.github.io/2024/09/26/%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;26&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;09&#x2F;26&#x2F;%E6%9E%84%E9%80%A0%E5%9F%BA%E4%BA%8Ex86-64%E7%9A%84LFS%EF%BC%881%EF%BC%89&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+   
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/LFS/" rel="tag">LFS</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/x86-64/" rel="tag">x86_64</a>
+    
+</div>
+  
+  
+    <script async src="/js/copy-codeblock.js?v=1789978134600"></script>
+  
+
+  
+      <div class="nexmoe-post-footer">
+          
+      </div>
+  
+</div></div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">
+        <div class="nexmoe-tool">
+
+            
+
+            
+            
+            <button class="mdui-fab catalog" style="overflow:unset;">
+                <i class="nexmoefont icon-i-catalog"></i>
+                <div class="nexmoe-toc">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">1.</span> <span class="toc-text">环境配置</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%AE%BF%E4%B8%BB%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.</span> <span class="toc-text">准备宿主系统</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%92%8C%E8%A1%A5%E4%B8%81"><span class="toc-number">3.</span> <span class="toc-text">软件包和补丁</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%80%E5%90%8E%E7%9A%84%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-number">4.</span> <span class="toc-text">最后的准备工作</span></a></li></ol>
+                </div>
+            </button>
+            
+
+            
+
+            <a href="#nexmoe-content" class="backtop toc-link" aria-label="Back To Top" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+        </div>
+    </div>
+</div></div><div id="nexmoe-footer"><!--!--></div><div id="nexmoe-search-space"><div class="search-container"><div class="search-header"><div class="search-input-container"><input class="search-input" type="text" placeholder="Search" onInput="sinput();"></div><a class="search-close" onclick="sclose();">×</a></div><div class="search-body"></div></div></div><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2058306854838448" crossorigin="anonymous"></script>
+</div></body></html>

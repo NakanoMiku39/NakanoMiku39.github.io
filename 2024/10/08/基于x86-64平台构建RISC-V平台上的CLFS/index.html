@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en"><head>
+<title>基于x86_64平台构建RISC-V平台上的CLFS - Hexo</title>
+<meta charset="UTF-8">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+
+<link rel="shortcut icon" href="/images/head/kita.jpg" type="image/jpg" />
+<meta name="description" content="这次是尝试在x86_64平台上交叉编译出RISC-V的LFS，其中的过程会有所不同我没有成功通过GRUB启动这个CLFS，这里只能通过挂载内核和根文件系统的方式启动CLFS手册链接：https:&#x2F;&#x2F;www.linuxfromscratch.org&#x2F;~xry111&#x2F;lfs&#x2F;view&#x2F;clfs-ng-systemd&#x2F;index.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于x86_64平台构建RISC-V平台上的CLFS">
+<meta property="og:url" content="http://nakanomiku39.github.io/2024/10/08/%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这次是尝试在x86_64平台上交叉编译出RISC-V的LFS，其中的过程会有所不同我没有成功通过GRUB启动这个CLFS，这里只能通过挂载内核和根文件系统的方式启动CLFS手册链接：https:&#x2F;&#x2F;www.linuxfromscratch.org&#x2F;~xry111&#x2F;lfs&#x2F;view&#x2F;clfs-ng-systemd&#x2F;index.html">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-10-08T02:53:25.000Z">
+<meta property="article:modified_time" content="2024-11-28T15:26:46.000Z">
+<meta property="article:author" content="NakanoMiku39">
+<meta property="article:tag" content="LFS">
+<meta property="article:tag" content="RISC-V">
+<meta property="article:tag" content="x86_64">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/lib/fancybox/fancybox.css">
+<link rel="stylesheet" href="/lib/mdui_043tiny/mdui.css">
+
+
+<link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1789978134649">
+
+<link rel="stylesheet" href="/css/style.css?v=1789978134649">
+
+
+
+
+    
+        <link rel="stylesheet" href="/custom.css?v=1789978134649">
+    
+
+
+
+<script src="/lib/mdui_043tiny/mdui.js" async></script>
+<script src="/lib/fancybox/fancybox.umd.js" async></script>
+<script src="/lib/lax.min.js" async></script>
+
+
+<script async src="/js/app.js?v=1789978134649"></script>
+
+ 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4D4ZJ9G024"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-4D4ZJ9G024");
+</script>
+
+
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<meta name="generator" content="Hexo 8.1.1"></head><body class="nexmoe mdui-drawer-body-left"><div id="nexmoe-background"><div class="nexmoe-bg" style="background-image: url(/images/background/ichika1023-1.png)"></div><div class="mdui-appbar mdui-shadow-0"><div class="mdui-toolbar"><a class="mdui-btn mdui-btn-icon mdui-ripple" mdui-drawer="{target: &#039;#drawer&#039;, swipe: true}" title="menu"><i class="mdui-icon nexmoefont icon-menu"></i></a><div class="mdui-toolbar-spacer"></div><a class="mdui-btn mdui-btn-icon" href="/" title="NakanoMiku39"><img src="/images/head/miku.jpg" alt="NakanoMiku39"></a></div></div></div><div id="nexmoe-header"><div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="NakanoMiku39">
+            <img src="/images/head/miku.jpg" alt="NakanoMiku39" alt="NakanoMiku39">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>Articles</span>17</div>
+        <div><span>Tags</span>31</div>
+        <div><span>Categories</span>3</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/archives.html" title="文章归档">
+            <i class="mdui-list-item-icon nexmoefont icon-container"></i>
+            <div class="mdui-list-item-content">
+                文章归档
+            </div>
+        </a>
+        
+    </div>
+    
+    
+        
+        
+        <div class="nexmoe-widget-wrap">
+	<div class="nexmoe-widget nexmoe-social">
+		<a
+			class="mdui-ripple"
+			href="https://github.com/NakanoMiku39/"
+			target="_blank"
+			mdui-tooltip="{content: 'GitHub'}"
+			style="
+				color: rgb(170, 51, 204);
+				background-color: rgba(170, 51, 204, .1);
+			"
+		>
+			<i
+				class="nexmoefont icon-github"
+			></i> </a
+		>
+	</div>
+</div>
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Categories</h3>
+    <div class="nexmoe-widget">
+
+      <ul class="category-list">
+
+        
+
+
+        
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/Debian/">Debian</a>
+          <span class="category-list-count">1</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/">Linux</a>
+          <span class="category-list-count">10</span>
+        </li>
+
+        
+
+        <li class="category-list-item">
+          <a class="category-list-link" href="/categories/Linux/服务器/">服务器</a>
+          <span class="category-list-count">2</span>
+        </li>
+
+        
+      </ul>
+
+    </div>
+  </div>
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Btrfs/" style="font-size: 10px;">Btrfs</a> <a href="/tags/DMS/" style="font-size: 10px;">DMS</a> <a href="/tags/Dotfiles/" style="font-size: 10px;">Dotfiles</a> <a href="/tags/Emacs/" style="font-size: 10px;">Emacs</a> <a href="/tags/Fedora/" style="font-size: 15px;">Fedora</a> <a href="/tags/GNU-Stow/" style="font-size: 10px;">GNU Stow</a> <a href="/tags/GPG/" style="font-size: 10px;">GPG</a> <a href="/tags/LFS/" style="font-size: 20px;">LFS</a> <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Locale/" style="font-size: 10px;">Locale</a> <a href="/tags/Niri/" style="font-size: 15px;">Niri</a> <a href="/tags/Noctalia/" style="font-size: 10px;">Noctalia</a> <a href="/tags/RISC-V/" style="font-size: 10px;">RISC-V</a> <a href="/tags/Samba/" style="font-size: 10px;">Samba</a> <a href="/tags/Waybar/" style="font-size: 10px;">Waybar</a> <a href="/tags/Wayland/" style="font-size: 10px;">Wayland</a> <a href="/tags/Windows/" style="font-size: 10px;">Windows</a> <a href="/tags/chroot/" style="font-size: 10px;">chroot</a> <a href="/tags/ipv6/" style="font-size: 10px;">ipv6</a> <a href="/tags/php/" style="font-size: 12.5px;">php</a> <a href="/tags/x86-64/" style="font-size: 20px;">x86_64</a> <a href="/tags/%E4%B8%AD%E6%96%87/" style="font-size: 10px;">中文</a> <a href="/tags/%E5%AD%97%E4%BD%93/" style="font-size: 10px;">字体</a> <a href="/tags/%E5%AE%A2%E5%88%B6%E5%8C%96/" style="font-size: 17.5px;">客制化</a> <a href="/tags/%E6%88%91%E7%9A%84%E4%B8%96%E7%95%8C/" style="font-size: 12.5px;">我的世界</a> <a href="/tags/%E6%8F%92%E4%BB%B6/" style="font-size: 10px;">插件</a> <a href="/tags/%E6%95%91%E6%8F%B4/" style="font-size: 10px;">救援</a> <a href="/tags/%E6%A1%8C%E9%9D%A2%E7%8E%AF%E5%A2%83/" style="font-size: 10px;">桌面环境</a> <a href="/tags/%E7%81%8C%E6%B0%B4/" style="font-size: 10px;">灌水</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">网络</a> <a href="/tags/%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">配置</a>
+    </div>
+    
+      <script>
+        var maxTagcloud = parseInt(17);
+        var tags_length = parseInt(31);
+        var tags_arr = [];
+        for(var i = 0; i < tags_length; i++){
+          tags_arr.push(i);
+        }
+        tags_arr.sort(function (l, r) {
+          return Math.random() > 0.5 ? -1 : 1;
+        });
+        tags_arr = tags_arr.slice(0, maxTagcloud < tags_length ? tags_length - maxTagcloud : 0);
+        for(var tag_i = 0; tag_i < tags_arr.length; tag_i++){
+          document.getElementById("randomtagcloud").children[tags_arr[tag_i]].style.display = 'none';
+        }
+      </script>
+    
+  </div>
+
+    
+        
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Archive</h3>
+    <div class="nexmoe-widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/">2026</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/">2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/">2024</a><span class="archive-list-count">10</span></li></ul>
+    </div>
+  </div>
+
+
+
+    
+        
+        
+  <div class="nexmoe-widget-wrap">
+    <h3 class="nexmoe-widget-title">Recent Posts</h3>
+    <div class="nexmoe-widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/09/21/%E5%85%B3%E4%BA%8EWaybar%EF%BC%8CDank-Material-Shell%E5%92%8CNoctalia%E7%9A%84%E6%AF%94%E8%BE%83/">关于Waybar，Dank Material Shell和Noctalia的比较</a>
+          </li>
+        
+          <li>
+            <a href="/2026/07/08/some-configs%E9%85%8D%E7%BD%AE%E4%BB%93%E5%BA%93%E6%95%B4%E7%90%86/">some_configs配置仓库整理</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/%E4%BD%BF%E7%94%A8Live%20ISO%E4%BF%AE%E5%A4%8DFedora%E4%B8%BB%E7%B3%BB%E7%BB%9F/">使用Live ISO修复Fedora主系统</a>
+          </li>
+        
+          <li>
+            <a href="/2026/06/17/Fedora%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/">Fedora安装踩坑记录</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/04/Emacs%E5%AE%9E%E7%94%A8%E6%8F%92%E4%BB%B6%E5%88%86%E4%BA%AB/">Emacs实用插件分享</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+        
+   
+    <div class="nexmoe-copyright">
+        &copy; 2026 NakanoMiku39
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        
+    </div>
+</div><!-- .nexmoe-drawer --></div><div id="nexmoe-content"><div class="nexmoe-primary"><div class="nexmoe-post">
+  <article>
+    
+        <div class="nexmoe-post-cover absolute" style="padding-top: 31.25%;"> 
+            <img src="/images/background/ichika683-2.png" alt="基于x86_64平台构建RISC-V平台上的CLFS" loading="lazy">
+            <h1>基于x86_64平台构建RISC-V平台上的CLFS</h1>
+        </div>
+    
+    
+    <div class="nexmoe-post-meta">
+    <div class="nexmoe-rainbow">
+        <a class="nexmoefont icon-calendar-fill">2024年10月08日</a>
+        
+            <a class="nexmoefont icon-appstore-fill -link" href="/categories/Linux/">Linux</a>
+        
+        
+    </div>
+    
+    
+    
+    
+    
+</div>
+
+    <p>这次是尝试在x86_64平台上交叉编译出RISC-V的LFS，其中的过程会有所不同<br>我没有成功通过GRUB启动这个CLFS，这里只能通过挂载内核和根文件系统的方式启动<br>CLFS手册链接：<a target="_blank" rel="noopener" href="https://www.linuxfromscratch.org/~xry111/lfs/view/clfs-ng-systemd/index.html">https://www.linuxfromscratch.org/~xry111/lfs/view/clfs-ng-systemd/index.html</a></p>
+<span id="more"></span>
+<p>之前在x86_64平台上构建同是x86_64的LFS并不是真正的交叉编译，且由于平台相同，可以借助chroot轻松完成软件的安装，而这次为真正的交叉编译，<strong>无法采取像之前一样的chroot方法进行安装，而是需要进行一些调整。</strong><br>这次使用的手册<strong>并没有直接使用交叉编译</strong> ，而是使用了交叉编译应该使用的方法，但我会真正的使用交叉编译的方法构建CLFS，并且这次会使用<code>systemd</code>引导内核。<br>这次的构建流程并不会很详细，只会挑重点说明</p>
+<h1 id="准备宿主系统"><a href="#准备宿主系统" class="headerlink" title="准备宿主系统"></a>准备宿主系统</h1><p>因为上次已经检查过了，所以这次跳过检查，先设置好环境变量LFS</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> su -</span><br><span class="line"><span class="built_in">export</span> LFS=/mnt/LFS</span><br></pre></td></tr></table></figure>
+
+<h1 id="软件包和补丁"><a href="#软件包和补丁" class="headerlink" title="软件包和补丁"></a>软件包和补丁</h1><p>获取必要的软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -v <span class="variable">$LFS</span>/sources</span><br><span class="line"><span class="built_in">chmod</span> -v a+wt <span class="variable">$LFS</span>/sources</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$LFS</span>/sources</span><br><span class="line">wget https://www.linuxfromscratch.org/~xry111/lfs/view/clfs-ng-systemd/wget-list-systemd</span><br><span class="line">wget --input-file=wget-list-systemd --<span class="built_in">continue</span> --directory-prefix=<span class="variable">$LFS</span>/sources</span><br></pre></td></tr></table></figure>
+
+<h1 id="最后的准备工作"><a href="#最后的准备工作" class="headerlink" title="最后的准备工作"></a>最后的准备工作</h1><p>创建好目录布局和用于放交叉编译工具链的目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/&#123;boot,etc,var&#125; <span class="variable">$LFS</span>/usr/&#123;bin,lib,sbin&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> bin lib sbin; <span class="keyword">do</span></span><br><span class="line">  <span class="built_in">ln</span> -sv usr/<span class="variable">$i</span> <span class="variable">$LFS</span>/<span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/tools</span><br></pre></td></tr></table></figure>
+
+<p>新增lfs用户，之前已经创建过一次了，所以直接改变目录所有者，然后切换到lfs用户<br>这里需要注意的是，因为目标平台是RISC-V，所以环境<code>LFS_TGT</code>需要设置成<code>riscv64-lfs-linux-gnu</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chown</span> -v lfs <span class="variable">$LFS</span>/&#123;usr&#123;,/*&#125;,lib*,boot,var,etc,bin,sbin,tools&#125;</span><br><span class="line">su - lfs</span><br></pre></td></tr></table></figure>
+
+<p>配置一下lfs用户的工作环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; ~/.bash_profile &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="built_in">exec</span> <span class="built_in">env</span> -i HOME=<span class="variable">$HOME</span> TERM=<span class="variable">$TERM</span> PS1=<span class="string">&#x27;\u:\w\$ &#x27;</span> /bin/bash</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; ~/.bashrc &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="built_in">set</span> +h</span><br><span class="line"><span class="built_in">umask</span> 022</span><br><span class="line">LFS=/mnt/LFS</span><br><span class="line">LC_ALL=POSIX</span><br><span class="line">LFS_TGT=riscv64-lfs-linux-gnu</span><br><span class="line">PATH=/usr/bin</span><br><span class="line"><span class="keyword">if</span> [ ! -L /bin ]; <span class="keyword">then</span> PATH=/bin:<span class="variable">$PATH</span>; <span class="keyword">fi</span></span><br><span class="line">PATH=<span class="variable">$LFS</span>/tools/bin:<span class="variable">$PATH</span></span><br><span class="line">CONFIG_SITE=<span class="variable">$LFS</span>/usr/share/config.site</span><br><span class="line"><span class="built_in">export</span> MAKEFLAGS=-j$(<span class="built_in">nproc</span>)</span><br><span class="line"><span class="built_in">export</span> LFS LC_ALL LFS_TGT PATH CONFIG_SITE</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> ~/.bash_profile</span><br></pre></td></tr></table></figure>
+
+<h1 id="编译交叉工具链"><a href="#编译交叉工具链" class="headerlink" title="编译交叉工具链"></a>编译交叉工具链</h1><h2 id="GCC"><a href="#GCC" class="headerlink" title="GCC"></a>GCC</h2><p>在编译GCC时，注意目录的替换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i.orig <span class="string">&#x27;s/lib64/lib/g&#x27;</span> gcc/config/riscv/t-withmultilib gcc/config/riscv/t-linux</span><br></pre></td></tr></table></figure>
+
+<h2 id="Linux-API-Headers"><a href="#Linux-API-Headers" class="headerlink" title="Linux API Headers"></a>Linux API Headers</h2><p>这里需要调整架构至<code>riscv</code>，支持的架构在<code>arch/</code>目录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make headers ARCH=riscv</span><br></pre></td></tr></table></figure>
+
+<h2 id="Glibc"><a href="#Glibc" class="headerlink" title="Glibc"></a>Glibc</h2><p>指定好动态链接器的位置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; temp.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="keyword">case</span> <span class="variable">$LFS_TGT</span> <span class="keyword">in</span></span><br><span class="line">    riscv64*) </span><br><span class="line">    <span class="built_in">ln</span> -sfv ../lib/ld-linux-riscv64-lp64d.so.1 <span class="variable">$LFS</span>/lib</span><br><span class="line">    <span class="built_in">ln</span> -sfv ../lib/ld-linux-riscv64-lp64d.so.1 <span class="variable">$LFS</span>/lib/ld-lsb-riscv64.so.1</span><br><span class="line">;;</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<h2 id="GRUB"><a href="#GRUB" class="headerlink" title="GRUB"></a>GRUB</h2><p>因为当前下载的GRUB在编译时会出现问题，所以这里下载一个修好问题的snapshot<br><a target="_blank" rel="noopener" href="https://git.savannah.gnu.org/gitweb/?p=grub.git;a=commit;h=b835601c7639ed1890f2d3db91900a8506011a8e">https://git.savannah.gnu.org/gitweb/?p=grub.git;a=commit;h=b835601c7639ed1890f2d3db91900a8506011a8e</a></p>
+<p>解压GRUB，然后进入目录中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./bootstrap</span><br><span class="line">./autogen.sh</span><br></pre></td></tr></table></figure>
+
+<p>接下来就可以正常构建了</p>
+<h2 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h2><p>还是注意架构的替换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make ARCH=riscv \</span><br><span class="line">CROSS_COMPILE=<span class="variable">$LFS_TGT</span>- \</span><br><span class="line">menuconfig</span><br></pre></td></tr></table></figure>
+
+<p>CONFIG_MODULES&#x3D;n<br>CONFIG_EXTRA_FIRMWARE&#x3D;”a.bin b.bin”<br>CONFIG_EXTRA_FIRMWARE_DIR&#x3D;”$LFS&#x2F;lib&#x2F;firmware”<br>CONFIG_EXT2&#x3D;y<br>CONFIG_EXT4&#x3D;y<br>CONFIG_VFAT_FS&#x3D;y<br>CONFIG_MODULE_SIG&#x3D;n<br>CONFIG_SECURITY&#x3D;n<br>CONFIG_STACK_VALIDATION&#x3D;n<br>CONFIG_SYSTEM_TRUSTED_KEYRING&#x3D;n<br>CONFIG_SYSTEM_REVOCATION_LIST&#x3D;n</p>
+<p>编译内核，注意平台架构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make ARCH=riscv CROSS_COMPILE=<span class="variable">$LFS_TGT</span>-</span><br></pre></td></tr></table></figure>
+
+<p>安装内核，注意内核的路径</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">install -vm644 <span class="built_in">arch</span>/riscv/boot/Image <span class="variable">$LFS</span>/boot/vmlinuz</span><br></pre></td></tr></table></figure>
+
+<p>因为等下要用QEMU启动，所以做进虚拟硬盘里，等下以回环设备挂载，root路径就发生了改动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -pv <span class="variable">$LFS</span>/boot/grub</span><br><span class="line"><span class="built_in">cat</span> &gt; <span class="variable">$LFS</span>/boot/grub/grub.cfg &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="comment"># Begin /boot/grub/grub.cfg</span></span><br><span class="line"><span class="built_in">set</span> default=0</span><br><span class="line"><span class="built_in">set</span> <span class="built_in">timeout</span>=5</span><br><span class="line">search --<span class="built_in">set</span>=root --fs-uuid ED6D-9BB1</span><br><span class="line"></span><br><span class="line">menuentry <span class="string">&quot;LFS Temporary System&quot;</span> &#123;</span><br><span class="line">        linux   /vmlinuz root=PARTUUID=59a73735-b7e7-451c-b351-16f64454b497 rw init=/bin/bash</span><br><span class="line">        boot</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>接下来的操作都由root完成，记得先设置环境变量LFS</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> su -</span><br><span class="line"><span class="built_in">export</span> LFS=/mnt/LFS</span><br></pre></td></tr></table></figure>
+
+<p>制作一个30G的虚拟硬盘，然后制作三个分区，UEFI分区（100MB），Boot分区（500MB）和根分区</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=lfs_riscv64.img bs=1M count=30000</span><br><span class="line">losetup -fP lfs_riscv64.img</span><br><span class="line">fdisk /dev/loop0</span><br></pre></td></tr></table></figure>
+
+<p>在制作UEFI分区时，注意需要改变分区类型</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): t</span><br><span class="line">Partition number (1-3, default 3): 1</span><br><span class="line">Partition <span class="built_in">type</span> or <span class="built_in">alias</span> (<span class="built_in">type</span> L to list all): 1</span><br><span class="line"></span><br><span class="line">Changed <span class="built_in">type</span> of partition <span class="string">&#x27;BIOS boot&#x27;</span> to <span class="string">&#x27;EFI System&#x27;</span>.</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): p</span><br><span class="line">Disk /dev/loop0: 29.3 GiB, 31457280000 bytes, 61440000 sectors</span><br><span class="line">Units: sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disklabel <span class="built_in">type</span>: gpt</span><br><span class="line">Disk identifier: 1EF6AB2D-E1AA-4DE6-843C-F5C64261A675</span><br><span class="line"></span><br><span class="line">Device         Start      End  Sectors  Size Type</span><br><span class="line">/dev/loop0p1    2048   206847   204800  100M EFI System</span><br><span class="line">/dev/loop0p2  206848  1230847  1024000  500M Linux filesystem</span><br><span class="line">/dev/loop0p3 1230848 61437951 60207104 28.7G Linux filesystem</span><br></pre></td></tr></table></figure>
+
+<p>格式化分区</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkfs.vfat -F 32 /dev/loop0p1</span><br><span class="line">mkfs.ext4 /dev/loop0p2</span><br><span class="line">mkfs.ext4 /dev/loop0p3</span><br></pre></td></tr></table></figure>
+
+<p>挂载分区，注意挂载路径和挂载顺序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -v /mnt/temp/</span><br><span class="line">mount /dev/loop0p3 /mnt/temp</span><br><span class="line"><span class="built_in">mkdir</span> -v /mnt/temp/boot</span><br><span class="line">mount /dev/loop0p2 /mnt/temp/boot</span><br><span class="line"><span class="built_in">mkdir</span> -v /mnt/temp/boot/efi</span><br><span class="line">mount /dev/loop0p1 /mnt/temp/boot/efi</span><br></pre></td></tr></table></figure>
+
+<p>cp -av $LFS&#x2F;* &#x2F;mnt&#x2F;temp<br>chown -R root:root &#x2F;mnt&#x2F;temp</p>
+<p>备份一下临时交叉编译工具链</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tar -cJpf /root/lfs-temp-tools-cross-r12.0-499-systemd.tar.xz . \</span><br><span class="line">    --exclude=<span class="string">&quot;dev/*&quot;</span> --exclude=<span class="string">&quot;proc/*&quot;</span></span><br><span class="line">    --exclude=<span class="string">&quot;sys/*&quot;</span> --exclude=<span class="string">&quot;run/*&quot;</span></span><br><span class="line">    --exclude=<span class="string">&quot;mnt/*&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>安装GRUB，注意<code>target</code>和<code>--efi-directory</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$LFS</span>/tools/sbin/lfs-grub-install          \</span><br><span class="line">    --target=riscv64-efi                     \</span><br><span class="line">    --efi-directory=/mnt/temp/boot/efi \</span><br><span class="line">    --boot-directory=/mnt/temp/boot \</span><br><span class="line">    --bootloader-id=GRUB \</span><br><span class="line">    --removable \</span><br><span class="line">    /dev/loop0</span><br></pre></td></tr></table></figure>
+
+<p>install -v -dm755 &#x2F;mnt&#x2F;temp&#x2F;dev<br>umount -Rv &#x2F;mnt&#x2F;lfs-target</p>
+<h2 id="edk2"><a href="#edk2" class="headerlink" title="edk2"></a>edk2</h2><p>检查qemu-system-riscv64是否正确配置，有没有riscv的uefi固件edk2</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --recurse-submodule https://github.com/tianocore/edk2.git</span><br><span class="line"><span class="built_in">export</span> WORKSPACE=`<span class="built_in">pwd</span>`</span><br><span class="line"><span class="built_in">export</span> GCC5_RISCV64_PREFIX=/usr/bin/riscv64-linux-gnu-</span><br><span class="line"><span class="built_in">export</span> PACKAGES_PATH=<span class="variable">$WORKSPACE</span>/edk2</span><br><span class="line"><span class="built_in">export</span> EDK_TOOLS_PATH=<span class="variable">$WORKSPACE</span>/edk2/BaseTools</span><br><span class="line"><span class="built_in">source</span> edk2/edksetup.sh</span><br><span class="line">make -C edk2/BaseTools clean</span><br><span class="line">make -C edk2/BaseTools</span><br><span class="line">make -C edk2/BaseTools/Source/C</span><br><span class="line"><span class="built_in">source</span> edk2/edksetup.sh BaseTools</span><br><span class="line">build -a RISCV64 --buildtarget RELEASE -p OvmfPkg/RiscVVirt/RiscVVirtQemu.dsc -t GCC5</span><br><span class="line"><span class="built_in">truncate</span> -s 32M Build/RiscVVirtQemu/RELEASE_GCC5/FV/RISCV_VIRT.fd</span><br></pre></td></tr></table></figure>
+
+<p>apt install qemu-efi-riscv64</p>
+<h2 id="opensbi"><a href="#opensbi" class="headerlink" title="opensbi"></a>opensbi</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:riscv-software-src/opensbi.git</span><br><span class="line"><span class="built_in">cd</span> opensbi</span><br><span class="line">make PLATFORM=generic FW_PAYLOAD_PATH=/mnt/LFS/sources/linux-6.10.5/arch/riscv/boot/Image CC=/mnt/LFS/tools/bin/riscv64-lfs-linux-gnu-gcc LD=/mnt/LFS/tools/bin/riscv64-lfs-linux-gnu-ld OBJCOPY=/mnt/LFS/tools/bin/riscv64-lfs-linux-gnu-objcopy</span><br></pre></td></tr></table></figure>
+
+<p>现在可以启动系统了，这里没有使用GRUB，使用的是直接挂载内核和根文件系统的方法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-riscv64 -nographic -m 16G -smp $(<span class="built_in">nproc</span>) -machine virt -kernel /mnt/temp/boot/vmlinuz -append <span class="string">&quot;root=/dev/vda rw console=ttyS0 init=/bin/bash&quot;</span> -drive file=/dev/loop0p3,format=raw </span><br><span class="line"></span><br><span class="line"><span class="comment">#   qemu-system-riscv64 \</span></span><br><span class="line"><span class="comment">#   -nographic \</span></span><br><span class="line"><span class="comment">#   -machine virt \</span></span><br><span class="line"><span class="comment">#   -m 2G \</span></span><br><span class="line"><span class="comment">#   -bios /home/nakanomiku/CODES/opensbi/build/platform/generic/firmware/fw_dynamic.bin \</span></span><br><span class="line"><span class="comment">#   -drive if=pflash,unit=0,format=raw,readonly=on,file=/usr/share/qemu-efi-riscv64/RISCV_VIRT_CODE.fd \</span></span><br><span class="line"><span class="comment">#   -drive if=pflash,unit=1,format=raw,file=/usr/share/qemu-efi-riscv64/RISCV_VIRT_VARS.fd \</span></span><br><span class="line"><span class="comment">#   -drive file=/dev/loop0,format=raw \</span></span><br><span class="line"><span class="comment">#   -d cpu_reset,guest_errors</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># sudo qemu-system-riscv64 -nographic -machine virt \</span></span><br><span class="line"><span class="comment"># -drive if=pflash,unit=0,format=raw,readonly=on,file=/usr/share/qemu-efi-riscv64/RISCV_VIRT_CODE.fd \</span></span><br><span class="line"><span class="comment"># -drive if=pflash,unit=1,format=raw,file=/usr/share/qemu-efi-riscv64/RISCV_VIRT_VARS.fd \</span></span><br><span class="line"><span class="comment"># -drive file=/home/nakanomiku/iso/lfs_riscv64.img,format=raw</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># sudo qemu-system-riscv64 -nographic -machine virt \</span></span><br><span class="line"><span class="comment"># -drive if=pflash,unit=0,format=raw,readonly=on,file=/home/lfs/Build2/RiscVVirtQemu/RELEASE_GCC5/FV/RISCV_VIRT_CODE.fd \</span></span><br><span class="line"><span class="comment"># -drive if=pflash,unit=1,format=raw,file=/home/lfs/Build2/RiscVVirtQemu/RELEASE_GCC5/FV/RISCV_VIRT_VARS.fd \</span></span><br><span class="line"><span class="comment"># -drive file=/dev/loop0,format=raw</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="启动系统并构建临时工具"><a href="#启动系统并构建临时工具" class="headerlink" title="启动系统并构建临时工具"></a>启动系统并构建临时工具</h1><p>先准备虚拟内核文件系统</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -pv /&#123;proc,sys,run&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /dev/&#123;pts,shm&#125;</span><br><span class="line">mount -vt devpts devpts -o gid=5,mode=0620 /dev/pts</span><br><span class="line">mount -vt proc  proc  /proc</span><br><span class="line">mount -vt sysfs sysfs /sys</span><br><span class="line">mount -vt tmpfs tmpfs /run</span><br><span class="line">mount -vt tmpfs tmpfs /dev/shm -o nosuid,nodev</span><br></pre></td></tr></table></figure>
+
+<p>调整devtmpfs</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -sfv /proc/self/fd/0 /dev/stdin</span><br><span class="line"><span class="built_in">ln</span> -sfv /proc/self/fd/1 /dev/stdout</span><br><span class="line"><span class="built_in">ln</span> -sfv /proc/self/fd/2 /dev/stderr</span><br><span class="line"><span class="built_in">ln</span> -sv  /proc/self/fd   /dev</span><br></pre></td></tr></table></figure>
+
+<p>当前环境的shell是初始进程，如果直接退出会导致panic，所以防止不小心退出shell</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">enable</span> -n <span class="built_in">exit</span> <span class="built_in">exec</span></span><br><span class="line"><span class="built_in">readonly</span> IGNOREEOF=1000</span><br></pre></td></tr></table></figure>
+
+<p>一些测试需要真实的标准输入输出，所以为串口ttyS0创建一个新的shell进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">agetty -n -l /bin/bash ttyS0</span><br></pre></td></tr></table></figure>
+
+<p>创建一个控制终端并定义一些环境变量，需要注意的是现在不再使用交叉编译工具链了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exec</span> setsid -c /usr/bin/env -i  \</span><br><span class="line">    HOME=/root                  \</span><br><span class="line">    TERM=<span class="string">&quot;<span class="variable">$TERM</span>&quot;</span>                \</span><br><span class="line">    PS1=<span class="string">&#x27;(lfs) \u:\w\$ &#x27;</span>        \</span><br><span class="line">    PATH=/usr/bin:/usr/sbin     \</span><br><span class="line">    MAKEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span>      \</span><br><span class="line">    TESTSUITEFLAGS=<span class="string">&quot;-j<span class="subst">$(nproc)</span>&quot;</span> \</span><br><span class="line">    /bin/bash --login</span><br></pre></td></tr></table></figure>
+
+<p>一些测试需要主机名，创建一个临时的主机名</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostname lfs</span><br></pre></td></tr></table></figure>
+
+<p>继续创建剩下所需要的目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -pv /&#123;boot,home,mnt,opt,srv&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> -pv /etc/&#123;opt,sysconfig&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /lib/firmware</span><br><span class="line"><span class="built_in">mkdir</span> -pv /media/&#123;floppy,cdrom&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;&#123;include,src&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/lib/locale</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/local/&#123;bin,lib,sbin&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/&#123;color,dict,doc,info,locale,man&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/&#123;misc,terminfo,zoneinfo&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /usr/&#123;,<span class="built_in">local</span>/&#125;share/man/man&#123;1..8&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /var/&#123;cache,<span class="built_in">local</span>,<span class="built_in">log</span>,mail,opt,spool&#125;</span><br><span class="line"><span class="built_in">mkdir</span> -pv /var/lib/&#123;color,misc,locate&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">ln</span> -sfv /run /var/run</span><br><span class="line"><span class="built_in">ln</span> -sfv /run/lock /var/lock</span><br><span class="line"></span><br><span class="line">install -dv -m 0750 /root</span><br><span class="line">install -dv -m 1777 /tmp /var/tmp</span><br></pre></td></tr></table></figure>
+
+<p>创建一个记录文件系统的文件的软连接</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -sv /proc/self/mounts /etc/mtab</span><br></pre></td></tr></table></figure>
+
+<p>创建一个简单的&#x2F;etc&#x2F;hosts</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /etc/hosts &lt;&lt; <span class="string">EOF</span></span><br><span class="line"><span class="string">127.0.0.1  localhost $(hostname)</span></span><br><span class="line"><span class="string">::1        localhost</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p>创建&#x2F;etc&#x2F;passwd和&#x2F;etc&#x2F;group</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /etc/passwd &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">bin:x:1:1:bin:/dev/null:/usr/bin/false</span><br><span class="line">daemon:x:6:6:Daemon User:/dev/null:/usr/bin/false</span><br><span class="line">messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/usr/bin/false</span><br><span class="line">systemd-journal-gateway:x:73:73:systemd Journal Gateway:/:/usr/bin/false</span><br><span class="line">systemd-journal-remote:x:74:74:systemd Journal Remote:/:/usr/bin/false</span><br><span class="line">systemd-journal-upload:x:75:75:systemd Journal Upload:/:/usr/bin/false</span><br><span class="line">systemd-network:x:76:76:systemd Network Management:/:/usr/bin/false</span><br><span class="line">systemd-resolve:x:77:77:systemd Resolver:/:/usr/bin/false</span><br><span class="line">systemd-timesync:x:78:78:systemd Time Synchronization:/:/usr/bin/false</span><br><span class="line">systemd-coredump:x:79:79:systemd Core Dumper:/:/usr/bin/false</span><br><span class="line">uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false</span><br><span class="line">systemd-oom:x:81:81:systemd Out Of Memory Daemon:/:/usr/bin/false</span><br><span class="line">nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/group &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">root:x:0:</span><br><span class="line">bin:x:1:daemon</span><br><span class="line">sys:x:2:</span><br><span class="line">kmem:x:3:</span><br><span class="line">tape:x:4:</span><br><span class="line"><span class="built_in">tty</span>:x:5:</span><br><span class="line">daemon:x:6:</span><br><span class="line">floppy:x:7:</span><br><span class="line">disk:x:8:</span><br><span class="line">lp:x:9:</span><br><span class="line">dialout:x:10:</span><br><span class="line">audio:x:11:</span><br><span class="line">video:x:12:</span><br><span class="line">utmp:x:13:</span><br><span class="line">cdrom:x:15:</span><br><span class="line">adm:x:16:</span><br><span class="line">messagebus:x:18:</span><br><span class="line">systemd-journal:x:23:</span><br><span class="line">input:x:24:</span><br><span class="line">mail:x:34:</span><br><span class="line">kvm:x:61:</span><br><span class="line">systemd-journal-gateway:x:73:</span><br><span class="line">systemd-journal-remote:x:74:</span><br><span class="line">systemd-journal-upload:x:75:</span><br><span class="line">systemd-network:x:76:</span><br><span class="line">systemd-resolve:x:77:</span><br><span class="line">systemd-timesync:x:78:</span><br><span class="line">systemd-coredump:x:79:</span><br><span class="line">uuidd:x:80:</span><br><span class="line">systemd-oom:x:81:</span><br><span class="line">wheel:x:97:</span><br><span class="line"><span class="built_in">users</span>:x:999:</span><br><span class="line">nogroup:x:65534:</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>设置locale</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">localedef -i C -f UTF-8 C.UTF-8</span><br></pre></td></tr></table></figure>
+
+<p>创建一个用于跑测试的用户tester</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;tester:x:101:101::/home/tester:/bin/bash&quot;</span> &gt;&gt; /etc/passwd</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;tester:x:101:&quot;</span> &gt;&gt; /etc/group</span><br><span class="line">install -o tester -d /home/tester</span><br></pre></td></tr></table></figure>
+
+<p>重新登陆一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exec</span> /usr/bin/bash --login</span><br></pre></td></tr></table></figure>
+
+<p>创建一些不会自动创建的日志文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">touch</span> /var/log/&#123;btmp,lastlog,faillog,wtmp&#125;</span><br><span class="line"><span class="built_in">chgrp</span> -v utmp /var/log/lastlog</span><br><span class="line"><span class="built_in">chmod</span> -v 664  /var/log/lastlog</span><br><span class="line"><span class="built_in">chmod</span> -v 600  /var/log/btmp</span><br></pre></td></tr></table></figure>
+
+<p>现在可以继续构建临时工具了</p>
+<h2 id="Flex"><a href="#Flex" class="headerlink" title="Flex"></a>Flex</h2><p>Flex的config.guess和config.sub太旧了，识别不出riscv，更新一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> build-aux</span><br><span class="line">curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD&#x27;</span> &gt; config.guess</span><br><span class="line">curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD&#x27;</span> &gt; config.sub</span><br></pre></td></tr></table></figure>
+
+<h2 id="Expect"><a href="#Expect" class="headerlink" title="Expect"></a>Expect</h2><p>Expect的config.guess和config.sub太旧了，识别不出riscv，更新一下（可以复制之前已经下载过的）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> tclconfig</span><br><span class="line">curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD&#x27;</span> &gt; config.guess</span><br><span class="line">curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD&#x27;</span> &gt; config.sub</span><br></pre></td></tr></table></figure>
+
+<h2 id="GCC-1"><a href="#GCC-1" class="headerlink" title="GCC"></a>GCC</h2><p>在编译GCC时，注意目录的替换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i.orig <span class="string">&#x27;s/lib64/lib/g&#x27;</span> gcc/config/riscv/t-withmultilib gcc/config/riscv/t-linux</span><br></pre></td></tr></table></figure>
+
+<p>有几个失败的测试样例不需要移除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -e <span class="string">&#x27;/cpython/d&#x27;</span>               -i ../gcc/testsuite/gcc.dg/plugin/plugin.exp</span><br><span class="line">sed -e <span class="string">&#x27;s/300000/(1|300000)/&#x27;</span>     -i ../libgomp/testsuite/libgomp.c-c++-common/pr109062.c</span><br></pre></td></tr></table></figure>
+
+<h2 id="Check"><a href="#Check" class="headerlink" title="Check"></a>Check</h2><p>Expect的config.guess和config.sub太旧了，识别不出riscv，更新一下（可以复制之前已经下载过的）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD&#x27;</span> &gt; config.guess</span><br><span class="line">curl <span class="string">&#x27;http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD&#x27;</span> &gt; config.sub</span><br></pre></td></tr></table></figure>
+
+<h1 id="GRUB-1"><a href="#GRUB-1" class="headerlink" title="GRUB"></a>GRUB</h1><p>跳过GRUB<br>需要安装的软件包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget https://ftp.gnu.org/gnu/grub/grub-2.12.tar.xz</span><br><span class="line">wget https://unifoundry.com/pub/unifont/unifont-16.0.01/font-builds/unifont-16.0.01.pcf.gz</span><br><span class="line">wget https://github.com/rhboot/efibootmgr/archive/18/efibootmgr-18.tar.gz</span><br><span class="line">wget https://github.com/rhboot/efivar/archive/39/efivar-39.tar.gz</span><br><span class="line">wget http://ftp.rpm.org/popt/releases/popt-1.x/popt-1.19.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h2 id="Popt"><a href="#Popt" class="headerlink" title="Popt"></a>Popt</h2><h2 id="Efivar"><a href="#Efivar" class="headerlink" title="Efivar"></a>Efivar</h2><h2 id="Efibootmgr"><a href="#Efibootmgr" class="headerlink" title="Efibootmgr"></a>Efibootmgr</h2><h2 id="GRUB-2"><a href="#GRUB-2" class="headerlink" title="GRUB"></a>GRUB</h2><h1 id="系统配置"><a href="#系统配置" class="headerlink" title="系统配置"></a>系统配置</h1><p>网络</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /etc/systemd/network/10-ether0.link &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">[Match]</span><br><span class="line"><span class="comment"># Change the MAC address as appropriate for your network device</span></span><br><span class="line">MACAddress=12:34:45:78:90:AB</span><br><span class="line"></span><br><span class="line">[Link]</span><br><span class="line">Name=ether0</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/systemd/network/10-eth-static.network &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">[Match]</span><br><span class="line">Name=eth0</span><br><span class="line"></span><br><span class="line">[Network]</span><br><span class="line">Address=192.168.0.2/24</span><br><span class="line">Gateway=192.168.0.1</span><br><span class="line">DNS=192.168.0.1</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/systemd/network/10-eth-dhcp.network &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">[Match]</span><br><span class="line">Name=eth0</span><br><span class="line"></span><br><span class="line">[Network]</span><br><span class="line">DHCP=ipv4</span><br><span class="line"></span><br><span class="line">[DHCPv4]</span><br><span class="line">UseDomains=<span class="literal">true</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;lfs&quot;</span> &gt; /etc/hostname</span><br><span class="line"></span><br><span class="line"><span class="built_in">cat</span> &gt; /etc/hosts &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="comment"># Begin /etc/hosts</span></span><br><span class="line"></span><br><span class="line">192.168.0.2</span><br><span class="line">::1       ip6-localhost ip6-loopback</span><br><span class="line">ff02::1   ip6-allnodes</span><br><span class="line">ff02::2   ip6-allrouters</span><br><span class="line"></span><br><span class="line"><span class="comment"># End /etc/hosts</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>locale</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &gt; /etc/locale.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">LANG=en_US.ISO-8859-1</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+    
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>Author：</strong>NakanoMiku39<br>
+        <strong>Link：</strong><a href="http://nakanomiku39.github.io/2024/10/08/%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS/" title="http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;10&#x2F;08&#x2F;%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;nakanomiku39.github.io&#x2F;2024&#x2F;10&#x2F;08&#x2F;%E5%9F%BA%E4%BA%8Ex86-64%E5%B9%B3%E5%8F%B0%E6%9E%84%E5%BB%BARISC-V%E5%B9%B3%E5%8F%B0%E4%B8%8A%E7%9A%84CLFS&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+   
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/LFS/" rel="tag">LFS</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/RISC-V/" rel="tag">RISC-V</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/x86-64/" rel="tag">x86_64</a>
+    
+</div>
+  
+  
+    <script async src="/js/copy-codeblock.js?v=1789978134598"></script>
+  
+
+  
+      <div class="nexmoe-post-footer">
+          
+      </div>
+  
+</div></div><div class="nexmoe-post-right">    <div class="nexmoe-fixed">
+        <div class="nexmoe-tool">
+
+            
+
+            
+            
+            <button class="mdui-fab catalog" style="overflow:unset;">
+                <i class="nexmoefont icon-i-catalog"></i>
+                <div class="nexmoe-toc">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%AE%BF%E4%B8%BB%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.</span> <span class="toc-text">准备宿主系统</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%92%8C%E8%A1%A5%E4%B8%81"><span class="toc-number">2.</span> <span class="toc-text">软件包和补丁</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%80%E5%90%8E%E7%9A%84%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">最后的准备工作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E4%BA%A4%E5%8F%89%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="toc-number">4.</span> <span class="toc-text">编译交叉工具链</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#GCC"><span class="toc-number">4.1.</span> <span class="toc-text">GCC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux-API-Headers"><span class="toc-number">4.2.</span> <span class="toc-text">Linux API Headers</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Glibc"><span class="toc-number">4.3.</span> <span class="toc-text">Glibc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GRUB"><span class="toc-number">4.4.</span> <span class="toc-text">GRUB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux"><span class="toc-number">4.5.</span> <span class="toc-text">Linux</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#edk2"><span class="toc-number">4.6.</span> <span class="toc-text">edk2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#opensbi"><span class="toc-number">4.7.</span> <span class="toc-text">opensbi</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E7%B3%BB%E7%BB%9F%E5%B9%B6%E6%9E%84%E5%BB%BA%E4%B8%B4%E6%97%B6%E5%B7%A5%E5%85%B7"><span class="toc-number">5.</span> <span class="toc-text">启动系统并构建临时工具</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flex"><span class="toc-number">5.1.</span> <span class="toc-text">Flex</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Expect"><span class="toc-number">5.2.</span> <span class="toc-text">Expect</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GCC-1"><span class="toc-number">5.3.</span> <span class="toc-text">GCC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Check"><span class="toc-number">5.4.</span> <span class="toc-text">Check</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#GRUB-1"><span class="toc-number">6.</span> <span class="toc-text">GRUB</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Popt"><span class="toc-number">6.1.</span> <span class="toc-text">Popt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Efivar"><span class="toc-number">6.2.</span> <span class="toc-text">Efivar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Efibootmgr"><span class="toc-number">6.3.</span> <span class="toc-text">Efibootmgr</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GRUB-2"><span class="toc-number">6.4.</span> <span class="toc-text">GRUB</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE"><span class="toc-number">7.</span> <span class="toc-text">系统配置</span></a></li></ol>
+                </div>
+            </button>
+            
+
+            
+
+            <a href="#nexmoe-content" class="backtop toc-link" aria-label="Back To Top" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+        </div>
+    </div>
+</div></div><div id="nexmoe-footer"><!--!--></div><div id="nexmoe-search-space"><div class="search-container"><div class="search-header"><div class="search-input-container"><input class="search-input" type="text" placeholder="Search" onInput="sinput();"></div><a class="search-close" onclick="sclose();">×</a></div><div class="search-body"></div></div></div><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2058306854838448" crossorigin="anonymous"></script>
+</div></body></html>
